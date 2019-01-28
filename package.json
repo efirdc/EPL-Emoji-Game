@@ -1,0 +1,22 @@
+{
+  "name": "w19lovelace",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^4.0.2"
+  },
+  "dependencies": {
+    "hammerjs": "^2.0.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macewanCS/w19Lovelace.git"
+  },
+  "bugs": {
+    "url": "https://github.com/macewanCS/w19Lovelace/issues"
+  },
+  "homepage": "https://github.com/macewanCS/w19Lovelace#readme"
+}
