@@ -1,8 +1,23 @@
 {
-  "name": "w19lovelace",
-  "version": "0.0.1",
-  "private" : "true",
-  "main": "main.js",
+  "name": "lovelace",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "electron": "^1.7.5",
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.3.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-scripts": "1.0.11"
+  },
+  "devDependencies": {
+    "electron-builder": "^19.24.1"
+  },
+  "homepage": ".",
+  "main": "src/start.js",
   "scripts": {
     "start": "nf start -p 3000",
     "build": "react-scripts build",
@@ -13,25 +28,7 @@
     "react-start": "BROWSER=none react-scripts start",
     "pack": "build --dir",
     "dist": "npm run build && build",
-    "postinstall": "install-app-deps",
-    "homepage": "./",
-    "main": "src/electron-starter.js"
-  },
-  "devDependencies": {
-    "electron": "^4.0.2",
-    "electron-builder": "^20.38.5",
-    "react-scripts": "^2.1.3"
-  },
-  "dependencies": {
-    "electron": "^4.0.2",
-    "eslint": "^5.12.1",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-jsx-a11y": "^6.2.0",
-    "eslint-plugin-react": "^7.12.4",
-    "hammerjs": "^2.0.8",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0"
+    "postinstall": "install-app-deps"
   },
   "build": {
     "appId": "com.electron.electron-with-create-react-app",
