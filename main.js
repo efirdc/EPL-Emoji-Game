@@ -47,3 +47,14 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+const Memory = require('./memory/Memory.js');
+var memoryGame = new Memory.Game(5, 5, 30);
+memoryGame.addLevel(6, 6, 30);
+memoryGame.setLevel(1);
+
+var gameState = memoryGame.gameState;
+
+for (var row = 0; row < gameState.rows; row++) {
+    console.log(gameState.board[row]);
+}
