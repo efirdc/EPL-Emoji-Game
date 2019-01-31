@@ -1,22 +1,45 @@
 {
   "name": "w19lovelace",
   "version": "0.0.1",
+  "private" : "true",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "nf start -p 3000",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-start": "node src/start-react",
+    "react-start": "BROWSER=none react-scripts start",
+    "pack": "build --dir",
+    "dist": "npm run build && build",
+    "postinstall": "install-app-deps",
+    "homepage": "./",
+    "main": "src/electron-starter.js"
   },
   "devDependencies": {
-    "electron": "^4.0.2"
+    "electron": "^4.0.2",
+    "electron-builder": "^20.38.5",
+    "react-scripts": "^2.1.3"
   },
   "dependencies": {
-    "hammerjs": "^2.0.8"
+    "electron": "^4.0.2",
+    "eslint": "^5.12.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jsx-a11y": "^6.2.0",
+    "eslint-plugin-react": "^7.12.4",
+    "hammerjs": "^2.0.8",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/macewanCS/w19Lovelace.git"
-  },
-  "bugs": {
-    "url": "https://github.com/macewanCS/w19Lovelace/issues"
-  },
-  "homepage": "https://github.com/macewanCS/w19Lovelace#readme"
+  "build": {
+    "appId": "com.electron.electron-with-create-react-app",
+    "win": {
+      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    },
+    "directories": {
+      "buildResources": "public"
+    }
+  }
 }
