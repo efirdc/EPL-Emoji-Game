@@ -1,0 +1,10 @@
+.App {
+  text-align: center;
+}
+
+html, body, #root, #app, #app>div {
+  height: 100% !important
+}
+  
+
+
