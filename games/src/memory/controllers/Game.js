@@ -15,6 +15,7 @@ function Level (rows, columns, flips){
 function Game (rows, columns, flips) {
     this.levels = [new Level(rows, columns, flips)];
     this.gameState = new GameState(rows, columns, flips);
+    this.setLevel(0);
 }
 
 // Public methods for the Game class
@@ -127,7 +128,8 @@ function distributeCardsRandomly(gameState) {
 
     // Create a shuffled array of all cardIDs
     var cardIDs = [];
-    for (var i = 0; i < gameState.size; i++){
+    var numCardIDs = gameState.size / 2;
+    for (var i = 0; i < numCardIDs; i++){
         cardIDs.push(i);
         cardIDs.push(i);
     }

@@ -15,7 +15,7 @@ import {faCoffee} from '@fortawesome/free-solid-svg-icons';
 
 import './App.css';
 
-import GameBoard from './memory/components/board';
+import Game from './memory/components/Game';
 library.add(
   far,
   faAngry,
@@ -24,20 +24,20 @@ library.add(
   faGrinHearts,
   faMehBlank,
   faCoffee
-)
+);
 
 const styles = {
   container: {
     "height" : "100%"
   }
-}
+};
 
 class App extends Component {
   
   render() {
     return (
       <div className="App" style = {styles.container}>
-        <GameBoard/>
+        <Game/>
       </div>
     );
   }
