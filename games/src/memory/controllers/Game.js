@@ -73,7 +73,7 @@ Object.assign(Game.prototype, {
 
         // Error checks
         if (this.gameState.rows <= row || this.gameState.columns <= column){
-            console.log("Error: row or column out of range in releaseCard()")
+            console.log("Error: row or column out of range in releaseCard()");
         }
         if (!releasedCard.faceUp) {
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
@@ -83,8 +83,9 @@ Object.assign(Game.prototype, {
         for (var compareRow = 0; compareRow < this.gameState.rows; compareRow++) {
             for (var compareCol = 0; compareCol < this.gameState.columns; compareCol++) {
                 var compareCard = board[compareRow][compareCol];
-                if (releasedCard.cardID === compareCard.cardID && compareCard.faceUp)
+                if (compareCard !== releasedCard && releasedCard.cardID === compareCard.cardID && compareCard.faceUp) {
                     return;
+                }
             }
         }
         releasedCard.faceUp = false;
