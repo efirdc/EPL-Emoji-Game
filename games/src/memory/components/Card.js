@@ -1,31 +1,24 @@
 import React from 'react';
 
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-
-
 const styles = {
-
     card : {
-        "height" : "100px",
-        "width" : "100px",
-        "backgroundColor" : "#2e3d49",
-        "display" : "inline-block",
-        "margin" : "0 10px 10px 0",
-        //"lineHeight" : "280px",
-        "color": "#ffffff",
-        "padding": "0px 0px 0px 0px",
-        "bottom" : "10px",
-        "text-align": "center",
-        "border-radius": "8px",
-        "vertical-align": "top",
-        "font-size": "20px",
-    },
+        // Parent element controls the size of the card
+        "height" : "100%",
+        "width" : "100%",
 
-    icon: {
-        "margin" : "0 auto",
-        "display" : "inline-block"
-    }
-}
+        // Center content
+        "display": "flex",
+        "justify-content": "center",
+        "align-items": "center",
+
+        // Styling
+        "backgroundColor" : "#1e1e1e",
+        "color": "#ffffff",
+        "border-radius": "15px",
+        "font-size": "50px",
+        "boxShadow": "0 0 20px 0px #000000",
+    },
+};
 
 export default class Card extends React.Component {
     constructor(props) {
