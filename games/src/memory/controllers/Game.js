@@ -5,6 +5,9 @@ const GameState = require("./GameState.js");
 // In the future we may want to add a reference to a cardDistributionFunction to this class
 // So that levels that are very large can distribute cards in a way that no two cards are too far apart
 function Level (rows, columns, flips){
+    if ((rows * columns) % 2 !== 0){
+        console.log("Warning: Created a level with an odd number of cards.")
+    }
     this.rows = rows;
     this.columns = columns;
     this.flips = flips;
