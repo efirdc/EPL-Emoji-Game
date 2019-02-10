@@ -49,7 +49,7 @@ Object.assign(Game.prototype, {
 
     // Advance to the next level
     nextLevel: function () {
-        this.setLevel(this.gameState, this.gameState.currentLevel + 1);
+        this.setLevel(this.gameState.currentLevel + 1);
     },
 
     // This function should be called when someone starts pressing a card
