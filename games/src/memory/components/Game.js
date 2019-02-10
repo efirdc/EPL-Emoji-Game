@@ -7,7 +7,6 @@ const styles = {
     body : {
         height: "100vh", // height is 100% of the viewport size
         display: "flex", // centers content vertically and horizontally
-        overflow: "hidden",
         //background: "-webkit-linear-gradient(290deg, #00C9FF 0%, #92FE9D 100%)",
         boxShadow: "inset 0 0 20px #000000",
     },

@@ -29,6 +29,7 @@ const styles = {
         top: '0',
         transformStyle: 'preserve-3d',
         transition: "0.3s",
+        position: "absolute",
     }
 };
 
@@ -52,19 +53,15 @@ class Card extends React.Component {
 
             zIndex: '2',
 
-            visibility: this.props.faceUp ? 'hidden' : '',
-            position: this.props.faceUp ? 'absolute' : 'relative',
             transform: `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
-
             backgroundColor : "#1e1e1e",
         };
         const cardFront = {
             ...styles.card,
 
-            visibility: !this.props.faceUp ? 'hidden' : '',
-            position: !this.props.faceUp ? 'absolute' : 'relative',
-            transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
+            zIndex: '1',
 
+            transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
             backgroundColor : "#eaf7ff",
         };
 
