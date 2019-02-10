@@ -5,6 +5,9 @@ const GameState = require("./GameState.js");
 // In the future we may want to add a reference to a cardDistributionFunction to this class
 // So that levels that are very large can distribute cards in a way that no two cards are too far apart
 function Level (rows, columns, flips){
+    if ((rows * columns) % 2 !== 0){
+        console.log("Warning: Created a level with an odd number of cards.")
+    }
     this.rows = rows;
     this.columns = columns;
     this.flips = flips;
@@ -15,6 +18,7 @@ function Level (rows, columns, flips){
 function Game (rows, columns, flips) {
     this.levels = [new Level(rows, columns, flips)];
     this.gameState = new GameState(rows, columns, flips);
+    this.setLevel(0);
 }
 
 // Public methods for the Game class
@@ -34,8 +38,9 @@ Object.assign(Game.prototype, {
         var level = this.levels[levelID];
 
         // Error check
-        if (level === undefined)
+        if (level === undefined) {
             console.log("Error: Undefined levelID for setLevel()");
+        }
 
         // Create a new gameState, set level and distribute cards
         this.gameState = new GameState(level.rows, level.columns, level.flips);
@@ -45,7 +50,11 @@ Object.assign(Game.prototype, {
 
     // Advance to the next level
     nextLevel: function () {
-        this.setLevel(this.gameState, this.gameState.currentLevel + 1);
+        var newLevelID = this.gameState.currentLevel + 1;
+        if (newLevelID >= this.levels.length) {
+            newLevelID = 0;
+        }
+        this.setLevel(newLevelID);
     },
 
     // This function should be called when someone starts pressing a card
@@ -72,7 +81,7 @@ Object.assign(Game.prototype, {
 
         // Error checks
         if (this.gameState.rows <= row || this.gameState.columns <= column){
-            console.log("Error: row or column out of range in releaseCard()")
+            console.log("Error: row or column out of range in releaseCard()");
         }
         if (!releasedCard.faceUp) {
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
@@ -82,8 +91,9 @@ Object.assign(Game.prototype, {
         for (var compareRow = 0; compareRow < this.gameState.rows; compareRow++) {
             for (var compareCol = 0; compareCol < this.gameState.columns; compareCol++) {
                 var compareCard = board[compareRow][compareCol];
-                if (releasedCard.cardID === compareCard.cardID && compareCard.faceUp)
+                if (compareCard !== releasedCard && releasedCard.cardID === compareCard.cardID && compareCard.faceUp) {
                     return;
+                }
             }
         }
         releasedCard.faceUp = false;
@@ -127,7 +137,8 @@ function distributeCardsRandomly(gameState) {
 
     // Create a shuffled array of all cardIDs
     var cardIDs = [];
-    for (var i = 0; i < gameState.size; i++){
+    var numCardIDs = gameState.size / 2;
+    for (var i = 0; i < numCardIDs; i++){
         cardIDs.push(i);
         cardIDs.push(i);
     }
