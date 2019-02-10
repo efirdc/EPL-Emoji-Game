@@ -11,12 +11,47 @@ const styles = {
     },
 };
 
+
 class Game extends React.Component {
     constructor(props){
         super(props);
+
+        // Create game logic object and add some levels
+        var gameLogic = new Memory.Game(4, 5, 40);
+        gameLogic.addLevel(5, 6, 40);
+        gameLogic.addLevel(6, 7, 50);
+        gameLogic.addLevel(7, 8, 60);
+        gameLogic.addLevel(8, 9, 80);
+
         this.state = {
-            gameLogic: new Memory.Game(7, 10, 40),
+            gameLogic: gameLogic,
         };
+    }
+
+    // Called every time a card is clicked
+    handleClick(row, col){
+
+        var gameLogic = this.state.gameLogic;
+        var gameState = gameLogic.gameState;
+
+        // Toggle the card
+        var card = gameState.board[row][col];
+        if (card.faceUp) {
+            gameLogic.releaseCard(row, col);
+        } else {
+            gameLogic.pressCard(row, col);
+        }
+
+        // Handle game win/loss conditions
+        if (gameLogic.isGameLost()) {
+            gameLogic.setLevel(0);
+        }
+        if (gameLogic.isGameWon()) {
+            gameLogic.nextLevel();
+        }
+
+        // Have to force the component to re-render because we touched state the "bad" way
+        this.forceUpdate();
     }
 
     render() {
@@ -24,7 +59,10 @@ class Game extends React.Component {
         var gameState = gameLogic.gameState;
         return (
         <div style = {styles.body}>
-            <GameBoard gameState = {gameState}/>
+            <GameBoard
+                gameState={gameState}
+                onClick={(row, col) => this.handleClick(row, col)}
+            />
         </div>
         )
     }
