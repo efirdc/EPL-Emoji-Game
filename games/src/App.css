@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+    text-align: center;
 }
 
 /*
@@ -13,7 +13,8 @@ read: https://www.w3schools.com/css/css3_box-sizing.asp
 }
 
 html, body, #root, #app, #app>div {
-  height: 100% !important
+    overflow: hidden;
+    height: 100% !important
 }
   
 

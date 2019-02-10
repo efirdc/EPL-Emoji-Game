@@ -65,7 +65,7 @@ class Card extends React.Component {
             position: !this.props.faceUp ? 'absolute' : 'relative',
             transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
 
-            backgroundColor : "#f2edde",
+            backgroundColor : "#eaf7ff",
         };
 
 
