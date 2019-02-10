@@ -1,12 +1,22 @@
 import React from 'react';
 import Card from './Card';
+import {Line} from 'rc-progress';
+import "react-sweet-progress/lib/style.css";
 
 const styles = {
-    board : {
-        display: "grid",
+
+    container: {
         margin: "auto",
+    },
+
+    board: {
+        display: "grid",
         gridGap: "2vh 2vh", // spacing between cards
     },
+
+    progressBar: {
+        margin: "3vh 0vh",
+    }
 };
 
 class GameBoard extends React.Component {
@@ -35,18 +45,32 @@ class GameBoard extends React.Component {
             gridTemplateRows: "10vh ".repeat(gameState.rows),
         };
 
+        // Progress bar values
+        var pbPercent = (gameState.flipsLeft / gameState.initialFlips) * 100;
+        console.log(pbPercent);
+
+
         // map Card components to the 1d array of cards
         // a unique key is calculated using the row and column of each Card so that React stops complaining
         return (
-            <div style = {boardStyle}>
-                {cards.map((card) => (
-                    <Card
-                        key={card.row * 10 + card.col}
-                        id={card.cardID}
-                        faceUp={card.faceUp}
-                        onClick={() => this.props.onClick(card.row, card.col)}
-                    />
+            <div style = {styles.container}>
+                <div style = {boardStyle}>
+                    {cards.map((card) => (
+                        <Card
+                            key={card.row * 10 + card.col}
+                            id={card.cardID}
+                            faceUp={card.faceUp}
+                            onClick={() => this.props.onClick(card.row, card.col)}
+                        />
                     ))}
+                </div>
+                <Line
+                    style={styles.progressBar}
+                    percent={pbPercent-6}
+                    strokeWidth="6"
+                    trailWidth="6"
+                    strokeColor="#212121"
+                />
             </div>
         );
     }
