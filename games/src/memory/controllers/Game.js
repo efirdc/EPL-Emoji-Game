@@ -38,8 +38,9 @@ Object.assign(Game.prototype, {
         var level = this.levels[levelID];
 
         // Error check
-        if (level === undefined)
+        if (level === undefined) {
             console.log("Error: Undefined levelID for setLevel()");
+        }
 
         // Create a new gameState, set level and distribute cards
         this.gameState = new GameState(level.rows, level.columns, level.flips);
@@ -49,7 +50,11 @@ Object.assign(Game.prototype, {
 
     // Advance to the next level
     nextLevel: function () {
-        this.setLevel(this.gameState.currentLevel + 1);
+        var newLevelID = this.gameState.currentLevel + 1;
+        if (newLevelID >= this.levels.length) {
+            newLevelID = 0;
+        }
+        this.setLevel(newLevelID);
     },
 
     // This function should be called when someone starts pressing a card
