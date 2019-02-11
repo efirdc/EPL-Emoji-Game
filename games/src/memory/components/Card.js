@@ -37,6 +37,10 @@ class Card extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+
+        };
+
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
     }
@@ -47,15 +51,13 @@ class Card extends React.Component {
 
     render() {
 
-        var scale = this.props.matched ? "scale(0.0) " : "scale(1.00) ";
-
         // front/back css styles change on every render
         const cardBack = {
             ...styles.card,
 
             zIndex: '2',
 
-            transform: scale + `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
+            transform: `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
             backgroundColor : "#1e1e1e",
         };
         const cardFront = {
@@ -63,7 +65,7 @@ class Card extends React.Component {
 
             zIndex: '1',
 
-            transform: scale + `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
+            transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
             backgroundColor : "#eaf7ff",
         };
 

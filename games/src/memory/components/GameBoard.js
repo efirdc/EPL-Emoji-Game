@@ -1,7 +1,6 @@
 import React from 'react';
 import Card from './Card';
 import {Line} from 'rc-progress';
-import "react-sweet-progress/lib/style.css";
 
 const styles = {
 
