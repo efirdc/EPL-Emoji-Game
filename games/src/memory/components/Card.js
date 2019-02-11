@@ -72,7 +72,7 @@ class Card extends React.Component {
                     style={cardFront}
                     onClick={this.handleClick}
                 >
-                    {this.props.id}
+                    {this.props.cardID}
                 </div>
 
                 <div

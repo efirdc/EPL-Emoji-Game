@@ -70,6 +70,17 @@ Object.assign(Game.prototype, {
             card.faceUp = true;
             this.gameState.flipsLeft -= 1;
         }
+
+        // Match test
+        var board = this.gameState.board;
+        for (var compareRow = 0; compareRow < this.gameState.rows; compareRow++) {
+            for (var compareCol = 0; compareCol < this.gameState.columns; compareCol++) {
+                var compareCard = board[compareRow][compareCol];
+                if (compareCard !== card && card.cardID === compareCard.cardID && compareCard.faceUp) {
+                    compareCard.matched = card.matched = true;
+                }
+            }
+        }
     },
 
     // This function should be called when someone stops pressing a card
@@ -87,14 +98,9 @@ Object.assign(Game.prototype, {
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
         }
 
-        // If the matching card is also flipped up, then leave this card flipped up. Otherwise, flip the card down
-        for (var compareRow = 0; compareRow < this.gameState.rows; compareRow++) {
-            for (var compareCol = 0; compareCol < this.gameState.columns; compareCol++) {
-                var compareCard = board[compareRow][compareCol];
-                if (compareCard !== releasedCard && releasedCard.cardID === compareCard.cardID && compareCard.faceUp) {
-                    return;
-                }
-            }
+        // Dont release matched cards
+        if (releasedCard.matched){
+            return;
         }
         releasedCard.faceUp = false;
     },

@@ -1,8 +1,11 @@
 
 // Constructor for the Card class
-function Card (cardID, faceUp) {
+function Card (cardID, faceUp, row, col) {
     this.cardID = cardID;
     this.faceUp = faceUp;
+    this.row = row;
+    this.col = col;
+    this.matched = false;
 }
 
 // Constructor for the GameState class
@@ -23,7 +26,7 @@ function GameState (rows, columns, flips) {
     for (var row = 0; row < rows; row++) {
         this.board[row] = [];
         for (var col = 0; col < columns; col++) {
-            this.board[row][col] = new Card(0, false);
+            this.board[row][col] = new Card(0, false, row, col);
         }
     }
 }
