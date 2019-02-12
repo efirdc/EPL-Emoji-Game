@@ -1,7 +1,6 @@
 import React from 'react';
 import Card from './Card';
 import {Line} from 'rc-progress';
-import "react-sweet-progress/lib/style.css";
 
 const styles = {
 
@@ -32,9 +31,7 @@ class GameBoard extends React.Component {
         var cards = [];
         for (var row = 0; row < gameState.rows; row++) {
             for (var col = 0; col < gameState.columns; col++) {
-                var card = {row:row, col:col};
-                card = Object.assign(card, gameState.board[row][col]);
-                cards.push(card);
+                cards.push(gameState.board[row][col]);
             }
         }
 
@@ -47,8 +44,6 @@ class GameBoard extends React.Component {
 
         // Progress bar values
         var pbPercent = (gameState.flipsLeft / gameState.initialFlips) * 100;
-        console.log(pbPercent);
-
 
         // map Card components to the 1d array of cards
         // a unique key is calculated using the row and column of each Card so that React stops complaining
@@ -57,9 +52,8 @@ class GameBoard extends React.Component {
                 <div style = {boardStyle}>
                     {cards.map((card) => (
                         <Card
+                            {...card}
                             key={card.row * 10 + card.col}
-                            id={card.cardID}
-                            faceUp={card.faceUp}
                             onClick={() => this.props.onClick(card.row, card.col)}
                         />
                     ))}

@@ -7,6 +7,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.7.1",
     "@fortawesome/free-solid-svg-icons": "^5.7.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
+    "animated": "^0.2.2",
     "electron": "^1.7.5",
     "eslint": "^4.5.0",
     "eslint-config-airbnb": "^15.1.0",

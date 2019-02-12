@@ -28,7 +28,7 @@ const styles = {
         left: '0',
         top: '0',
         transformStyle: 'preserve-3d',
-        transition: "0.3s",
+        transition: "transform 0.3s",
         position: "absolute",
     }
 };
@@ -36,6 +36,10 @@ const styles = {
 class Card extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+
+        };
 
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
@@ -65,14 +69,13 @@ class Card extends React.Component {
             backgroundColor : "#eaf7ff",
         };
 
-
         return(
             <div style={styles.container}>
                 <div
                     style={cardFront}
                     onClick={this.handleClick}
                 >
-                    {this.props.id}
+                    {this.props.cardID}
                 </div>
 
                 <div
