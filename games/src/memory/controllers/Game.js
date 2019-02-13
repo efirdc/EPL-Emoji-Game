@@ -72,8 +72,8 @@ Object.assign(Game.prototype, {
             if(this.gameState.flipped.length >= 2){
                 var unflip = this.gameState.flipped.pop();
                 var unflip2 = this.gameState.flipped.pop();
-                //this.releaseCard(unflip.row, unflip.col)
-                //this.releaseCard(unflip2.row, unflip2.col)
+                this.releaseCard(unflip.row, unflip.col)
+                this.releaseCard(unflip2.row, unflip2.col)
                 }
             }
             this.gameState.flipped.push(card)

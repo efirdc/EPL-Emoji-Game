@@ -43,7 +43,7 @@ class Card extends React.Component {
         super(props);
 
         this.state = {
-            offset : this.props.offset ? "offset" : "",
+            offset : this.props.row % 2 == 0 ? "offset" : "",
             pix : this.props.hexSize * 3 
         };
         
@@ -65,7 +65,7 @@ class Card extends React.Component {
             zIndex: '2',
 
             width: `${this.state.pix}vh`,
-            height: `${this.state.pix}vh`,
+            height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
             backgroundColor : "#1e1e1e",
         };
@@ -75,7 +75,7 @@ class Card extends React.Component {
             zIndex: '1',
 
             width: `${this.state.pix}vh`,
-            height: `${this.state.pix}vh`,
+            height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
             backgroundColor : "#eaf7ff",
         };

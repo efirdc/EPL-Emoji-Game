@@ -67,7 +67,7 @@ class GameBoard extends React.Component {
                             key={card.row * 10 + card.col}
                             onClick={() => this.props.onClick(card.row, card.col)}
                             hexSize = {this.state.hexSize}
-                            offset = {card.row % 2 == 0 ? true : false}
+                            row = {card.row}
                         />
                     ))}
                 </div>
