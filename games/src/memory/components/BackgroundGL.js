@@ -27,6 +27,7 @@ class SimplePlasma extends Component {
     constructor(props){
         super(props);
         var date = new Date();
+        
         this.state = {date: date, initTime: date.getTime()};
     }
 

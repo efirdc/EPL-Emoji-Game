@@ -53,7 +53,8 @@ class Game extends React.Component {
             gameLogic.setLevel(0);
         }
         if (gameLogic.isGameWon()) {
-            gameLogic.nextLevel();
+            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
+            ;
         }
 
         // Have to force the component to re-render because we touched state the "bad" way
@@ -66,7 +67,7 @@ class Game extends React.Component {
         return (
             <div style={styles.body}>
                 <div style={styles.background}>
-                    
+                    <BackgroundGL/>
                 </div>
                 <GameBoard
                     gameState={gameState}

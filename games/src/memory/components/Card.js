@@ -44,7 +44,7 @@ class Card extends React.Component {
 
         this.state = {
             offset : this.props.row % 2 == 0 ? "offset" : "",
-            pix : this.props.hexSize * 3 
+            pix : this.props.hexSize * 3,
         };
         
         // This binding is necessary to make `this` work in the callback
@@ -77,7 +77,7 @@ class Card extends React.Component {
             width: `${this.state.pix}vh`,
             height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
-            backgroundColor : "#eaf7ff",
+            backgroundColor : this.props.matched ? "#5ef997" : "#eaf7ff",
         };
 
         return(
