@@ -22,6 +22,9 @@ class Game extends React.Component {
     constructor(props){
         super(props);
 
+        this.handlePress = this.handlePress.bind(this);
+        this.handleRelease = this.handleRelease.bind(this);
+
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
         gameLogic.addLevel(5, 6, 40);
@@ -32,6 +35,16 @@ class Game extends React.Component {
         this.state = {
             gameLogic: gameLogic,
         };
+    }
+
+    handlePress(row, col) {
+        this.state.gameLogic.pressCard(row, col);
+        
+        
+    }
+
+    handleRelease = (row, col) => {
+        this.state.gameLogic.releaseCard(row, col);
     }
 
     // Called every time a card is clicked
@@ -71,7 +84,8 @@ class Game extends React.Component {
                 </div>
                 <GameBoard
                     gameState={gameState}
-                    onClick={(row, col) => this.handleClick(row, col)}
+                    press = {(row, col) => this.handlePress(row, col)}
+                    release = {(row, col) => this.handleRelease(row, col)}
                 />
             </div>
         )
