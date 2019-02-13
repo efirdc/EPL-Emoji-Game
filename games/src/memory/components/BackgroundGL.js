@@ -33,7 +33,7 @@ class SimplePlasma extends Component {
     componentDidMount() {
         this.timerID = setInterval(
             () => this.tick(),
-            1/144
+            1000/30,
         );
     }
 
