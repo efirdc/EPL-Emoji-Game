@@ -1,6 +1,7 @@
 const electron = require('electron')
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
+const globalShortcut = electron.globalShortcut
 
 const path = require('path')
 const url = require('url')
@@ -10,7 +11,10 @@ let mainWindow
 function createWindow() {
   mainWindow = new BrowserWindow({ width: 800, height: 600 })
   mainWindow.maximize();
-
+  globalShortcut.register('f5', function() {
+		console.log('f5 is pressed')
+		mainWindow.reload()
+	})
   mainWindow.loadURL(
     process.env.ELECTRON_START_URL ||
       url.format({

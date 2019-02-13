@@ -10,17 +10,18 @@ const styles = {
 
     board: {
         display: "grid",
-        gridGap: "2vh 2vh", // spacing between cards
+        gridGap: "0 2vh", // spacing between cards
     },
 
     progressBar: {
-        margin: "3vh 0vh",
+        margin: "6vh 0vh 2vh 0vh"
     }
 };
 
 class GameBoard extends React.Component {
     constructor(props) {
         super(props);
+
     }
 
     render() {
@@ -38,23 +39,28 @@ class GameBoard extends React.Component {
         // Set the number of rows and columns, as well as the size
         var boardStyle = {
             ...styles.board,
-            gridTemplateColumns: "10vh ".repeat(gameState.columns),
-            gridTemplateRows: "10vh ".repeat(gameState.rows),
+            gridTemplateColumns: "14vh ".repeat(gameState.columns),
+            gridTemplateRows: "14vh ".repeat(gameState.rows),
+            
         };
 
         // Progress bar values
         var pbPercent = (gameState.flipsLeft / gameState.initialFlips) * 100;
 
+        var hexSize = (100 / cards.length);
+
         // map Card components to the 1d array of cards
         // a unique key is calculated using the row and column of each Card so that React stops complaining
         return (
             <div style = {styles.container}>
-                <div style = {boardStyle}>
+                <div className = "GameBoard" style = {boardStyle}>
                     {cards.map((card) => (
                         <Card
                             {...card}
                             key={card.row * 10 + card.col}
                             onClick={() => this.props.onClick(card.row, card.col)}
+                            hexSize = {hexSize}
+                            offset = {card.row % 2 == 0 ? true : false}
                         />
                     ))}
                 </div>
