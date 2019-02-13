@@ -69,7 +69,15 @@ Object.assign(Game.prototype, {
         if (!card.faceUp){
             card.faceUp = true;
             this.gameState.flipsLeft -= 1;
-        }
+            if(this.gameState.flipped.length >= 2){
+                var unflip = this.gameState.flipped.pop();
+                var unflip2 = this.gameState.flipped.pop();
+                this.releaseCard(unflip.row, unflip.col)
+                this.releaseCard(unflip2.row, unflip2.col)
+                }
+            }
+            this.gameState.flipped.push(card)
+        
 
         // Match test
         var board = this.gameState.board;
@@ -95,6 +103,7 @@ Object.assign(Game.prototype, {
             console.log("Error: row or column out of range in releaseCard()");
         }
         if (!releasedCard.faceUp) {
+            debugger;
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
         }
 

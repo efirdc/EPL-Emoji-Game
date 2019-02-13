@@ -21,6 +21,7 @@ function GameState (rows, columns, flips) {
     this.flipsLeft = flips;
     this.currentLevel = 0;
     this.board = [];
+    this.flipped = [];
 
     // populate the board with face down cards that have ID 0
     for (var row = 0; row < rows; row++) {
