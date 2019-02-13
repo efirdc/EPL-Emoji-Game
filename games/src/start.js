@@ -9,7 +9,7 @@ const url = require('url')
 let mainWindow
 
 function createWindow() {
-  mainWindow = new BrowserWindow({ width: 800, height: 600 })
+  mainWindow = new BrowserWindow({ width: 800, height: 600})
   mainWindow.maximize();
   globalShortcut.register('f5', function() {
 		console.log('f5 is pressed')

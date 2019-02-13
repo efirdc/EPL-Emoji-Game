@@ -22,7 +22,7 @@ const styles = {
         borderRadius: "15px",
         fontSize: "50px",
         
-        boxShadow: "2px 4px 6px 0 hsla(0, 0%, 0%, 0.1)",
+        boxShadow: "2px 4px 6px 0 hsla(0, 0%, 0%, 0.2)",
 
         // Flip
         backfaceVisibility: 'hidden',
@@ -77,7 +77,7 @@ class Card extends React.Component {
             width: `${this.state.pix}vh`,
             height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
-            backgroundColor : this.props.matched ? "#5ef997" : "#eaf7ff",
+            backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
         return(
