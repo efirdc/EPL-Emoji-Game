@@ -43,7 +43,7 @@ class Card extends React.Component {
         super(props);
 
         this.state = {
-            offset : this.props.row % 2 == 0 ? "offset" : "",
+            offset : this.props.row % 2 == 0 ? "offset" : "false",
             pix : this.props.hexSize * 3,
         };
         

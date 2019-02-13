@@ -43,9 +43,9 @@ class Game extends React.Component {
         // Toggle the card
         var card = gameState.board[row][col];
         if (card.faceUp) { //picture currently visible
-            gameLogic.releaseCard(row, col); 
+            setTimeout(gameLogic.releaseCard(row, col), 1000); 
         } else { // picture not currently visible
-            gameLogic.pressCard(row, col); // icon visible
+            setTimeout(gameLogic.pressCard(row, col),1000); // icon visible
         }
 
         // Handle game win/loss conditions
@@ -67,7 +67,7 @@ class Game extends React.Component {
         return (
             <div style={styles.body}>
                 <div style={styles.background}>
-                    <BackgroundGL/>
+                    
                 </div>
                 <GameBoard
                     gameState={gameState}
