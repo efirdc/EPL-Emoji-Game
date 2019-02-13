@@ -66,7 +66,7 @@ class Game extends React.Component {
         return (
             <div style={styles.body}>
                 <div style={styles.background}>
-                    <BackgroundGL/>
+                    
                 </div>
                 <GameBoard
                     gameState={gameState}

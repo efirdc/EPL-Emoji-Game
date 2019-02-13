@@ -53,18 +53,6 @@ class Card extends React.Component {
         this.props.onClick()
     }
 
-    offsetX(row, col) {
-
-        this.offsetX = this.offsetX.bind(this);
-        var offset = row * col * 2 + (row % 2 ? row * 2 : row);
-        return offset;
-    }
-
-    offsetY(row, col) {
-        this.offsetY = this.offsetY.bind(this);
-        var offset = row * col * 1.75 + row;
-    }
-
     render() {
 
         // front/back css styles change on every render

@@ -10,7 +10,8 @@ const styles = {
 
     board: {
         display: "grid",
-        gridGap: "0 2vh", // spacing between cards
+        gridColumnGap: "2vh",
+        gridRowGap: "5px" // spacing between cards
     },
 
     progressBar: {
