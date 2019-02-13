@@ -23,6 +23,12 @@ class GameBoard extends React.Component {
     constructor(props) {
         super(props);
 
+
+        this.state = {
+            hexSize: 100 / this.props.gameState.len
+        }
+        
+
     }
 
     render() {
@@ -48,7 +54,7 @@ class GameBoard extends React.Component {
         // Progress bar values
         var pbPercent = (gameState.flipsLeft / gameState.initialFlips) * 100;
 
-        var hexSize = (100 / cards.length);
+        
 
         // map Card components to the 1d array of cards
         // a unique key is calculated using the row and column of each Card so that React stops complaining
@@ -60,7 +66,7 @@ class GameBoard extends React.Component {
                             {...card}
                             key={card.row * 10 + card.col}
                             onClick={() => this.props.onClick(card.row, card.col)}
-                            hexSize = {hexSize}
+                            hexSize = {this.state.hexSize}
                             offset = {card.row % 2 == 0 ? true : false}
                         />
                     ))}
