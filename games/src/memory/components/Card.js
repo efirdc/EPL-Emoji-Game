@@ -21,6 +21,7 @@ const styles = {
         // Styling
         borderRadius: "15px",
         fontSize: "50px",
+        
         boxShadow: "2px 4px 6px 0 hsla(0, 0%, 0%, 0.1)",
 
         // Flip
@@ -32,7 +33,9 @@ const styles = {
         position: "absolute",
 
         clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)"
-    }
+    },
+
+    
 };
 
 class Card extends React.Component {
@@ -84,7 +87,7 @@ class Card extends React.Component {
                     style={cardFront}
                     onClick={this.handleClick}
                 >
-                    {this.props.cardID}
+                    <h3 style = {{fontFamily: "Coda", fontWeight: "200"}}>{this.props.cardID}</h3>
                 </div>
 
                 <div
