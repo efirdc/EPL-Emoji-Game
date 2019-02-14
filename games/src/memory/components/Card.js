@@ -80,7 +80,7 @@ class Card extends React.Component {
             zIndex: '1',
 
             transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
-            backgroundColor : "#eaf7ff",
+            backgroundColor : (this.props.matched ? "#6ae359" : "#eaf7ff"),
         };
 
         return(
