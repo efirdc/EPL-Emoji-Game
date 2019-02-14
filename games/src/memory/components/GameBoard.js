@@ -12,7 +12,7 @@ const styles = {
         display: "grid",
         gridColumnGap: "2vh",
         gridRowGap: "0px", // spacing between cards
-        margin: "6vh 7vw 0 2vw",
+        margin: "6vh 6vw 0 4vw",
 
     },
 
