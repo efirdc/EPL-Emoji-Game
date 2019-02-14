@@ -48,22 +48,23 @@ class Card extends React.Component {
         };
         
         // This binding is necessary to make `this` work in the callback
-        //this.handleClick = this.handleClick.bind(this);
-        this.handlePressStart = this.handlePressStart.bind(this);
+        
+        this.handleClick = this.handleClick.bind(this);
+        /* this.handlePressStart = this.handlePressStart.bind(this);
         this.handlePressEnd = this.handlePressEnd.bind(this);
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
-        this.handleMouseLeave = this.handleMouseLeave.bind(this);
+        this.handleMouseLeave = this.handleMouseLeave.bind(this); */
 
         
         
     }
 
-    /* handleClick(){
+    handleClick(){
         this.props.onClick()
-    } */
+    } 
 
-    handlePressStart() {
+   /*  handlePressStart() {
         console.log("touch started")
         this.props.onTouchStart();
     }
@@ -83,7 +84,7 @@ class Card extends React.Component {
 
     handleMouseLeave(){
         this.props.onMouseLeave();
-    }
+    } */
 
 
 
@@ -116,12 +117,12 @@ class Card extends React.Component {
                 <div
                     className = "cardFront"
                     style={cardFront}
-                    //onClick={this.handleClick}
-                    onTouchStart = {this.handlePressStart}
+                    onClick={this.handleClick}
+                    /* onTouchStart = {this.handlePressStart}
                     onTouchEnd = {this.handlePressEnd}
                     onMouseDown = {this.handleMouseDown}
                     onMouseUp = {this.handleMouseUp}
-                    onMouseLeave = {this.handleMouseLeave}
+                    onMouseLeave = {this.handleMouseLeave} */
                 >
                     <h3 style = {{fontFamily: "Coda", fontWeight: "200"}}>{this.props.cardID}</h3>
                 </div>
@@ -129,12 +130,12 @@ class Card extends React.Component {
                 <div
                     className = "cardBack"
                     style={cardBack}
-                    //onClick={this.handleClick}
-                    onTouchStart = {this.handlePressStart}
+                    onClick={this.handleClick}
+                    /* onTouchStart = {this.handlePressStart}
                     onTouchEnd = {this.handlePressEnd}
                     onMouseDown = {this.handleMouseDown}
                     onMouseUp = {this.handleMouseUp}
-                    onMouseLeave = {this.handleMouseLeave}
+                    onMouseLeave = {this.handleMouseLeave} */
                 >
                     {}
                 </div>

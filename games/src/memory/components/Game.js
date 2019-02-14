@@ -22,8 +22,9 @@ class Game extends React.Component {
     constructor(props){
         super(props);
 
-        this.handlePress = this.handlePress.bind(this);
-        this.handleRelease = this.handleRelease.bind(this);
+        //this.handlePress = this.handlePress.bind(this);
+        //this.handleRelease = this.handleRelease.bind(this);
+        this.handleClick = this.handleClick.bind(this);
 
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
@@ -37,7 +38,7 @@ class Game extends React.Component {
         };
     }
 
-    handlePress(row, col) {
+/*     handlePress(row, col) {
         var gameLogic = this.state.gameLogic;
         var gameState = gameLogic.gameState;
         
@@ -71,7 +72,7 @@ class Game extends React.Component {
 
 
         
-    }
+    } */
 
     // Called every time a card is clicked
     handleClick(row, col){
@@ -88,6 +89,13 @@ class Game extends React.Component {
         }
 
         // Handle game win/loss conditions
+        if (gameLogic.isGameLost()) {
+            gameLogic.setLevel(0);
+        }
+        if (gameLogic.isGameWon()) {
+            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
+            ;
+        }
         
         
 
@@ -105,8 +113,9 @@ class Game extends React.Component {
                 </div>
                 <GameBoard
                     gameState={gameState}
-                    press = {(row, col) => this.handlePress(row, col)}
-                    release = {(row, col) => this.handleRelease(row, col)}
+                    //press = {(row, col) => this.handlePress(row, col)}
+                    //release = {(row, col) => this.handleRelease(row, col)}
+                    onClick = {(row, col) => this.handleClick(row, col)}
                 />
             </div>
         )

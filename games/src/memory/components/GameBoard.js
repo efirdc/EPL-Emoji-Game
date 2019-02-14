@@ -72,15 +72,13 @@ class GameBoard extends React.Component {
                     <Card
                         {...card}
                         key={card.row * 10 + card.col}
-                        //onClick={() => this.props.onClick(card.row, card.col)}
-                        onTouchStart = {() => this.props.press(card.row, card.col)}
+                        onClick={() => this.props.onClick(card.row, card.col)}
+/*                         onTouchStart = {() => this.props.press(card.row, card.col)}
                         onTouchEnd = {() => this.props.release(card.row, card.col)}
                         onMouseDown = {() => this.props.press(card.row, card.col)}
                         onMouseUp = {() => this.props.release(card.row, card.col)}
-                        onMouseLeave = {() => this.props.release(card.row, card.col)}
+                        onMouseLeave = {() => this.props.release(card.row, card.col)} */
                         hexSize = {this.state.hexSize}
-                        row = {card.row}
-                        matched = {card.matched}
                     />
                 ))}
             </div>
