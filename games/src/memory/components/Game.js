@@ -3,6 +3,9 @@ import GameBoard from './GameBoard.js';
 import BackgroundGL from "./BackgroundGL.js";
 import Memory from '../controllers/Memory.js';
 
+import winSoundFile from '../sounds/win.wav';
+import loseSoundFile from '../sounds/lose.wav'
+
 const styles = {
     body : {
         height: "100vh", // height is 100% of the viewport size
@@ -29,6 +32,9 @@ class Game extends React.Component {
         gameLogic.addLevel(7, 8, 60);
         gameLogic.addLevel(8, 9, 80);
 
+        this.winSound = new Audio(winSoundFile);
+        this.loseSound = new Audio(loseSoundFile);
+
         this.state = {
             gameLogic: gameLogic,
         };
@@ -40,10 +46,6 @@ class Game extends React.Component {
         var gameLogic = this.state.gameLogic;
         var gameState = gameLogic.gameState;
 
-        // Play click sound
-        var clickSound = new Audio('https://www.noiseforfun.com/waves/interface-and-media/NFF-menu-a.wav');
-        clickSound.play();
-
         // Toggle the card
         var card = gameState.board[row][col];
         if (card.faceUp) {
@@ -54,17 +56,11 @@ class Game extends React.Component {
 
         // Handle game win/loss conditions
         if (gameLogic.isGameLost()) {
-            // Play losing sound
-            var loseSound = new Audio('https://www.noiseforfun.com/waves/interface-and-media/NFF-downgrading.wav');
-            loseSound.play();
-
+            this.loseSound.play();
             gameLogic.setLevel(0);
         }
         if (gameLogic.isGameWon()) {
-            // Play winning sound
-            var winSound = new Audio('https://www.noiseforfun.com/waves/musical-and-jingles/NFF-bravo.wav');
-            winSound.play();
-
+            this.winSound.play();
             gameLogic.nextLevel();
         }
 

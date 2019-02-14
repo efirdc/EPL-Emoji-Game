@@ -1,6 +1,9 @@
 // This is based on https://github.com/AaronCCWong/react-card-flip/blob/master/src/ReactCardFlip.jsx
 import React from 'react';
 
+import clickSoundFile from "../sounds/card_flip4.wav";
+import matchSoundFile from "../sounds/match3.wav";
+
 const styles = {
     container: {
         position: "relative", // definitely does something
@@ -37,12 +40,23 @@ class Card extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-
-        };
+        this.clickSound = new Audio(clickSoundFile);
+        this.matchSound = new Audio(matchSoundFile);
+        this.matchSound.volume = 0.65;
+        this.clickSound.volume = 0.65;
 
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps){
+        if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
+            this.matchSound.play();
+        }
+
+        if (nextProps.faceUp !== this.props.faceUp) {
+            this.clickSound.play();
+        }
     }
 
     handleClick(){
