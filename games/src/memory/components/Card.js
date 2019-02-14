@@ -1,6 +1,9 @@
 // This is based on https://github.com/AaronCCWong/react-card-flip/blob/master/src/ReactCardFlip.jsx
 import React from 'react';
 
+import clickSoundFile from "../sounds/card_flip4.wav";
+import matchSoundFile from "../sounds/match3.wav";
+
 const styles = {
     container: {
         position: "relative", // definitely does something
@@ -37,8 +40,23 @@ class Card extends React.Component {
     constructor(props) {
         super(props);
 
+        this.clickSound = new Audio(clickSoundFile);
+        this.matchSound = new Audio(matchSoundFile);
+        this.matchSound.volume = 0.65;
+        this.clickSound.volume = 0.65;
+
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps){
+        if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
+            this.matchSound.play();
+        }
+
+        if (nextProps.faceUp !== this.props.faceUp) {
+            this.clickSound.play();
+        }
     }
 
     handleClick(){
@@ -47,15 +65,13 @@ class Card extends React.Component {
 
     render() {
 
-        var scale = this.props.matched ? "scale(0.0) " : "scale(1.00) ";
-
         // front/back css styles change on every render
         const cardBack = {
             ...styles.card,
 
             zIndex: '2',
 
-            transform: scale + `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
+            transform: `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
             backgroundColor : "#1e1e1e",
         };
         const cardFront = {
@@ -63,8 +79,8 @@ class Card extends React.Component {
 
             zIndex: '1',
 
-            transform: scale + `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
-            backgroundColor : "#eaf7ff",
+            transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
+            backgroundColor : (this.props.matched ? "#6ae359" : "#eaf7ff"),
         };
 
         return(

@@ -3,6 +3,9 @@ import GameBoard from './GameBoard.js';
 import BackgroundGL from "./BackgroundGL.js";
 import Memory from '../controllers/Memory.js';
 
+import winSoundFile from '../sounds/win.wav';
+import loseSoundFile from '../sounds/lose.wav'
+
 const styles = {
     body : {
         height: "100vh", // height is 100% of the viewport size
@@ -25,9 +28,12 @@ class Game extends React.Component {
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
         gameLogic.addLevel(5, 6, 40);
-        gameLogic.addLevel(6, 7, 50);
+        gameLogic.addLevel(6, 7, 45);
         gameLogic.addLevel(7, 8, 60);
         gameLogic.addLevel(8, 9, 80);
+
+        this.winSound = new Audio(winSoundFile);
+        this.loseSound = new Audio(loseSoundFile);
 
         this.state = {
             gameLogic: gameLogic,
@@ -50,9 +56,11 @@ class Game extends React.Component {
 
         // Handle game win/loss conditions
         if (gameLogic.isGameLost()) {
+            this.loseSound.play();
             gameLogic.setLevel(0);
         }
         if (gameLogic.isGameWon()) {
+            this.winSound.play();
             gameLogic.nextLevel();
         }
 
@@ -66,7 +74,10 @@ class Game extends React.Component {
         return (
             <div style={styles.body}>
                 <div style={styles.background}>
-                    <BackgroundGL/>
+                    <BackgroundGL
+                        colorA={"#f4fcff"}
+                        colorB={"#8ca4b8"}
+                    />
                 </div>
                 <GameBoard
                     gameState={gameState}

@@ -93,16 +93,19 @@ Object.assign(Game.prototype, {
         // Error checks
         if (this.gameState.rows <= row || this.gameState.columns <= column){
             console.log("Error: row or column out of range in releaseCard()");
+            return false;
         }
         if (!releasedCard.faceUp) {
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
+            return false;
         }
 
         // Dont release matched cards
         if (releasedCard.matched){
-            return;
+            return false;
         }
         releasedCard.faceUp = false;
+        return true;
     },
 
     isGameWon: function() {
