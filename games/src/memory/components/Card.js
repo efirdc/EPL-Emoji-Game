@@ -27,7 +27,7 @@ const styles = {
         borderRadius: "15px",
         fontSize: "50px",
         
-        boxShadow: "2px 4px 6px 0 hsla(0, 0%, 0%, 0.2)",
+        //boxShadow: "2px 4px 6px 0 hsla(0, 0%, 0%, 0.2)",
 
         // Flip
         backfaceVisibility: 'hidden',
