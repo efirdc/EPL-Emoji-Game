@@ -99,7 +99,7 @@ Object.assign(Game.prototype, {
             console.log("Error: row or column out of range in releaseCard()");
         }
         if (!releasedCard.faceUp) {
-            debugger;
+            
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
         }
 

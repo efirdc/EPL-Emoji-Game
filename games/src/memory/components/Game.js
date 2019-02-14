@@ -38,13 +38,39 @@ class Game extends React.Component {
     }
 
     handlePress(row, col) {
-        this.state.gameLogic.pressCard(row, col);
+        var gameLogic = this.state.gameLogic;
+        var gameState = gameLogic.gameState;
+        
+        gameLogic.pressCard(row, col);
+        
+        if (gameLogic.isGameLost()) {
+            gameLogic.setLevel(0);
+        }
+        if (gameLogic.isGameWon()) {
+            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
+            ;
+        }
+        this.forceUpdate();
         
         
     }
 
     handleRelease = (row, col) => {
+        var gameLogic = this.state.gameLogic;
+
         this.state.gameLogic.releaseCard(row, col);
+        
+        if (gameLogic.isGameLost()) {
+            gameLogic.setLevel(0);
+        }
+        if (gameLogic.isGameWon()) {
+            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
+            ;
+        }
+        this.forceUpdate();
+
+
+        
     }
 
     // Called every time a card is clicked
@@ -62,13 +88,8 @@ class Game extends React.Component {
         }
 
         // Handle game win/loss conditions
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
-        }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-        }
+        
+        
 
         // Have to force the component to re-render because we touched state the "bad" way
         this.forceUpdate();
