@@ -28,7 +28,7 @@ class Game extends React.Component {
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
         gameLogic.addLevel(5, 6, 40);
-        gameLogic.addLevel(6, 7, 50);
+        gameLogic.addLevel(6, 7, 45);
         gameLogic.addLevel(7, 8, 60);
         gameLogic.addLevel(8, 9, 80);
 
@@ -74,7 +74,10 @@ class Game extends React.Component {
         return (
             <div style={styles.body}>
                 <div style={styles.background}>
-                    <BackgroundGL/>
+                    <BackgroundGL
+                        colorA={"#f4fcff"}
+                        colorB={"#8ca4b8"}
+                    />
                 </div>
                 <GameBoard
                     gameState={gameState}
