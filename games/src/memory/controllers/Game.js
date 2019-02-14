@@ -1,22 +1,24 @@
+const data = require('./themes.json');
 const GameState = require("./GameState.js");
 
 // Constructor for simple Level class.
 // Holds the properties and difficulty settings for each level of the memory
 // In the future we may want to add a reference to a cardDistributionFunction to this class
 // So that levels that are very large can distribute cards in a way that no two cards are too far apart
-function Level (rows, columns, flips){
+function Level (rows, columns, flips, theme){
     if ((rows * columns) % 2 !== 0){
         console.log("Warning: Created a level with an odd number of cards.")
     }
     this.rows = rows;
     this.columns = columns;
     this.flips = flips;
+    this.theme = theme;
 }
 
 // Constructor for the main Game class
 // Consider this class the "Controller" in the Model-View-Controller (MVC) programming pattern
 function Game (rows, columns, flips) {
-    this.levels = [new Level(rows, columns, flips)];
+    this.levels = [new Level(rows, columns, flips, "emoji_1")];
     this.gameState = new GameState(rows, columns, flips);
     this.setLevel(0);
 }
@@ -25,8 +27,8 @@ function Game (rows, columns, flips) {
 Object.assign(Game.prototype, {
 
     // Add new levels to the memory game at runtime
-    addLevel: function (rows, columns, flips) {
-        this.levels.push(new Level(rows, columns, flips));
+    addLevel: function (rows, columns, flips, theme) {
+        this.levels.push(new Level(rows, columns, flips, theme));
     },
 
     // Sets the current level for the memory game
@@ -45,7 +47,8 @@ Object.assign(Game.prototype, {
         // Create a new gameState, set level and distribute cards
         this.gameState = new GameState(level.rows, level.columns, level.flips);
         this.gameState.currentLevel = levelID;
-        distributeCardsRandomly(this.gameState);
+        //distributeCardsRandomly(this.gameState);
+        distributeThemedCards(this.gameState, level.theme);
     },
 
     // Advance to the next level
@@ -165,5 +168,31 @@ function distributeCardsRandomly(gameState) {
         }
     }
 }
+
+function distributeThemedCards(gameState, theme) {
+    
+    var imageNames = [];
+    var numImages = gameState.size / 2;
+
+    var files = data.themes[theme]
+    
+    for(var i = 0; i < numImages; i++){
+        imageNames.push("themes/" + theme + "/" + files[i])
+        imageNames.push("themes/" + theme + "/" + files[i])
+    }
+
+    debugger;
+
+    shuffle(imageNames);
+
+    for (var row = 0; row < gameState.rows; row++){
+        for(var col = 0; col < gameState.columns; col++){
+            gameState.board[row][col].cardID = imageNames.pop();
+        }
+    }
+
+}
+
+
 
 module.exports = Game;

@@ -20,6 +20,8 @@ const styles = {
     }
 };
 
+const themes = ['edmonton', 'emoji_1', 'emoji_2', 'emoji_3']
+
 
 class Game extends React.Component {
     constructor(props){
@@ -31,10 +33,10 @@ class Game extends React.Component {
 
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
-        gameLogic.addLevel(5, 6, 40);
-        gameLogic.addLevel(6, 7, 45);
-        gameLogic.addLevel(7, 8, 60);
-        gameLogic.addLevel(8, 9, 80);
+        gameLogic.addLevel(5, 6, 40, themes[1]);
+        gameLogic.addLevel(6, 7, 45, themes[0]);
+        gameLogic.addLevel(7, 8, 60, themes[3]);
+        gameLogic.addLevel(8, 9, 80, themes[1]);
 
         this.winSound = new Audio(winSoundFile);
         this.loseSound = new Audio(loseSoundFile);

@@ -120,7 +120,7 @@ class Card extends React.Component {
 
             width: `${this.state.pix}vh`,
             height: `${this.state.pix * 1.05 }vh`,
-            transform: `rotateY(${this.props.faceUp ? 180 : 0}deg)`,
+            transform: `rotateX(${this.props.faceUp ? 180 : 0}deg)`,
             backgroundColor : "#1e1e1e",
         };
         const cardFront = {
@@ -130,7 +130,7 @@ class Card extends React.Component {
 
             width: `${this.state.pix}vh`,
             height: `${this.state.pix * 1.05 }vh`,
-            transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
+            transform: `rotateX(${this.props.faceUp ? 0 : -180}deg)`,
 
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
@@ -147,7 +147,7 @@ class Card extends React.Component {
                     onMouseUp = {this.handleMouseUp}
                     onMouseLeave = {this.handleMouseLeave} */
                 >
-                    <h3 style = {{fontFamily: "Coda", fontWeight: "200"}}>{this.props.cardID}</h3>
+                    <img src = {this.props.cardID}/>
                 </div>
 
                 <div
