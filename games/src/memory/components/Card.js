@@ -1,6 +1,11 @@
 // This is based on https://github.com/AaronCCWong/react-card-flip/blob/master/src/ReactCardFlip.jsx
 import React from 'react';
+
 import './board.css';
+import clickSoundFile from "../sounds/card_flip4.wav";
+import matchSoundFile from "../sounds/match3.wav";
+
+
 const styles = {
     container: {
         position: "relative", // definitely does something
@@ -42,11 +47,18 @@ class Card extends React.Component {
     constructor(props) {
         super(props);
 
+
         this.state = {
             offset : this.props.row % 2 == 0 ? "offset" : "false",
             pix : this.props.hexSize * 3,
         };
         
+
+        this.clickSound = new Audio(clickSoundFile);
+        this.matchSound = new Audio(matchSoundFile);
+        this.matchSound.volume = 0.65;
+        this.clickSound.volume = 0.65;
+
         // This binding is necessary to make `this` work in the callback
         
         this.handleClick = this.handleClick.bind(this);
@@ -58,6 +70,16 @@ class Card extends React.Component {
 
         
         
+    }
+
+    componentWillReceiveProps(nextProps){
+        if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
+            this.matchSound.play();
+        }
+
+        if (nextProps.faceUp !== this.props.faceUp) {
+            this.clickSound.play();
+        }
     }
 
     handleClick(){
@@ -109,6 +131,7 @@ class Card extends React.Component {
             width: `${this.state.pix}vh`,
             height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateY(${this.props.faceUp ? 0 : -180}deg)`,
+
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
