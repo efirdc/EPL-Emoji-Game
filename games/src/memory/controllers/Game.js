@@ -69,7 +69,8 @@ Object.assign(Game.prototype, {
         if (!card.faceUp){
             card.faceUp = true;
             this.gameState.flipsLeft -= 1;
-        }
+
+        
 
         // Match test
         var board = this.gameState.board;
@@ -81,6 +82,9 @@ Object.assign(Game.prototype, {
                 }
             }
         }
+        
+        }
+        
     },
 
     // This function should be called when someone stops pressing a card
@@ -96,6 +100,7 @@ Object.assign(Game.prototype, {
             return false;
         }
         if (!releasedCard.faceUp) {
+            
             console.log("Error: releaseCard(" + row + ", " + column + ") on card that is not flipped.");
             return false;
         }
