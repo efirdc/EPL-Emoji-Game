@@ -17,7 +17,7 @@ const styles = {
     },
 
     progressBar: {
-        margin: "12vh 0vh 2vh 2vh"
+        margin: "9vh 0vh 2vh 2vh"
     }
 };
 
