@@ -88,10 +88,10 @@ class Game extends React.Component {
 
         // Toggle the card
         var card = gameState.board[row][col];
-        if (card.faceUp) { //picture currently visible
-            setTimeout(gameLogic.releaseCard(row, col), 1000); 
-        } else { // picture not currently visible
-            setTimeout(gameLogic.pressCard(row, col),1000); // icon visible
+        if (card.faceUp) {
+            gameLogic.releaseCard(row, col);
+        } else {
+            gameLogic.pressCard(row, col);
         }
 
         // Handle game win/loss conditions
@@ -102,10 +102,7 @@ class Game extends React.Component {
         if (gameLogic.isGameWon()) {
             
             this.winSound.play();
-
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-    
+            gameLogic.nextLevel();
         }
         
         
