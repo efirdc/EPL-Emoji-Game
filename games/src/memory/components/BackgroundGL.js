@@ -99,7 +99,6 @@ export default class BackgroundGL extends Component {
     }
 
     render() {
-        console.log(this.state.width, this.state.height);
         return (
             <Surface width={this.state.width} height={this.state.height}>
                 <SimplePlasma colorA={this.props.colorA} colorB={this.props.colorB}/>
