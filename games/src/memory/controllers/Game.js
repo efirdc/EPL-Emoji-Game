@@ -66,13 +66,17 @@ Object.assign(Game.prototype, {
         }
 
         var card = this.gameState.board[row][column];
-        if (!card.faceUp) {
-            card.faceUp = true;
-            this.gameState.flipsLeft -= 1;
+
+        // Return if the card is already faceUp
+        if (card.faceUp) {
             return;
         }
 
-        // Match test
+        // Set the card as faceUp and reduce flips by 1
+        card.faceUp = true;
+        this.gameState.flipsLeft -= 1;
+
+        // If the card with a matching ID is also faceUp, set the matched flag
         var board = this.gameState.board;
         for (var compareRow = 0; compareRow < this.gameState.rows; compareRow++) {
             for (var compareCol = 0; compareCol < this.gameState.columns; compareCol++) {
