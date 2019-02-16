@@ -25,10 +25,6 @@ class Game extends React.Component {
     constructor(props){
         super(props);
 
-        //this.handlePress = this.handlePress.bind(this);
-        //this.handleRelease = this.handleRelease.bind(this);
-        this.handleClick = this.handleClick.bind(this);
-
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
         gameLogic.addLevel(5, 6, 40);
@@ -43,42 +39,6 @@ class Game extends React.Component {
             gameLogic: gameLogic,
         };
     }
-
-/*     handlePress(row, col) {
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
-        
-        gameLogic.pressCard(row, col);
-        
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
-        }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-        }
-        this.forceUpdate();
-        
-        
-    }
-
-    handleRelease = (row, col) => {
-        var gameLogic = this.state.gameLogic;
-
-        this.state.gameLogic.releaseCard(row, col);
-        
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
-        }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-        }
-        this.forceUpdate();
-
-
-        
-    } */
 
     // Called every time a card is clicked
     handleClick(row, col){
@@ -100,12 +60,9 @@ class Game extends React.Component {
             gameLogic.setLevel(0);
         }
         if (gameLogic.isGameWon()) {
-            
             this.winSound.play();
             gameLogic.nextLevel();
         }
-        
-        
 
         // Have to force the component to re-render because we touched state the "bad" way
         this.forceUpdate();
@@ -124,9 +81,7 @@ class Game extends React.Component {
                 </div>
                 <GameBoard
                     gameState={gameState}
-                    //press = {(row, col) => this.handlePress(row, col)}
-                    //release = {(row, col) => this.handleRelease(row, col)}
-                    onClick = {(row, col) => this.handleClick(row, col)}
+                    onClick={(row, col) => this.handleClick(row, col)}
                 />
             </div>
         )
