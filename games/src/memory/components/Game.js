@@ -27,10 +27,10 @@ class Game extends React.Component {
 
         // Create game logic object and add some levels
         var gameLogic = new Memory.Game(4, 5, 40);
-        gameLogic.addLevel(5, 6, 40);
-        gameLogic.addLevel(6, 7, 45);
-        gameLogic.addLevel(7, 8, 60);
-        gameLogic.addLevel(8, 9, 80);
+        gameLogic.addLevel(8, 15, 180);
+        gameLogic.addLevel(2, 20, 80);
+        gameLogic.addLevel(20, 2, 80);
+        gameLogic.addLevel(20, 20, 500);
 
         this.winSound = new Audio(winSoundFile);
         this.loseSound = new Audio(loseSoundFile);

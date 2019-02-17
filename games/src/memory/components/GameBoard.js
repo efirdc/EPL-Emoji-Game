@@ -3,43 +3,64 @@ import Card from './Card';
 import {Line} from 'rc-progress';
 
 const styles = {
-
     container: {
         margin: "auto",
     },
 
-    board: {
-        display: "grid",
-        gridColumnGap: "2vh",
-        gridRowGap: "0px", // spacing between cards
-        margin: "6vh 6vw 0 4vw",
-
-    },
-
     progressBar: {
-        margin: "9vh 0vh 2vh 2vh"
-    }
+        marginTop: "14vh"
+    },
 };
 
 class GameBoard extends React.Component {
+
     constructor(props) {
         super(props);
-
-        this.renderBoard = this.renderBoard.bind(this);
-        this.initialBoard = this.initialBoard.bind(this);
-
         this.state = {
-            hexSize: 100 / this.props.gameState.len,
-            
-        }
-        
-
+            windowWidth: 0,
+            windowHeight: 0
+        };
+        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
     }
 
-    initialBoard() {
+    // Component can respond to window resize.
+    componentDidMount() {
+        this.updateWindowDimensions();
+        window.addEventListener('resize', this.updateWindowDimensions);
+    }
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowDimensions);
+    }
+    updateWindowDimensions() {
+        this.setState({ windowWidth: window.innerWidth, windowHeight: window.innerHeight });
+    }
+
+    render() {
+        var gameState = this.props.gameState;
+
+        // Hex grid alignment values
+        var maxHeightPercent = 0.6;
+        var maxWidthPercent = 0.9;
+        var heightConstraint = (maxHeightPercent * this.state.windowHeight)  / gameState.rows;
+        var widthConstraint = (maxWidthPercent * this.state.windowWidth) / gameState.columns;
+        var gridSpacing = Math.min(heightConstraint, widthConstraint);
+        var rowGap = gridSpacing * 0.3333333;
+        var columnOffset = (gridSpacing + rowGap) / 2;
+
+        // Set the number of rows and columns, as well as the size
+        var boardStyle = {
+            display: "grid",
+            gridTemplateColumns: (gridSpacing + "px ").repeat(gameState.columns),
+            gridTemplateRows: (gridSpacing + "px ").repeat(gameState.rows),
+            gridRowGap: rowGap + "px",
+        };
+
+        var progressBarStyle = {
+            marginTop: gridSpacing + "px",
+        };
+
         // Flatten the gameStates 2d board array into a 1d array of cards
         // Also give each card its row and column as a property since its needed later
-        var gameState = this.props.gameState;
         var cards = [];
         for (var row = 0; row < gameState.rows; row++) {
             for (var col = 0; col < gameState.columns; col++) {
@@ -47,59 +68,31 @@ class GameBoard extends React.Component {
             }
         }
 
-        console.log(cards)
-        return cards;
-
-    }
-
-    renderBoard(cards) {
-
-        var gameState = this.props.gameState;
-        // Set the number of rows and columns, as well as the size
-        var boardStyle = {
-            ...styles.board,
-            gridTemplateColumns: "14vh ".repeat(gameState.columns),
-            gridTemplateRows: "13vh ".repeat(gameState.rows),
-            
-        };
-
         // Progress bar values
         var pbPercent = (gameState.flipsLeft / gameState.initialFlips) * 100;
-        return(
-            <div style = {styles.container}>
-            <div className = "GameBoard" style = {boardStyle}>
-                {cards.map((card) => (
-                    <Card
-                        {...card}
-                        key={card.row * 10 + card.col}
-                        onClick={() => this.props.onClick(card.row, card.col)}
-/*                         onTouchStart = {() => this.props.press(card.row, card.col)}
-                        onTouchEnd = {() => this.props.release(card.row, card.col)}
-                        onMouseDown = {() => this.props.press(card.row, card.col)}
-                        onMouseUp = {() => this.props.release(card.row, card.col)}
-                        onMouseLeave = {() => this.props.release(card.row, card.col)} */
-                        hexSize = {this.state.hexSize}
-                    />
-                ))}
-            </div>
-            <Line
-                style={styles.progressBar}
-                percent={pbPercent-6}
-                strokeWidth="6"
-                trailWidth="6"
-                strokeColor="#212121"
-            />
-        </div>
-        );
 
-
-    }
-
-    render() {
-        // map Card components to the 1d array of cards
+        // Card components are mapped to the 1d array of cards
         // a unique key is calculated using the row and column of each Card so that React stops complaining
-        return (
-            this.renderBoard(this.initialBoard())
+        return(
+            <div style={styles.container}>
+                <div style={boardStyle}>
+                    {cards.map((card) => (
+                        <Card
+                            {...card}
+                            key={card.row * 1000 + card.col}
+                            columnOffset={columnOffset + "px"}
+                            onClick={() => this.props.onClick(card.row, card.col)}
+                        />
+                    ))}
+                </div>
+                <Line
+                    style={progressBarStyle}
+                    percent={pbPercent-6}
+                    strokeWidth="6"
+                    trailWidth="6"
+                    strokeColor="#212121"
+                />
+            </div>
         );
     }
 }
