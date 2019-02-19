@@ -14,7 +14,7 @@ class Game extends React.Component {
         super(props);
 
         this.hexBoard = new HexBoard();
-        this.gameLogic = new Memory.Game(210, 250);
+        this.gameLogic = new Memory.Game(this.hexBoard.size, this.hexBoard.size * 2);
         this.hexBoard.distributeBlobs(this.gameLogic.getLevel().size);
 
         this.winSound = new Audio(winSoundFile);
@@ -79,9 +79,21 @@ class Game extends React.Component {
             left: "50vw",
         };
 
+        var hexBoard = this.hexBoard;
+        const debugRectStyle = (rectWidth, rectHeight) => ({
+            zIndex: 3,
+            width: rectWidth * 2 + "vh",
+            height: rectHeight * 2 + "vh",
+            left: -rectWidth + "vh",
+            top: -rectHeight + "vh",
+            position: "absolute",
+            borderStyle: "solid",
+            borderColor: "black",
+            pointerEvents: "none",
+        });
+
         var gameLogic = this.gameLogic;
         var gameState = gameLogic.gameState;
-        var hexBoard = this.hexBoard;
         var hexPoints = hexBoard.pointsFlat;
         var blobs = hexBoard.blobData;
 
@@ -98,6 +110,8 @@ class Game extends React.Component {
                             onClick={this.handleClick}
                         />
                     ))}
+                    <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
+                    <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
                 </div>
             </div>
         )
