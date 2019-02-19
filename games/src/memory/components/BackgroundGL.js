@@ -95,7 +95,8 @@ export default class BackgroundGL extends Component {
     }
 
     updateWindowDimensions() {
-        this.setState({ width: window.innerWidth, height: window.innerHeight });
+        var docElem = document.documentElement;
+        this.setState({ width: docElem.clientWidth, height: docElem.clientHeight });
     }
 
     render() {
