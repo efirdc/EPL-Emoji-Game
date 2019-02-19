@@ -56,6 +56,10 @@ Object.assign(Game.prototype, {
         this.setLevel(newLevelID);
     },
 
+    getLevel: function () {
+        return this.levels[this.gameState.currentLevel];
+    },
+
     // This function should be called when someone starts pressing a card
     pressCard: function (key) {
 
