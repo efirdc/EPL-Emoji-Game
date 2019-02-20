@@ -1,6 +1,7 @@
 import React from 'react';
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
+import "./Card.css";
 
 class Card extends React.PureComponent {
     constructor(props) {
@@ -14,6 +15,18 @@ class Card extends React.PureComponent {
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
     }
+
+    // Use this override to debug the Card if it is updating when it shouldnt.
+    /*
+    shouldComponentUpdate(nextProps, nextState) {
+        for (let propName in this.props) {
+            if (this.props[propName] !== nextProps[propName]) {
+                console.log("Card update because of", propName, "change.");
+                return true;
+            }
+        }
+        return false;
+    }*/
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
@@ -30,51 +43,18 @@ class Card extends React.PureComponent {
 
     getStyles() {
         const container = {
-
-            // Card is positioned by its yPos and xPos props
-            position: "absolute",
             left: this.props.point.x + "vh",
             top: this.props.point.y + "vh",
-
-            // Card position is relative to its center
-            height: "0",
-            width: "0",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-
-            // Makes the card 3d flip stuff look right
-            transformStyle: 'preserve-3d',
-            perspective: "1000px",
-
-            // Styling
-            filter: "drop-shadow(0 0 0.2vh #000000)",
         };
-
         const cardCommon = {
-            //
+            // Position
             height: this.props.size + "vh",
             width: this.props.size + "vh",
-
-            // Center content
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
 
             // Styling
             fontSize: this.props.size * 0.5 + "vh",
 
-            // Flip
-            backfaceVisibility: 'hidden',
-            transformStyle: 'preserve-3d',
-            transition: "transform 0.3s",
-            position: "absolute",
-
-            // Hexagon
-            clipPath: "polygon(50% 0%, 93.30125% 25%, 93.30125% 75%, 50% 100%, 6.69875% 75%, 6.69875% 25%)", // pointy top
-            //clipPath: "polygon(0% 50%, 25% 6.69875%, 75% 6.69875%, 100% 50%, 75% 93.30125%, 25% 93.30125%)" // flat top
         };
-
         const eplColors = [
             "#ffb748",
             "#79bd52",
@@ -100,20 +80,25 @@ class Card extends React.PureComponent {
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
-        return {container, cardFront, cardBack};
+        return {cardFront, cardBack, container};
     }
 
     render() {
         const styles = this.getStyles();
         return(
-            <div style={styles.container}>
+            <div
+                className={"container"}
+                style={styles.container}
+            >
                 <div
+                    className={"card"}
                     style={styles.cardFront}
                     onClick={this.handleClick}
                 >
                     <h3 style = {{fontFamily: "Coda", fontWeight: "200"}}>{this.props.cardID}</h3>
                 </div>
                 <div
+                    className={"card"}
                     style={styles.cardBack}
                     onClick={this.handleClick}
                 >
