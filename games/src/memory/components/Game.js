@@ -11,6 +11,10 @@ import GameLoop from '../controllers/GameLoop.js';
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
 
+const Phase = {
+    PLAY: 0,
+    LEVEL_LOAD: 1,
+};
 
 class Game extends React.Component {
 
@@ -24,18 +28,38 @@ class Game extends React.Component {
         this.loop = new GameLoop();
 
         this.hexBoard = new HexBoard();
-        this.gameLogic = new Memory.Game(this.hexBoard.size, this.hexBoard.size * 2);
+        this.gameLogic = new Memory.Game(300, this.hexBoard.size * 2);
         this.hexBoard.distributeBlobs(this.gameLogic.getLevel().size);
 
         this.winSound = new Audio(winSoundFile);
         this.loseSound = new Audio(loseSoundFile);
 
+        this.phase = Phase.LEVEL_LOAD;
+        this.timer = 0;
+        this.levelLoadTime = 1.5;
+        this.cardDisplayPercent = 0;
+
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+        this.tick = this.tick.bind(this);
     }
 
     tick(deltaTime) {
 
+
+        if (this.phase === Phase.LEVEL_LOAD) {
+            if (this.timer < this.levelLoadTime) {
+                this.timer += deltaTime;
+                this.cardDisplayPercent = this.timer / this.levelLoadTime;
+                this.forceUpdate();
+            } else {
+                this.phase = Phase.Play;
+            }
+        }
+
+        else if (this.phase === Phase.PLAY) {
+
+        }
     }
 
     // Game loop stuff
@@ -53,7 +77,9 @@ class Game extends React.Component {
 
     // Called every time a card is clicked
     handleClick(key){
-
+        if (this.phase === Phase.LEVEL_LOAD) {
+            return;
+        }
         var gameLogic = this.gameLogic;
         var gameState = gameLogic.gameState;
         var hexBoard = this.hexBoard;
@@ -71,11 +97,13 @@ class Game extends React.Component {
             this.winSound.play();
             gameLogic.nextLevel();
             hexBoard.distributeBlobs(gameLogic.getLevel().size);
+            this.cardDisplayPercent = 0;
         }
         if (gameLogic.isGameLost()) {
             this.loseSound.play();
             gameLogic.setLevel(0);
             hexBoard.distributeBlobs(gameLogic.getLevel().size);
+            this.cardDisplayPercent = 0;
         }
 
         // Have to force the component to re-render because we touched state the "bad" way
@@ -124,12 +152,14 @@ class Game extends React.Component {
         var hexPoints = hexBoard.pointsFlat;
         var blobs = hexBoard.blobData;
 
+        var partialCards = gameState.cards.slice(0, blobs.length * this.cardDisplayPercent);
+
         return (
             <div style={bodyStyle}>
                 <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
                     <div>
-                        {gameState.cards.map((card) => (
+                        {partialCards.map((card) => (
                             <Card
                                 {...card}
                                 {...blobs[card.cardKey]}

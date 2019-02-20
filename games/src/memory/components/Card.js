@@ -20,6 +20,8 @@ class Card extends React.PureComponent {
         this.matchSound.volume = 0.65;
         this.clickSound.volume = 0.65;
 
+        this.enter = false;
+
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
         this.tick = this.tick.bind(this);
@@ -37,8 +39,11 @@ class Card extends React.PureComponent {
         return false;
     }*/
 
-    tick(deltaTime) {
-
+    tick (deltaTime) {
+        if (!this.enter) {
+            this.enter = true;
+            this.forceUpdate();
+        }
     }
 
     componentDidMount() {
@@ -62,9 +67,11 @@ class Card extends React.PureComponent {
     }
 
     getStyles() {
+        const p = this.enter ? this.props.point : {x:0, y:0};
         const container = {
-            left: this.props.point.x + "vh",
-            top: this.props.point.y + "vh",
+            transition: "transform 0.5s",
+            transitionTimingFunction: "cubic-bezier(.15,.94,.43,1.08)",
+            transform: `translate(${p.x}vh, ${p.y}vh) scale(${this.enter ? 1.0 : 0.0})`,
         };
         const cardCommon = {
             // Position
@@ -115,7 +122,7 @@ class Card extends React.PureComponent {
                     style={styles.cardFront}
                     onClick={this.handleClick}
                 >
-                    <h3 style = {{fontFamily: "Coda", fontWeight: "200"}}>{this.props.cardID}</h3>
+                    <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.cardID}</h3>
                 </div>
                 <div
                     className={"card"}
