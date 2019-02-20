@@ -1,17 +1,27 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import Card from './Card';
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import Memory from '../controllers/Memory.js';
-import HexBoard from '../controllers/HexBoard.js'
+import HexBoard from '../controllers/HexBoard.js';
+import GameLoop from '../controllers/GameLoop.js';
 
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
 
 
 class Game extends React.Component {
+
+    static childContextTypes = {
+        loop: PropTypes.object,
+    };
+
     constructor(props) {
         super(props);
+
+        this.loop = new GameLoop();
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new Memory.Game(this.hexBoard.size, this.hexBoard.size * 2);
@@ -22,6 +32,23 @@ class Game extends React.Component {
 
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+    }
+
+    tick(deltaTime) {
+
+    }
+
+    // Game loop stuff
+    componentDidMount() {
+        this.loop.start();
+        this.loopID = this.loop.subscribe(this.tick);
+    }
+    componentWillUnmount() {
+        this.loop.stop();
+        this.unsubscribe(this.loopID);
+    }
+    getChildContext() {
+        return {loop: this.loop,};
     }
 
     // Called every time a card is clicked
@@ -101,15 +128,17 @@ class Game extends React.Component {
             <div style={bodyStyle}>
                 <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
-                    {gameState.cards.map((card) => (
-                        <Card
-                            {...card}
-                            {...blobs[card.cardKey]}
-                            key={card.cardKey.toString()}
-                            size={hexBoard.hexSize * 2 - 1}
-                            onClick={this.handleClick}
-                        />
-                    ))}
+                    <div>
+                        {gameState.cards.map((card) => (
+                            <Card
+                                {...card}
+                                {...blobs[card.cardKey]}
+                                key={card.cardKey.toString()}
+                                size={hexBoard.hexSize * 2 - 1}
+                                onClick={this.handleClick}
+                            />
+                        ))}
+                    </div>
                     <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
                     <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
                 </div>

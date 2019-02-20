@@ -1,9 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
 
 class Card extends React.PureComponent {
+
+    // Needed to use the loop context
+    static contextTypes = {
+        loop: PropTypes.object,
+    };
+
     constructor(props) {
         super(props);
 
@@ -14,6 +22,7 @@ class Card extends React.PureComponent {
 
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+        this.tick = this.tick.bind(this);
     }
 
     // Use this override to debug the Card if it is updating when it shouldnt.
@@ -27,6 +36,17 @@ class Card extends React.PureComponent {
         }
         return false;
     }*/
+
+    tick(deltaTime) {
+
+    }
+
+    componentDidMount() {
+        this.loopID = this.context.loop.subscribe(this.tick);
+    }
+    componentWillUnmount() {
+        this.context.loop.unsubscribe(this.loopID);
+    }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
