@@ -1,0 +1,58 @@
+{
+  "name": "lovelace",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.14",
+    "@fortawesome/free-regular-svg-icons": "^5.7.1",
+    "@fortawesome/free-solid-svg-icons": "^5.7.1",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "animated": "^0.2.2",
+    "electron": "^1.7.5",
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.3.0",
+    "foreman": "^3.0.1",
+    "gl-react": "^3.15.0",
+    "gl-react-dom": "^3.15.0",
+    "i": "^0.3.6",
+    "npm": "^6.7.0",
+    "rc-progress": "^2.3.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-electron-browser-window": "^0.1.2",
+    "react-scripts": "1.0.11",
+    "react-sweet-progress": "^1.1.2",
+    "shuffle-array": "^1.0.1",
+    "styled-components": "^4.1.3"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.7.1",
+    "electron-builder": "^19.24.1"
+  },
+  "homepage": ".",
+  "main": "src/start.js",
+  "scripts": {
+    "start": "nf start -p 3000",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-start": "node src/start-react",
+    "react-start": "react-scripts start",
+    "pack": "build --dir",
+    "dist": "npm run build && build",
+    "postinstall": "install-app-deps"
+  },
+  "build": {
+    "appId": "com.electron.electron-with-create-react-app",
+    "win": {
+      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    },
+    "directories": {
+      "buildResources": "public"
+    }
+  }
+}
