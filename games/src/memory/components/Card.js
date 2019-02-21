@@ -26,6 +26,7 @@ class Card extends React.PureComponent {
 
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
+        this.handleTouch = this.handleTouch.bind(this);
         this.tick = this.tick.bind(this);
     }
 
@@ -54,8 +55,23 @@ class Card extends React.PureComponent {
         this.props.loop.unsubscribe(this.loopID);
     }
 
-    handleClick(){
-        this.props.onClick(this.props.cardKey);
+    handleClick() {
+        //this.props.onClick(this.props.cardKey);
+    }
+
+    handleTouch(e) {
+        if (this.props.matched) {
+            return;
+        }
+        let numTouches = e.targetTouches.length;
+        if (this.props.faceUp && numTouches === 0) {
+            this.props.onClick(this.props.cardKey);
+        }
+        else if (!this.props.faceUp && numTouches > 0) {
+            this.props.onClick(this.props.cardKey);
+        }
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -151,6 +167,10 @@ class Card extends React.PureComponent {
                     className={"card"}
                     style={styles.cardFront}
                     onClick={this.handleClick}
+                    onTouchStart={this.handleTouch}
+                    onTouchEnd={this.handleTouch}
+                    onTouchCancel={this.handleTouch}
+                    onTouchMove={this.handleTouch}
                 >
                     <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.cardID}</h3>
                 </div>
@@ -158,6 +178,10 @@ class Card extends React.PureComponent {
                     className={"card"}
                     style={styles.cardBack}
                     onClick={this.handleClick}
+                    onTouchStart={this.handleTouch}
+                    onTouchEnd={this.handleTouch}
+                    onTouchCancel={this.handleTouch}
+                    onTouchMove={this.handleTouch}
                 >
                     {}
                 </div>
