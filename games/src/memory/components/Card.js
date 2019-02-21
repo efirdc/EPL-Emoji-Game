@@ -4,7 +4,7 @@ import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
 
-class Card extends React.PureComponent {
+export default class Card extends React.PureComponent {
 
     static Phase = {
         INITIAL: 0,
@@ -56,22 +56,37 @@ class Card extends React.PureComponent {
     }
 
     handleClick() {
-        //this.props.onClick(this.props.cardKey);
-    }
 
-    handleTouch(e) {
+        // Don't handle events if the card is already matched.
         if (this.props.matched) {
             return;
         }
-        let numTouches = e.targetTouches.length;
+
+        // Clicks always toggle the card.
+        this.props.flipHandler(this.props.cardKey);
+    }
+
+    handleTouch(event) {
+
+        // Don't handle events if the card is already matched.
+        if (this.props.matched) {
+            return;
+        }
+
+        // If the card is face up, and there are no touchpoints targeting the card, then flip the card.
+        let numTouches = event.targetTouches.length;
         if (this.props.faceUp && numTouches === 0) {
-            this.props.onClick(this.props.cardKey);
+            this.props.flipHandler(this.props.cardKey);
         }
+
+        // If the card is face down, and there are touchpoints targeting the card, then flip the card.
         else if (!this.props.faceUp && numTouches > 0) {
-            this.props.onClick(this.props.cardKey);
+            this.props.flipHandler(this.props.cardKey);
         }
-        e.preventDefault();
-        e.stopPropagation();
+
+        // This might stop touch points from also sending click events (needs testing)
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -172,7 +187,7 @@ class Card extends React.PureComponent {
                     onTouchCancel={this.handleTouch}
                     onTouchMove={this.handleTouch}
                 >
-                    <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.cardID}</h3>
+                    <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.matchID}</h3>
                 </div>
                 <div
                     className={"card"}
@@ -189,5 +204,3 @@ class Card extends React.PureComponent {
         )
     }
 }
-
-export default Card;
