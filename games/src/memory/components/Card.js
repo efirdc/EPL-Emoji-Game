@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
@@ -7,9 +6,12 @@ import "./Card.css";
 
 class Card extends React.PureComponent {
 
-    // Needed to use the loop context
-    static contextTypes = {
-        loop: PropTypes.object,
+    static Phase = {
+        INITIAL: 0,
+        ENTER: 1,
+        PLAY: 2,
+        MATCHED: 3,
+        EXIT: 4,
     };
 
     constructor(props) {
@@ -20,14 +22,14 @@ class Card extends React.PureComponent {
         this.matchSound.volume = 0.65;
         this.clickSound.volume = 0.65;
 
-        this.enter = false;
+        this.phase = Card.Phase.INITIAL;
 
         // This binding is necessary to make `this` work in the callback
         this.handleClick = this.handleClick.bind(this);
         this.tick = this.tick.bind(this);
     }
 
-    // Use this override to debug the Card if it is updating when it shouldnt.
+    // Use this override to debug the Card if it is updating when it shouldn't.
     /*
     shouldComponentUpdate(nextProps, nextState) {
         for (let propName in this.props) {
@@ -40,38 +42,66 @@ class Card extends React.PureComponent {
     }*/
 
     tick (deltaTime) {
-        if (!this.enter) {
-            this.enter = true;
-            this.forceUpdate();
+        if (this.phase === Card.Phase.INITIAL) {
+            this.setPhase(Card.Phase.ENTER);
         }
     }
 
     componentDidMount() {
-        this.loopID = this.context.loop.subscribe(this.tick);
+        this.loopID = this.props.loop.subscribe(this.tick);
     }
     componentWillUnmount() {
-        this.context.loop.unsubscribe(this.loopID);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
-            this.matchSound.play();
-        }
-        if (nextProps.faceUp !== this.props.faceUp) {
-            this.clickSound.play();
-        }
+        this.props.loop.unsubscribe(this.loopID);
     }
 
     handleClick(){
         this.props.onClick(this.props.cardKey);
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.matched && !this.props.matched) {
+            if (!this.props.faceUp) {
+                new Audio(matchSoundFile).play();
+            }
+            this.phase = Card.Phase.MATCHED;
+        }
+        if (nextProps.faceUp !== this.props.faceUp) {
+            new Audio(clickSoundFile).play();
+        }
+    }
+
+    setPhase(phase) {
+        this.phase = phase;
+        this.forceUpdate();
+    }
+
     getStyles() {
-        const p = this.enter ? this.props.point : {x:0, y:0};
+        let pos, scale, transitionTime;
+        if (this.phase === Card.Phase.INITIAL) {
+            pos = {x:0, y:0};
+            scale = 0.0;
+        }
+        else if (this.phase === Card.Phase.ENTER) {
+            transitionTime = 0.5;
+            pos = this.props.point;
+            scale = 1.0;
+        }
+        else if (this.phase === Card.Phase.MATCHED) {
+            transitionTime = 0.3;
+            pos = this.props.point;
+            scale = 1.2;
+            setTimeout(() => (this.setPhase(Card.Phase.EXIT)), transitionTime * 1000);
+        }
+        else if (this.phase === Card.Phase.EXIT) {
+            transitionTime = 0.3;
+            pos = this.props.point;
+            scale = 0.0;
+        }
+
         const container = {
-            transition: "transform 0.5s",
+            transition: `transform ${transitionTime}s`,
             transitionTimingFunction: "cubic-bezier(.15,.94,.43,1.08)",
-            transform: `translate(${p.x}vh, ${p.y}vh) scale(${this.enter ? 1.0 : 0.0})`,
+            transform: `translate(${pos.x}vh, ${pos.y}vh) scale(${scale}`,
         };
         const cardCommon = {
             // Position
