@@ -40,6 +40,7 @@ export default class GameLogic {
         this.initialFlips = 0;
         this.flipsLeft = 0;
         this.maxConcurrentFlips = 0;
+        this.concurrentFlips = 0;
     }
 
     // Add new levels to the memory game at runtime
@@ -71,6 +72,7 @@ export default class GameLogic {
         this.currentLevel = levelID;
         this.size = level.size;
         this.maxConcurrentFlips = level.maxConcurrentFlips;
+        this.concurrentFlips = 0;
         this.initialFlips = level.flips;
         this.flipsLeft = level.flips;
 
@@ -113,14 +115,20 @@ export default class GameLogic {
             return;
         }
 
-        // Set the card as faceUp and reduce flips by 1
+        if (this.concurrentFlips >= this.maxConcurrentFlips) {
+            return;
+        }
+
+        // Set the card as faceUp
         card.faceUp = true;
+        this.concurrentFlips += 1;
         this.flipsLeft -= 1;
 
         // If the card with a matching ID is also faceUp, set the matched flag on both cards
         for (let compareCard of this.cards) {
             if (compareCard !== card && card.matchID === compareCard.matchID && compareCard.faceUp) {
                 compareCard.matched = card.matched = true;
+                this.concurrentFlips -= 2;
             }
         }
     }
@@ -139,6 +147,7 @@ export default class GameLogic {
             console.log("Error: releaseCard(" + cardKey + ") on card that is matched.");
         }
 
+        this.concurrentFlips -= 1;
         card.faceUp = false;
     }
 
