@@ -4,7 +4,7 @@ import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
 
-class Card extends React.PureComponent {
+export default class Card extends React.PureComponent {
 
     static Phase = {
         INITIAL: 0,
@@ -25,7 +25,6 @@ class Card extends React.PureComponent {
         this.phase = Card.Phase.INITIAL;
 
         // This binding is necessary to make `this` work in the callback
-        this.handleClick = this.handleClick.bind(this);
         this.tick = this.tick.bind(this);
     }
 
@@ -50,12 +49,9 @@ class Card extends React.PureComponent {
     componentDidMount() {
         this.loopID = this.props.loop.subscribe(this.tick);
     }
+
     componentWillUnmount() {
         this.props.loop.unsubscribe(this.loopID);
-    }
-
-    handleClick(){
-        this.props.onClick(this.props.cardKey);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -65,7 +61,7 @@ class Card extends React.PureComponent {
             }
             this.phase = Card.Phase.MATCHED;
         }
-        if (nextProps.faceUp !== this.props.faceUp) {
+        if (nextProps.faceUp && !this.props.faceUp) {
             new Audio(clickSoundFile).play();
         }
     }
@@ -110,7 +106,6 @@ class Card extends React.PureComponent {
 
             // Styling
             fontSize: this.props.size * 0.5 + "vh",
-
         };
         const eplColors = [
             "#ffb748",
@@ -137,7 +132,7 @@ class Card extends React.PureComponent {
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
-        return {cardFront, cardBack, container};
+        return {cardCommon, cardFront, cardBack, container};
     }
 
     render() {
@@ -148,22 +143,18 @@ class Card extends React.PureComponent {
                 style={styles.container}
             >
                 <div
-                    className={"card"}
-                    style={styles.cardFront}
-                    onClick={this.handleClick}
+                    className={"cardInputHandler"}
+                    style={styles.cardCommon}
+                    id={this.props.cardKey}
                 >
-                    <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.cardID}</h3>
-                </div>
-                <div
-                    className={"card"}
-                    style={styles.cardBack}
-                    onClick={this.handleClick}
-                >
-                    {}
+                    <div className={"card"} style={styles.cardFront}>
+                        <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.matchID}</h3>
+                    </div>
+                    <div className={"card"} style={styles.cardBack}>
+                        {}
+                    </div>
                 </div>
             </div>
         )
     }
 }
-
-export default Card;
