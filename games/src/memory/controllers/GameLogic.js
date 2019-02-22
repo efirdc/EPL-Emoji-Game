@@ -10,13 +10,13 @@ function shuffle(a) {
 }
 
 class Level {
-    constructor (size, flips, maxConcurrentFlips) {
-        if (size % 2 !== 0) {
+    constructor (numCards, maxConcurrentFlips, timeToComplete) {
+        if (numCards % 2 !== 0) {
             console.log("Warning: Created a level with an odd number of cards.")
         }
-        this.size = size;
-        this.flips = flips;
+        this.numCards = numCards;
         this.maxConcurrentFlips = maxConcurrentFlips;
+        this.timeToCompleteLevel = timeToComplete;
     }
 }
 
@@ -36,16 +36,28 @@ export default class GameLogic {
         this.cards = [];
         this.levels = [];
         this.currentLevel = -1;
-        this.size = 0;
-        this.initialFlips = 0;
-        this.flipsLeft = 0;
+        this.numCards = 0;
+        this.flipsUsed = 0;
         this.maxConcurrentFlips = 0;
         this.concurrentFlips = 0;
+        this.timeToCompleteLevel = 0;
+        this.timeAtLevelStart = Date.now();
+        this.timeAtLevelWin = null;
+    }
+
+    get timeLeft () {
+        let timeElapsed;
+        if (this.isGameWon()) {
+            timeElapsed = (this.timeAtLevelWin - this.timeAtLevelStart) / 1000;
+        } else {
+            timeElapsed = (Date.now() - this.timeAtLevelStart) / 1000;
+        }
+        return this.timeToCompleteLevel - timeElapsed;
     }
 
     // Add new levels to the memory game at runtime
-    addLevel(size, flips, maxConcurrentFlips) {
-        this.levels.push(new Level(size, flips, maxConcurrentFlips))
+    addLevel(numCards, maxConcurrentFlips, timeToComplete) {
+        this.levels.push(new Level(numCards, maxConcurrentFlips, timeToComplete))
     }
 
     // Advance to the next level
@@ -70,26 +82,27 @@ export default class GameLogic {
 
         // Load the level settings
         this.currentLevel = levelID;
-        this.size = level.size;
+        this.numCards = level.numCards;
+        this.flipsUsed = 0;
         this.maxConcurrentFlips = level.maxConcurrentFlips;
         this.concurrentFlips = 0;
-        this.initialFlips = level.flips;
-        this.flipsLeft = level.flips;
+        this.timeToCompleteLevel = level.timeToCompleteLevel;
+        this.timeAtLevelStart = Date.now();
+        this.timeAtLevelWin = undefined;
 
         // Reset the cards array and distribute them randomly.
         this.cards = [];
-        for (let cardKey = 0; cardKey < this.size; cardKey++) {
+        for (let cardKey = 0; cardKey < this.numCards; cardKey++) {
             this.cards[cardKey] = new Card(0, cardKey);
         }
         this.distributeCardsRandomly();
     }
 
-
     distributeCardsRandomly() {
 
         // Create a shuffled array of all matchIDs
         let matchIDs = [];
-        let numMatchIDs = this.size / 2;
+        let numMatchIDs = this.numCards / 2;
         for (let i = 0; i < numMatchIDs; i++){
             matchIDs.push(i);
             matchIDs.push(i);
@@ -105,7 +118,7 @@ export default class GameLogic {
     pressCard(cardKey) {
 
         // get card and error check
-        if (this.size <= cardKey){
+        if (this.numCards <= cardKey){
             console.log("Error: cardKey out of range in pressCard()");
             return;
         }
@@ -122,7 +135,7 @@ export default class GameLogic {
         // Set the card as faceUp
         card.faceUp = true;
         this.concurrentFlips += 1;
-        this.flipsLeft -= 1;
+        this.flipsUsed += 1;
 
         // If the card with a matching ID is also faceUp, set the matched flag on both cards
         for (let compareCard of this.cards) {
@@ -131,12 +144,16 @@ export default class GameLogic {
                 this.concurrentFlips -= 2;
             }
         }
+
+        if (this.isGameWon()) {
+            this.timeAtLevelWin = Date.now();
+        }
     }
 
     releaseCard(cardKey) {
 
         // get card and error check
-        if (this.size <= cardKey) {
+        if (this.numCards <= cardKey) {
             console.log("Error: cardKey out of range in releaseCard()");
         }
         let card = this.cards[cardKey];
@@ -165,6 +182,9 @@ export default class GameLogic {
     }
 
     isGameLost() {
-        return this.flipsLeft <= 0;
+        if (this.isGameWon()) {
+            return false;
+        }
+        return this.timeLeft <= 0;
     }
 }

@@ -2,11 +2,13 @@ import React from 'react';
 
 import Card from './Card';
 import TouchPoint from './TouchPoint.js'
+import Timer from "./Timer.js"
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
 import HexBoard from '../controllers/HexBoard.js';
 import GameLoop from '../controllers/GameLoop.js';
+
 
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
@@ -27,9 +29,9 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(100, 200, 8);
+        this.gameLogic.addLevel(100, 12, 10);
         this.gameLogic.setLevel(0);
-        this.hexBoard.distributeBlobs(this.gameLogic.size);
+        this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
         this.touchPoints = [];
         this.fakeTouchPoints = [];
@@ -58,12 +60,16 @@ export default class Game extends React.Component {
                 this.phase = Game.Phase.PLAY;
                 this.timer = 0;
             }
-            this.forceUpdate();
         }
 
         else if (this.phase === Game.Phase.PLAY) {
-
+            if (this.gameLogic.isGameLost()) {
+                this.phase = Game.Phase.LEVEL_LOSE;
+                setTimeout(() => new Audio(loseSoundFile).play(), 250);
+                setTimeout(() => this.loadNextLevel(true), 2000.0);
+            }
         }
+        this.forceUpdate();
     }
 
     // Game loop stuff
@@ -187,11 +193,6 @@ export default class Game extends React.Component {
             setTimeout(() => new Audio(winSoundFile).play(), 250);
             setTimeout(() => this.loadNextLevel(true), 2000.0);
         }
-        else if (this.gameLogic.isGameLost()) {
-            this.phase = Game.Phase.LEVEL_LOSE;
-            setTimeout(() => new Audio(loseSoundFile).play(), 250);
-            setTimeout(() => this.loadNextLevel(true), 2000.0);
-        }
     }
 
     loadNextLevel (prevLevelWon) {
@@ -201,7 +202,7 @@ export default class Game extends React.Component {
             this.gameLogic.setLevel(0);
         }
 
-        this.hexBoard.distributeBlobs(this.gameLogic.size);
+        this.hexBoard.distributeBlobs(this.gameLogic.numCards);
         this.phase = Game.Phase.LEVEL_LOAD;
         this.timer = 0;
         this.cardDisplayPercent = 0;
@@ -298,6 +299,8 @@ export default class Game extends React.Component {
                     </div>
                     <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
                     <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
+                    <Timer x={-20} y={0} rotation={90} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={20} y={0} rotation={-90} time={this.gameLogic.timeLeft} loop={this.loop}/>
                 </div>
             </div>
         )
