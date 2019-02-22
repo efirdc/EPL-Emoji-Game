@@ -25,8 +25,6 @@ export default class Card extends React.PureComponent {
         this.phase = Card.Phase.INITIAL;
 
         // This binding is necessary to make `this` work in the callback
-        this.handleClick = this.handleClick.bind(this);
-        this.handleTouch = this.handleTouch.bind(this);
         this.tick = this.tick.bind(this);
     }
 
@@ -51,42 +49,9 @@ export default class Card extends React.PureComponent {
     componentDidMount() {
         this.loopID = this.props.loop.subscribe(this.tick);
     }
+
     componentWillUnmount() {
         this.props.loop.unsubscribe(this.loopID);
-    }
-
-    handleClick() {
-
-        // Don't handle events if the card is already matched.
-        if (this.props.matched) {
-            return;
-        }
-
-        // Clicks always toggle the card.
-        this.props.flipHandler(this.props.cardKey);
-    }
-
-    handleTouch(event) {
-
-        // Don't handle events if the card is already matched.
-        if (this.props.matched) {
-            return;
-        }
-
-        // If the card is face up, and there are no touchpoints targeting the card, then flip the card.
-        let numTouches = event.targetTouches.length;
-        if (this.props.faceUp && numTouches === 0) {
-            this.props.flipHandler(this.props.cardKey);
-        }
-
-        // If the card is face down, and there are touchpoints targeting the card, then flip the card.
-        else if (!this.props.faceUp && numTouches > 0) {
-            this.props.flipHandler(this.props.cardKey);
-        }
-
-        // This might stop touch points from also sending click events (needs testing)
-        event.preventDefault();
-        event.stopPropagation();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -96,7 +61,7 @@ export default class Card extends React.PureComponent {
             }
             this.phase = Card.Phase.MATCHED;
         }
-        if (nextProps.faceUp !== this.props.faceUp) {
+        if (nextProps.faceUp && !this.props.faceUp) {
             new Audio(clickSoundFile).play();
         }
     }
@@ -141,7 +106,6 @@ export default class Card extends React.PureComponent {
 
             // Styling
             fontSize: this.props.size * 0.5 + "vh",
-
         };
         const eplColors = [
             "#ffb748",
@@ -168,7 +132,7 @@ export default class Card extends React.PureComponent {
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
-        return {cardFront, cardBack, container};
+        return {cardCommon, cardFront, cardBack, container};
     }
 
     render() {
@@ -179,26 +143,16 @@ export default class Card extends React.PureComponent {
                 style={styles.container}
             >
                 <div
-                    className={"card"}
-                    style={styles.cardFront}
-                    onClick={this.handleClick}
-                    onTouchStart={this.handleTouch}
-                    onTouchEnd={this.handleTouch}
-                    onTouchCancel={this.handleTouch}
-                    onTouchMove={this.handleTouch}
+                    className={"cardInputHandler"}
+                    style={styles.cardCommon}
+                    id={this.props.cardKey}
                 >
-                    <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.matchID}</h3>
-                </div>
-                <div
-                    className={"card"}
-                    style={styles.cardBack}
-                    onClick={this.handleClick}
-                    onTouchStart={this.handleTouch}
-                    onTouchEnd={this.handleTouch}
-                    onTouchCancel={this.handleTouch}
-                    onTouchMove={this.handleTouch}
-                >
-                    {}
+                    <div className={"card"} style={styles.cardFront}>
+                        <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.matchID}</h3>
+                    </div>
+                    <div className={"card"} style={styles.cardBack}>
+                        {}
+                    </div>
                 </div>
             </div>
         )

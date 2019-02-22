@@ -96,10 +96,10 @@ export default class TouchEmulator {
         window.addEventListener("mouseover", this.preventMouseEvents, true);
 
         // it uses itself!
-        window.addEventListener("touchstart", this.showTouches, true);
-        window.addEventListener("touchmove", this.showTouches, true);
-        window.addEventListener("touchend", this.showTouches, true);
-        window.addEventListener("touchcancel", this.showTouches, true);
+        //window.addEventListener("touchstart", this.showTouches, true);
+        //window.addEventListener("touchmove", this.showTouches, true);
+        //window.addEventListener("touchend", this.showTouches, true);
+        //window.addEventListener("touchcancel", this.showTouches, true);
     }
 
     /**

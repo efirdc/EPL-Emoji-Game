@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Card from './Card';
+import TouchPoint from './TouchPoint.js'
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
@@ -30,12 +31,19 @@ export default class Game extends React.Component {
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.size);
 
+        this.touchPoints = [];
+        this.fakeTouchPoints = [];
+        this.touchPointSize = 30;
+        this.mouseDown = false;
+
         this.phase = Game.Phase.LEVEL_LOAD;
         this.timer = 0;
         this.cardDisplayPercent = 0;
 
         // This binding is necessary to make `this` work in the callback
         this.handleFlip = this.handleFlip.bind(this);
+        this.handleTouch = this.handleTouch.bind(this);
+        this.handleMouse = this.handleMouse.bind(this);
         this.tick = this.tick.bind(this);
     }
 
@@ -68,21 +76,97 @@ export default class Game extends React.Component {
         this.unsubscribe(this.loopID);
     }
 
-    loadNextLevel (prevLevelWon) {
-        if (prevLevelWon) {
-            this.gameLogic.nextLevel();
-        } else {
-            this.gameLogic.setLevel(0);
+
+
+    // Callback function for mouse events. Creates fake touch points.
+    handleMouse(event) {
+
+        // shift + click to add/remove touch points
+        if (event.type === "mousedown") {
+            this.mouseDown = true;
+            if (event.shiftKey) {
+                if (event.target.className === "FakeTouchPoint") {
+                    this.fakeTouchPoints.splice(event.target.id, 1);
+                } else {
+                    this.fakeTouchPoints.push({x: event.clientX, y: event.clientY});
+                }
+            }
         }
 
-        this.hexBoard.distributeBlobs(this.gameLogic.size);
-        this.phase = Game.Phase.LEVEL_LOAD;
-        this.timer = 0;
-        this.cardDisplayPercent = 0;
+        // touchpoint drag behavior
+        else if (event.type === "mousemove" && this.mouseDown && event.target.className === "FakeTouchPoint") {
+            this.fakeTouchPoints[event.target.id] = {x: event.clientX, y: event.clientY};
+        }
+
+        else if (event.type === "mouseup") {
+            this.mouseDown = false;
+        }
+
+        this.handleInput();
+    }
+
+    // Callback function for all touch events. Gets the real touchpoints.
+    handleTouch(event) {
+
+        // Update the array of touch points
+        this.touchPoints = [];
+        for (let touch of event.touches) {
+            this.touchPoints.push({x: touch.clientX, y: touch.clientY});
+        }
+
+        // This might stop touch points from also sending click events (needs testing)
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.handleInput();
+    }
+
+    // This is called after every handleTouch() and handleMouse()
+    handleInput() {
+
+        // Combine the real and fake(mouse) touch points into one array
+        let allTouchPoints = this.touchPoints.concat(this.fakeTouchPoints);
+
+        // Figure out which cards are touched.
+        let touchedCards = [];
+        let cardElements = document.getElementsByClassName("cardInputHandler");
+        for (let touchPoint of allTouchPoints) {
+            let elementsAtTouchPoint = document.elementsFromPoint(touchPoint.x, touchPoint.y);
+            for (let cardElement of cardElements) {
+                if (elementsAtTouchPoint.includes(cardElement)) {
+                    touchedCards.push(cardElement.id);
+                }
+            }
+        }
+
+        // Flip all cards that should be flipped.
+        let cards = this.gameLogic.cards;
+        for (let cardKey in cards) {
+
+            let card = cards[cardKey];
+            if (card.matched) {
+                continue;
+            }
+
+            let touched = false;
+            if (touchedCards.includes(cardKey)) {
+                touched = true;
+            }
+
+            // If the card is face up and the card is not touched, flip the card.
+            // If the card is face down and the card is touched, flip the card.
+            if (card.faceUp && !touched) {
+                this.handleFlip(cardKey);
+            }
+            else if (!card.faceUp && touched) {
+                this.handleFlip(cardKey);
+            }
+        }
+
         this.forceUpdate();
     }
 
-    // Called every time a card is clicked
+    // Handles flipping cards
     handleFlip(cardKey) {
 
         if (this.phase !== Game.Phase.PLAY) {
@@ -108,6 +192,19 @@ export default class Game extends React.Component {
             setTimeout(() => new Audio(loseSoundFile).play(), 250);
             setTimeout(() => this.loadNextLevel(true), 2000.0);
         }
+    }
+
+    loadNextLevel (prevLevelWon) {
+        if (prevLevelWon) {
+            this.gameLogic.nextLevel();
+        } else {
+            this.gameLogic.setLevel(0);
+        }
+
+        this.hexBoard.distributeBlobs(this.gameLogic.size);
+        this.phase = Game.Phase.LEVEL_LOAD;
+        this.timer = 0;
+        this.cardDisplayPercent = 0;
         this.forceUpdate();
     }
 
@@ -155,7 +252,16 @@ export default class Game extends React.Component {
         let partialCards = gameLogic.cards.slice(0, Math.floor(blobs.length * this.cardDisplayPercent));
 
         return (
-            <div style={bodyStyle}>
+            <div
+                style={bodyStyle}
+                onTouchStart={this.handleTouch}
+                onTouchEnd={this.handleTouch}
+                onTouchMove={this.handleTouch}
+                onTouchCancel={this.handleTouch}
+                onMouseDown={this.handleMouse}
+                onMouseMove={this.handleMouse}
+                onMouseUp={this.handleMouse}
+            >
                 <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
                     <div>
@@ -167,6 +273,26 @@ export default class Game extends React.Component {
                                 size={hexBoard.hexSize * 2 - 1}
                                 flipHandler={this.handleFlip}
                                 loop={this.loop}
+                            />
+                        ))}
+                    </div>
+                    <div>
+                        {this.touchPoints.map((touchPoint, index) => (
+                            <TouchPoint
+                                {...touchPoint}
+                                key={index.toString()}
+                                size={this.touchPointSize}
+                            />
+                        ))}
+                    </div>
+                    <div>
+                        {this.fakeTouchPoints.map((touchPoint, index) => (
+                            <TouchPoint
+                                {...touchPoint}
+                                fake={true}
+                                id={index}
+                                key={index.toString()}
+                                size={this.touchPointSize}
                             />
                         ))}
                     </div>
