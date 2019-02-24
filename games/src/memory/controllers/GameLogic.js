@@ -26,6 +26,7 @@ class Card {
         this.cardKey = cardKey;
         this.faceUp = false;
         this.matched = false;
+        this.flipRejected = false;
     }
 }
 
@@ -133,9 +134,12 @@ export default class GameLogic {
                 // Reject the flip if all concurrent flips are in use.
                 if (this.concurrentFlips < this.maxConcurrentFlips) {
                     card.faceUp = true;
+                    card.flipRejected = false;
                     this.concurrentFlips += 1;
                     this.flipsUsed += 1;
                     this.tryMatch(card);
+                } else {
+                    card.flipRejected = true;
                 }
             }
 
@@ -143,6 +147,11 @@ export default class GameLogic {
             else if (card.faceUp && !touched) {
                 this.concurrentFlips -= 1;
                 card.faceUp = false;
+            }
+
+            // Card with rejected flip was released.
+            else if (card.flipRejected && !touched) {
+                card.flipRejected = false;
             }
         }
 
