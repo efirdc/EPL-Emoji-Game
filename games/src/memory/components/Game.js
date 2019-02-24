@@ -29,7 +29,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(100, 12, 10);
+        this.gameLogic.addLevel(100, 12, 120);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
@@ -43,7 +43,6 @@ export default class Game extends React.Component {
         this.cardDisplayPercent = 0;
 
         // This binding is necessary to make `this` work in the callback
-        this.handleFlip = this.handleFlip.bind(this);
         this.handleTouch = this.handleTouch.bind(this);
         this.handleMouse = this.handleMouse.bind(this);
         this.tick = this.tick.bind(this);
@@ -81,8 +80,6 @@ export default class Game extends React.Component {
         this.loop.stop();
         this.unsubscribe(this.loopID);
     }
-
-
 
     // Callback function for mouse events. Creates fake touch points.
     handleMouse(event) {
@@ -130,6 +127,11 @@ export default class Game extends React.Component {
     // This is called after every handleTouch() and handleMouse()
     handleInput() {
 
+        // Only respond to input in the PLAY phase
+        if (this.phase !== Game.Phase.PLAY) {
+            return;
+        }
+
         // Combine the real and fake(mouse) touch points into one array
         let allTouchPoints = this.touchPoints.concat(this.fakeTouchPoints);
 
@@ -140,52 +142,13 @@ export default class Game extends React.Component {
             let elementsAtTouchPoint = document.elementsFromPoint(touchPoint.x, touchPoint.y);
             for (let cardElement of cardElements) {
                 if (elementsAtTouchPoint.includes(cardElement)) {
-                    touchedCards.push(cardElement.id);
+                    touchedCards.push(parseInt(cardElement.id));
                 }
             }
         }
 
-        // Flip all cards that should be flipped.
-        let cards = this.gameLogic.cards;
-        for (let cardKey in cards) {
-
-            let card = cards[cardKey];
-            if (card.matched) {
-                continue;
-            }
-
-            let touched = false;
-            if (touchedCards.includes(cardKey)) {
-                touched = true;
-            }
-
-            // If the card is face up and the card is not touched, flip the card.
-            // If the card is face down and the card is touched, flip the card.
-            if (card.faceUp && !touched) {
-                this.handleFlip(cardKey);
-            }
-            else if (!card.faceUp && touched) {
-                this.handleFlip(cardKey);
-            }
-        }
-
-        this.forceUpdate();
-    }
-
-    // Handles flipping cards
-    handleFlip(cardKey) {
-
-        if (this.phase !== Game.Phase.PLAY) {
-            return;
-        }
-
-        // Toggle the card
-        let card = this.gameLogic.cards[cardKey];
-        if (card.faceUp) {
-            this.gameLogic.releaseCard(cardKey);
-        } else {
-            this.gameLogic.pressCard(cardKey);
-        }
+        // Update the touched cards.
+        this.gameLogic.setTouches(touchedCards);
 
         // Handle game win/loss conditions
         if (this.gameLogic.isGameWon()) {
@@ -193,6 +156,9 @@ export default class Game extends React.Component {
             setTimeout(() => new Audio(winSoundFile).play(), 250);
             setTimeout(() => this.loadNextLevel(true), 2000.0);
         }
+
+        // Force the component to re-render
+        this.forceUpdate();
     }
 
     loadNextLevel (prevLevelWon) {

@@ -115,28 +115,44 @@ export default class GameLogic {
         }
     }
 
-    pressCard(cardKey) {
+    setTouches(touchedCards) {
 
-        // get card and error check
-        if (this.numCards <= cardKey){
-            console.log("Error: cardKey out of range in pressCard()");
-            return;
+        for (let card of this.cards) {
+
+            // Cant interact with matched cards.
+            if (card.matched) {
+                continue;
+            }
+
+            // Figure out if the card is touched.
+            let touched = touchedCards.includes(card.cardKey);
+
+            // Face down card is touched
+            if (!card.faceUp && touched) {
+
+                // Reject the flip if all concurrent flips are in use.
+                if (this.concurrentFlips < this.maxConcurrentFlips) {
+                    card.faceUp = true;
+                    this.concurrentFlips += 1;
+                    this.flipsUsed += 1;
+                    this.tryMatch(card);
+                }
+            }
+
+            // Face up card is released
+            else if (card.faceUp && !touched) {
+                this.concurrentFlips -= 1;
+                card.faceUp = false;
+            }
         }
-        let card = this.cards[cardKey];
-        if (card.faceUp) {
-            console.log("Error: pressCard(" + cardKey + ") on card that is not flipped.");
-            return;
+
+        // Record time if game was won
+        if (this.isGameWon()) {
+            this.timeAtLevelWin = Date.now();
         }
+    }
 
-        if (this.concurrentFlips >= this.maxConcurrentFlips) {
-            return;
-        }
-
-        // Set the card as faceUp
-        card.faceUp = true;
-        this.concurrentFlips += 1;
-        this.flipsUsed += 1;
-
+    tryMatch(card) {
         // If the card with a matching ID is also faceUp, set the matched flag on both cards
         for (let compareCard of this.cards) {
             if (compareCard !== card && card.matchID === compareCard.matchID && compareCard.faceUp) {
@@ -144,28 +160,6 @@ export default class GameLogic {
                 this.concurrentFlips -= 2;
             }
         }
-
-        if (this.isGameWon()) {
-            this.timeAtLevelWin = Date.now();
-        }
-    }
-
-    releaseCard(cardKey) {
-
-        // get card and error check
-        if (this.numCards <= cardKey) {
-            console.log("Error: cardKey out of range in releaseCard()");
-        }
-        let card = this.cards[cardKey];
-        if (!card.faceUp) {
-            console.log("Error: releaseCard(" + cardKey + ") on card that is not flipped.");
-        }
-        if (card.matched) {
-            console.log("Error: releaseCard(" + cardKey + ") on card that is matched.");
-        }
-
-        this.concurrentFlips -= 1;
-        card.faceUp = false;
     }
 
     isGameWon() {
