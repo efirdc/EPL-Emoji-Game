@@ -3,6 +3,7 @@ import React from 'react';
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
+import * as colorConvert from "color-convert";
 
 export default class Card extends React.PureComponent {
 
@@ -107,6 +108,8 @@ export default class Card extends React.PureComponent {
             // Styling
             fontSize: this.props.size * 0.5 + "vh",
         };
+
+        // blobID decides card back color
         const eplColors = [
             "#ffb748",
             "#79bd52",
@@ -114,14 +117,22 @@ export default class Card extends React.PureComponent {
             "#7c4694",
             "#009dd8",
         ];
+        let color = eplColors[this.props.blobID % eplColors.length];
+
+        // Reduce saturation to 75% if the card is
+        if (this.props.flipRejected) {
+            let colorHsv = colorConvert.hex.hsv(color.substring(1));
+            colorHsv[2] *= 0.75;
+            color = "#" + colorConvert.hsv.hex(colorHsv);
+        }
+
         const cardBack = {
             ...cardCommon,
 
             zIndex: '2',
 
             transform: `rotateX(${this.props.faceUp ? 180 : 0}deg)`,
-            backgroundColor : eplColors[this.props.blobID % eplColors.length],
-            //backgroundColor : "#1e1e1e",
+            backgroundColor : color,
         };
         const cardFront = {
             ...cardCommon,
