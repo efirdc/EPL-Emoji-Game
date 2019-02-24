@@ -36,7 +36,7 @@ export default class Game extends React.Component {
         this.touchPoints = [];
         this.fakeTouchPoints = [];
         this.touchPointSize = 30;
-        this.mouseDown = false;
+        this.draggingTouchPoint = -1;
 
         this.phase = Game.Phase.LEVEL_LOAD;
         this.timer = 0;
@@ -84,9 +84,9 @@ export default class Game extends React.Component {
     // Callback function for mouse events. Creates fake touch points.
     handleMouse(event) {
 
-        // shift + click to add/remove touch points
         if (event.type === "mousedown") {
-            this.mouseDown = true;
+
+            // Create new touch points on shift + click
             if (event.shiftKey) {
                 if (event.target.className === "FakeTouchPoint") {
                     this.fakeTouchPoints.splice(event.target.id, 1);
@@ -94,15 +94,20 @@ export default class Game extends React.Component {
                     this.fakeTouchPoints.push({x: event.clientX, y: event.clientY});
                 }
             }
+
+            // Start drag behavior if a touch point is clicked.
+            else if (event.target.className === "FakeTouchPoint") {
+                this.draggingTouchPoint = event.target.id;
+            }
         }
 
-        // touchpoint drag behavior
-        else if (event.type === "mousemove" && this.mouseDown && event.target.className === "FakeTouchPoint") {
-            this.fakeTouchPoints[event.target.id] = {x: event.clientX, y: event.clientY};
+        // Touch point drag behavior.
+        else if (event.type === "mousemove" && this.draggingTouchPoint !== -1) {
+            this.fakeTouchPoints[this.draggingTouchPoint] = {x: event.clientX, y: event.clientY};
         }
 
         else if (event.type === "mouseup") {
-            this.mouseDown = false;
+            this.draggingTouchPoint = -1;
         }
 
         this.handleInput();
@@ -197,6 +202,8 @@ export default class Game extends React.Component {
             position: "absolute",
             top: "50vh",
             left: "50vw",
+            userSelect: "none",
+            //pointerEvents: 'none'
         };
 
         const debugRectStyle = (rectWidth, rectHeight) => ({
