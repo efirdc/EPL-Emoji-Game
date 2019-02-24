@@ -29,7 +29,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(100, 12, 65);
+        this.gameLogic.addLevel(100, 12, 125);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
@@ -65,7 +65,7 @@ export default class Game extends React.Component {
         else if (this.phase === Game.Phase.PLAY) {
             if (this.gameLogic.isGameLost()) {
                 this.phase = Game.Phase.LEVEL_LOSE;
-                setTimeout(() => new Audio(loseSoundFile).play(), 250);
+                new Audio(loseSoundFile).play();
                 setTimeout(() => this.loadNextLevel(true), 2000.0);
             }
         }
