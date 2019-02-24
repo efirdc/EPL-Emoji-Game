@@ -41,17 +41,26 @@ export default class GameLogic {
         this.flipsUsed = 0;
         this.maxConcurrentFlips = 0;
         this.concurrentFlips = 0;
+        this.levelStarted = false;
         this.timeToCompleteLevel = 0;
         this.timeAtLevelStart = Date.now();
         this.timeAtLevelWin = null;
     }
 
+    // Gets the time left in a level. This is used to determine the loss condition.
     get timeLeft () {
+
+        // If the level has not yet started, then return the total time to complete the level
+        if (!this.levelStarted) {
+            return this.timeToCompleteLevel;
+        }
+
+        // Decrease the time left until the game ends.
         let timeElapsed;
-        if (this.isGameWon()) {
-            timeElapsed = (this.timeAtLevelWin - this.timeAtLevelStart) / 1000;
-        } else {
+        if (!this.isGameWon()) {
             timeElapsed = (Date.now() - this.timeAtLevelStart) / 1000;
+        } else {
+            timeElapsed = (this.timeAtLevelWin - this.timeAtLevelStart) / 1000;
         }
         return this.timeToCompleteLevel - timeElapsed;
     }
@@ -87,8 +96,9 @@ export default class GameLogic {
         this.flipsUsed = 0;
         this.maxConcurrentFlips = level.maxConcurrentFlips;
         this.concurrentFlips = 0;
+        this.levelStarted = false;
         this.timeToCompleteLevel = level.timeToCompleteLevel;
-        this.timeAtLevelStart = Date.now();
+        this.timeAtLevelStart = undefined;
         this.timeAtLevelWin = undefined;
 
         // Reset the cards array and distribute them randomly.
@@ -97,6 +107,11 @@ export default class GameLogic {
             this.cards[cardKey] = new Card(0, cardKey);
         }
         this.distributeCardsRandomly();
+    }
+
+    startLevel() {
+        this.timeAtLevelStart = Date.now();
+        this.levelStarted = true;
     }
 
     distributeCardsRandomly() {

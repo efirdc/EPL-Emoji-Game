@@ -29,7 +29,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(100, 12, 120);
+        this.gameLogic.addLevel(100, 12, 65);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
@@ -57,6 +57,7 @@ export default class Game extends React.Component {
             this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
             if (this.timer > phaseLength) {
                 this.phase = Game.Phase.PLAY;
+                this.gameLogic.startLevel();
                 this.timer = 0;
             }
         }
@@ -113,7 +114,7 @@ export default class Game extends React.Component {
         this.handleInput();
     }
 
-    // Callback function for all touch events. Gets the real touchpoints.
+    // Callback function for all touch events. Gets the real touch points.
     handleTouch(event) {
 
         // Update the array of touch points
