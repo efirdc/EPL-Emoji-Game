@@ -271,8 +271,8 @@ export default class Game extends React.Component {
                     </div>
                     <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
                     <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
-                    <Timer x={-20} y={0} rotation={90} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={20} y={0} rotation={-90} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={-30} y={-10} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={30} y={10} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                 </div>
             </div>
         )
