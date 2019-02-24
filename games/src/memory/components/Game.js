@@ -238,7 +238,6 @@ export default class Game extends React.Component {
                                 {...blobs[card.cardKey]}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2 - 1}
-                                flipHandler={this.handleFlip}
                                 loop={this.loop}
                             />
                         ))}
