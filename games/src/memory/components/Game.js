@@ -8,7 +8,7 @@ import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
 import HexBoard from '../controllers/HexBoard.js';
 import GameLoop from '../controllers/GameLoop.js';
-
+import emojiData from './EmojiData.js';
 
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
@@ -29,7 +29,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(100, 12, 125);
+        this.gameLogic.addLevel(emojiData.sequence.length * 2, emojiData.sequence.length, 125);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
