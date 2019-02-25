@@ -1,5 +1,6 @@
 import React from 'react';
 import emoji from 'node-emoji';
+import Twemoji from 'react-twemoji';
 import emojiData from './EmojiData.js';
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
@@ -159,7 +160,9 @@ export default class Card extends React.PureComponent {
                     id={this.props.cardKey}
                 >
                     <div className={"card"} style={styles.cardFront}>
-                        <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+                        <Twemoji options={{ className: 'twemoji' }}>
+                            {emojiData.sequence[this.props.matchID % emojiData.sequence.length]}
+                        </Twemoji>
                     </div>
                     <div className={"card"} style={styles.cardBack}>
                         {}
