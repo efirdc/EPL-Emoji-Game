@@ -19,6 +19,7 @@
     "gl-react": "^3.15.0",
     "gl-react-dom": "^3.15.0",
     "i": "^0.3.6",
+    "node-emoji": "^1.10.0",
     "npm": "^6.7.0",
     "prop-types": "^15.7.2",
     "rc-progress": "^2.3.0",
@@ -27,6 +28,7 @@
     "react-electron-browser-window": "^0.1.2",
     "react-scripts": "1.0.11",
     "react-sweet-progress": "^1.1.2",
+    "react-twemoji": "^0.1.0",
     "shuffle-array": "^1.0.1",
     "styled-components": "^4.1.3"
   },
