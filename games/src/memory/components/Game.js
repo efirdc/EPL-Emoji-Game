@@ -3,6 +3,7 @@ import React from 'react';
 import Card from './Card';
 import TouchPoint from './TouchPoint.js'
 import Timer from "./Timer.js"
+import CardFlipCounter from "./CardFlipCounter.js"
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
@@ -29,7 +30,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(emojiData.sequence.length * 2, emojiData.sequence.length, 125);
+        this.gameLogic.addLevel(emojiData.sequence.length * 2, 12, 125);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
@@ -274,6 +275,17 @@ export default class Game extends React.Component {
                     <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
                     <Timer x={-30} y={-10} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={30} y={10} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <CardFlipCounter
+                        x={-30} y={0} rotation={0}
+                        numFlips={this.gameLogic.concurrentFlips}
+                        maxFlips={this.gameLogic.maxConcurrentFlips}
+                    />
+                    <CardFlipCounter
+                        x={30} y={0} rotation={180}
+                        numFlips={this.gameLogic.concurrentFlips}
+                        maxFlips={this.gameLogic.maxConcurrentFlips}
+                    />
+
                 </div>
             </div>
         )
