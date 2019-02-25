@@ -1,5 +1,6 @@
 import React from 'react';
-
+import emoji from 'node-emoji';
+import emojiData from './EmojiData.js';
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
@@ -22,7 +23,6 @@ export default class Card extends React.PureComponent {
         this.matchSound = new Audio(matchSoundFile);
         this.matchSound.volume = 0.65;
         this.clickSound.volume = 0.65;
-
         this.phase = Card.Phase.INITIAL;
 
         // This binding is necessary to make `this` work in the callback
@@ -159,7 +159,7 @@ export default class Card extends React.PureComponent {
                     id={this.props.cardKey}
                 >
                     <div className={"card"} style={styles.cardFront}>
-                        <h3 style = {{fontFamily: "Coda", fontWeight: "200", userSelect: "none"}}>{this.props.matchID}</h3>
+                        <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
                     </div>
                     <div className={"card"} style={styles.cardBack}>
                         {}
