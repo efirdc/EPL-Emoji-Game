@@ -80,7 +80,7 @@ export default class Game extends React.Component {
     }
     componentWillUnmount() {
         this.loop.stop();
-        this.unsubscribe(this.loopID);
+        this.loop.unsubscribe(this.loopID);
     }
 
     // Callback function for mouse events. Creates fake touch points.
@@ -285,7 +285,6 @@ export default class Game extends React.Component {
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.maxConcurrentFlips}
                     />
-
                 </div>
             </div>
         )
