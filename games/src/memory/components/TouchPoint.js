@@ -22,12 +22,15 @@ export default function TouchPoint(props) {
         transform: 'translate(' + (x - (size / 2)) + 'px, ' + (y - (size / 2)) + 'px)',
         zIndex: 100
     }};
+
     return (
-        <Motion defaultStyle={{x: 0, y: 0}}
-        <div
-            className={props.fake ? "FakeTouchPoint" : "TouchPoint"}
-            style={style}
-            id={props.id}
-        />
+        <Motion defaultStyle={{x: props.x, y: props.y}} style={{x: spring(props.x), y: spring(props.y)}}>
+            {interpolated =>
+                <div
+                className={props.fake ? "FakeTouchPoint" : "TouchPoint"}
+                style={getStyle(interpolated.x, interpolated.y, props.size)}
+                id={props.id}
+            />}
+        </Motion>
     );
 }
