@@ -34,8 +34,9 @@ export default class Game extends React.Component {
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
-        this.touchPoints = [];
-        this.fakeTouchPoints = [];
+        this.touchPoints = {};
+        this.fakeTouchPoints = {};
+        this.nextFakeTouchIdentifier = 1000;
         this.touchPointSize = 30;
         this.draggingTouchPoint = -1;
 
@@ -88,12 +89,13 @@ export default class Game extends React.Component {
 
         if (event.type === "mousedown") {
 
-            // Create new touch points on shift + click
+            // add or remove touch points on shift + click
             if (event.shiftKey) {
                 if (event.target.className === "FakeTouchPoint") {
-                    this.fakeTouchPoints.splice(event.target.id, 1);
+                    delete this.fakeTouchPoints[event.target.id];
                 } else {
-                    this.fakeTouchPoints.push({x: event.clientX, y: event.clientY});
+                    this.fakeTouchPoints[this.nextFakeTouchIdentifier] = {x: event.clientX, y: event.clientY};
+                    this.nextFakeTouchIdentifier += 1;
                 }
             }
 
@@ -118,10 +120,10 @@ export default class Game extends React.Component {
     // Callback function for all touch events. Gets the real touch points.
     handleTouch(event) {
 
-        // Update the array of touch points
-        this.touchPoints = [];
+        // reconstruct the touchPoints object
+        this.touchPoints = {};
         for (let touch of event.touches) {
-            this.touchPoints.push({x: touch.clientX, y: touch.clientY});
+            this.touchPoints[touch.identifier] = {x: touch.clientX, y: touch.clientY};
         }
 
         // This might stop touch points from also sending click events (needs testing)
@@ -139,8 +141,8 @@ export default class Game extends React.Component {
             return;
         }
 
-        // Combine the real and fake(mouse) touch points into one array
-        let allTouchPoints = this.touchPoints.concat(this.fakeTouchPoints);
+        // Combine the real and fake(mouse) touch points into one object
+        let allTouchPoints = [...Object.values(this.touchPoints), ...Object.values(this.fakeTouchPoints)];
 
         // Figure out which cards are touched.
         let touchedCards = [];
@@ -252,21 +254,21 @@ export default class Game extends React.Component {
                         ))}
                     </div>
                     <div>
-                        {this.touchPoints.map((touchPoint, index) => (
+                        {Object.keys(this.touchPoints).map((touchID) => (
                             <TouchPoint
-                                {...touchPoint}
-                                key={index.toString()}
+                                {...this.touchPoints[touchID]}
+                                key={touchID.toString()}
                                 size={this.touchPointSize}
                             />
                         ))}
                     </div>
                     <div>
-                        {this.fakeTouchPoints.map((touchPoint, index) => (
+                        {Object.keys(this.fakeTouchPoints).map((touchID) => (
                             <TouchPoint
-                                {...touchPoint}
+                                {...this.fakeTouchPoints[touchID]}
                                 fake={true}
-                                id={index}
-                                key={index.toString()}
+                                id={touchID}
+                                key={touchID.toString()}
                                 size={this.touchPointSize}
                             />
                         ))}
