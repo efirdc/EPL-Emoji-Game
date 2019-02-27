@@ -13,6 +13,7 @@ read: https://www.w3schools.com/css/css3_box-sizing.asp
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    pointer-events: none;
 }
 
 html, body, #root, #app, #app>div {

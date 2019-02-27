@@ -26,6 +26,8 @@ export default class Card extends React.PureComponent {
         this.clickSound.volume = 0.65;
         this.phase = Card.Phase.INITIAL;
 
+        this.inputHandlerRef = React.createRef();
+
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
         this.handlePointer = this.handlePointer.bind(this);
@@ -51,6 +53,10 @@ export default class Card extends React.PureComponent {
 
     componentDidMount() {
         this.loopID = this.props.loop.subscribe(this.tick);
+        this.inputHandlerRef.current.addEventListener("pointerenter", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("pointerleave", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("gotpointercapture", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("lostpointercapture", this.handlePointer);
     }
 
     componentWillUnmount() {
@@ -75,15 +81,14 @@ export default class Card extends React.PureComponent {
     }
 
     handlePointer(event) {
-        console.log(event);
-       if(event.type === "pointerover") {
+        if(event.type === "pointerenter") {
            event.target.setPointerCapture(event.pointerId);
-           console.log("over", event.target);
-       }
-       else if (event.type === "pointerleave") {
+        }
+        else if (event.type === "pointerleave") {
            event.target.releasePointerCapture(event.pointerId);
-           console.log("leave", event.target);
-       }
+        }
+
+        console.log(event.type, event.target.id);
     }
 
     getStyles() {
@@ -169,11 +174,9 @@ export default class Card extends React.PureComponent {
             >
                 <div
                     className={"cardInputHandler"}
-
-                    onPointerOver={this.handlePointer}
-                    onPointerLeave={this.handlePointer}
                     style={styles.cardCommon}
                     id={this.props.cardKey}
+                    ref={this.inputHandlerRef}
                 >
                     <div className={"card"} style={styles.cardFront}>
                         <Twemoji options={{ className: 'twemoji' }}>
