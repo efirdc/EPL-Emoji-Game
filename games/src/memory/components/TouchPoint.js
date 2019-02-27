@@ -3,7 +3,7 @@ import {Motion, spring} from 'react-motion';
 
 export default function TouchPoint(props) {
 
-    let getStyle = (x, y, size) => { return {
+    let getStyle = (x, y) => { return {
         position: 'fixed',
         left: 0,
         top: 0,
@@ -11,15 +11,15 @@ export default function TouchPoint(props) {
         border: 'solid 1px #999',
         opacity: .4,
         borderRadius: '50%',
-        height: size + 'px',
-        width: size + 'px',
+        height: props.size + 'px',
+        width: props.size + 'px',
         padding: 0,
         margin: 0,
         display: 'block',
         overflow: 'hidden',
         //pointerEvents: 'none',
         //userSelect: 'none',
-        transform: 'translate(' + (x - (size / 2)) + 'px, ' + (y - (size / 2)) + 'px)',
+        transform: 'translate(' + (x - (props.size / 2)) + 'px, ' + (y - (props.size / 2)) + 'px)',
         zIndex: 100
     }};
 
@@ -28,7 +28,7 @@ export default function TouchPoint(props) {
             {interpolated =>
                 <div
                 className={props.fake ? "FakeTouchPoint" : "TouchPoint"}
-                style={getStyle(interpolated.x, interpolated.y, props.size)}
+                style={getStyle(interpolated.x, interpolated.y)}
                 id={props.id}
             />}
         </Motion>
