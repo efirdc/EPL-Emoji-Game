@@ -34,11 +34,11 @@ export default class Game extends React.Component {
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
-        this.touchPoints = {};
-        this.fakeTouchPoints = {};
-        this.nextFakeTouchIdentifier = 1000;
-        this.touchPointSize = 30;
-        this.draggingTouchPoint = -1;
+        this.touchPoints = {}; // Touch points created by real touch events
+        this.fakeTouchPoints = {}; // Touch points simulated by the mouse
+        this.nextFakeTouchIdentifier = 1000; // Next identifier to be used for a fake touch point (needs to be > 80)
+        this.touchPointSize = 30; // size of a touch point
+        this.draggingTouchPoint = -1; // identifier of the fake touch point that is being dragged
 
         this.phase = Game.Phase.LEVEL_LOAD;
         this.timer = 0;
@@ -71,6 +71,7 @@ export default class Game extends React.Component {
                 setTimeout(() => this.loadNextLevel(true), 2000.0);
             }
         }
+        this.handleInput();
         this.forceUpdate();
     }
 
@@ -114,7 +115,7 @@ export default class Game extends React.Component {
             this.draggingTouchPoint = -1;
         }
 
-        this.handleInput();
+
     }
 
     // Callback function for all touch events. Gets the real touch points.
@@ -127,10 +128,8 @@ export default class Game extends React.Component {
         }
 
         // This might stop touch points from also sending click events (needs testing)
-        event.preventDefault();
-        event.stopPropagation();
-
-        this.handleInput();
+        //event.preventDefault();
+        //event.stopPropagation();
     }
 
     // This is called after every handleTouch() and handleMouse()
@@ -167,7 +166,6 @@ export default class Game extends React.Component {
         }
 
         // Force the component to re-render
-        this.forceUpdate();
     }
 
     loadNextLevel (prevLevelWon) {

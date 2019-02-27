@@ -28,6 +28,7 @@ export default class Card extends React.PureComponent {
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
+        this.handlePointer = this.handlePointer.bind(this);
     }
 
     // Use this override to debug the Card if it is updating when it shouldn't.
@@ -71,6 +72,18 @@ export default class Card extends React.PureComponent {
     setPhase(phase) {
         this.phase = phase;
         this.forceUpdate();
+    }
+
+    handlePointer(event) {
+        console.log(event);
+       if(event.type === "pointerover") {
+           event.target.setPointerCapture(event.pointerId);
+           console.log("over", event.target);
+       }
+       else if (event.type === "pointerleave") {
+           event.target.releasePointerCapture(event.pointerId);
+           console.log("leave", event.target);
+       }
     }
 
     getStyles() {
@@ -156,6 +169,9 @@ export default class Card extends React.PureComponent {
             >
                 <div
                     className={"cardInputHandler"}
+
+                    onPointerOver={this.handlePointer}
+                    onPointerLeave={this.handlePointer}
                     style={styles.cardCommon}
                     id={this.props.cardKey}
                 >
