@@ -17,22 +17,16 @@ export default function TouchPoint(props) {
         margin: 0,
         display: 'block',
         overflow: 'hidden',
-        pointerEvents: 'all',
+        //pointerEvents: 'none',
         //userSelect: 'none',
         transform: 'translate(' + (x - (props.size / 2)) + 'px, ' + (y - (props.size / 2)) + 'px)',
         zIndex: 100
     }};
 
-    let handlePointer = e => {
-        console.log("wtf", props.id, e.type);
-    };
-
     return (
         <Motion defaultStyle={{x: props.x, y: props.y}} style={{x: spring(props.x), y: spring(props.y)}}>
             {interpolated =>
                 <div
-                    onPointerEnter={handlePointer}
-                    onPointerOut={handlePointer}
                     className={props.fake ? "FakeTouchPoint" : "TouchPoint"}
                     style={getStyle(interpolated.x, interpolated.y)}
                     id={props.id}
