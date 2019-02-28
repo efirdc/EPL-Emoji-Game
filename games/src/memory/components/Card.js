@@ -25,8 +25,8 @@ export default class Card extends React.PureComponent {
         this.matchSound.volume = 0.65;
         this.clickSound.volume = 0.65;
         this.phase = Card.Phase.INITIAL;
-
         this.inputHandlerRef = React.createRef();
+        this.fingersOnCard = 0;
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
@@ -53,8 +53,8 @@ export default class Card extends React.PureComponent {
 
     componentDidMount() {
         this.loopID = this.props.loop.subscribe(this.tick);
-        this.inputHandlerRef.current.addEventListener("pointerenter", this.handlePointer);
-        this.inputHandlerRef.current.addEventListener("pointerleave", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("pointermove", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("pointerdown", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("gotpointercapture", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("lostpointercapture", this.handlePointer);
     }
@@ -81,14 +81,27 @@ export default class Card extends React.PureComponent {
     }
 
     handlePointer(event) {
-        if(event.type === "pointerenter") {
-           event.target.setPointerCapture(event.pointerId);
-        }
-        else if (event.type === "pointerleave") {
-           event.target.releasePointerCapture(event.pointerId);
+
+        if (event.type === "pointermove" || event.type === "pointerdown") {
+            if (event.buttons) {
+                event.target.setPointerCapture(event.pointerId);
+            }
+
+            if (event.target.hasPointerCapture(event.pointerId)) {
+                let elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
+                if (!elementsAtPoint.includes(event.target)) {
+                    event.target.releasePointerCapture(event.pointerId);
+                }
+            }
         }
 
-        console.log(event.type, event.target.id);
+        else if (event.type === "gotpointercapture") {
+            this.fingersOnCard += 1;
+        }
+
+        else if (event.type === "lostpointercapture") {
+            this.fingersOnCard -= 1;
+        }
     }
 
     getStyles() {
