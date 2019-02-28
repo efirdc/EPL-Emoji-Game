@@ -17,7 +17,7 @@ export default function TouchPoint(props) {
         margin: 0,
         display: 'block',
         overflow: 'hidden',
-        //pointerEvents: 'none',
+        pointerEvents: 'all',
         //userSelect: 'none',
         transform: 'translate(' + (x - (props.size / 2)) + 'px, ' + (y - (props.size / 2)) + 'px)',
         zIndex: 100

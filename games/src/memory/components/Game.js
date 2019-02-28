@@ -34,6 +34,8 @@ export default class Game extends React.Component {
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
+        this.touchedCards = [];
+
         this.touchPoints = {}; // Touch points created by real touch events
         this.fakeTouchPoints = {}; // Touch points simulated by the mouse
         this.nextFakeTouchIdentifier = 1000; // Next identifier to be used for a fake touch point (needs to be > 80)
@@ -45,9 +47,13 @@ export default class Game extends React.Component {
         this.cardDisplayPercent = 0;
 
         // This binding is necessary to make `this` work in the callback
-        this.handleTouch = this.handleTouch.bind(this);
+        //this.handleTouch = this.handleTouch.bind(this);
         this.handleMouse = this.handleMouse.bind(this);
         this.tick = this.tick.bind(this);
+        this.onCardTouchStart = this.onCardTouchStart.bind(this);
+        this.onCardTouchEnd = this.onCardTouchEnd.bind(this);
+
+        this.bodyRef = React.createRef();
     }
 
     tick(deltaTime) {
@@ -71,7 +77,7 @@ export default class Game extends React.Component {
                 setTimeout(() => this.loadNextLevel(true), 2000.0);
             }
         }
-        this.handleInput();
+        //this.handleInput();
         this.forceUpdate();
     }
 
@@ -85,6 +91,28 @@ export default class Game extends React.Component {
         this.loop.unsubscribe(this.loopID);
     }
 
+    onCardTouchStart(cardKey) {
+        this.touchedCards.push(cardKey);
+        this.gameLogic.setTouches(this.touchedCards);
+        this.handleShouldGameEnd()
+    }
+
+    onCardTouchEnd(cardKey) {
+        this.touchedCards = this.touchedCards.filter((key) => key !== cardKey);
+        this.gameLogic.setTouches(this.touchedCards);
+        this.handleShouldGameEnd()
+    }
+
+    handleShouldGameEnd() {
+        // Handle game win/loss conditions
+        if (this.gameLogic.isGameWon()) {
+            this.phase = Game.Phase.LEVEL_WIN;
+            setTimeout(() => new Audio(winSoundFile).play(), 250);
+            setTimeout(() => this.loadNextLevel(true), 2000.0);
+        }
+        this.forceUpdate();
+    }
+
     // Callback function for mouse events. Creates fake touch points.
     handleMouse(event) {
 
@@ -96,6 +124,17 @@ export default class Game extends React.Component {
                     delete this.fakeTouchPoints[event.target.id];
                 } else {
                     this.fakeTouchPoints[this.nextFakeTouchIdentifier] = {x: event.clientX, y: event.clientY};
+                    let fakeEvent = new window.PointerEvent("pointerdown", {
+                        bubbles: true,
+                        cancelable: true,
+                        composed: true,
+                        pointerId: this.nextFakeTouchIdentifier,
+                        pointerType: "touch",
+                        clientX: event.clientX,
+                        clientY: event.clientY,
+                        buttons: 1,
+                    });
+                    window.dispatchEvent(fakeEvent);
                     this.nextFakeTouchIdentifier += 1;
                 }
             }
@@ -109,16 +148,25 @@ export default class Game extends React.Component {
         // Touch point drag behavior.
         else if (event.type === "mousemove" && this.draggingTouchPoint !== -1) {
             this.fakeTouchPoints[this.draggingTouchPoint] = {x: event.clientX, y: event.clientY};
+            let fakeEvent = new window.PointerEvent("pointermove", {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+                pointerId: this.draggingTouchPoint,
+                pointerType: "touch",
+                clientX: event.clientX,
+                clientY: event.clientY,
+                buttons: 1,
+            });
+            window.dispatchEvent(fakeEvent);
         }
 
         else if (event.type === "mouseup") {
             this.draggingTouchPoint = -1;
         }
-
-
     }
 
-    // Callback function for all touch events. Gets the real touch points.
+    /*// Callback function for all touch events. Gets the real touch points.
     handleTouch(event) {
 
         // reconstruct the touchPoints object
@@ -166,7 +214,7 @@ export default class Game extends React.Component {
         }
 
         // Force the component to re-render
-    }
+    }*/
 
     loadNextLevel (prevLevelWon) {
         if (prevLevelWon) {
@@ -188,6 +236,7 @@ export default class Game extends React.Component {
         const bodyStyle = {
             width: "100vw",
             height: "100vh",
+            pointerEvents: "all",
             //background: "-webkit-linear-gradient(290deg, #00C9FF 0%, #92FE9D 100%)",
             boxShadow: "inset 0 0 20px #000000",
         };
@@ -230,10 +279,7 @@ export default class Game extends React.Component {
         return (
             <div
                 style={bodyStyle}
-                onTouchStart={this.handleTouch}
-                onTouchEnd={this.handleTouch}
-                onTouchMove={this.handleTouch}
-                onTouchCancel={this.handleTouch}
+                ref={this.bodyRef}
                 onMouseDown={this.handleMouse}
                 onMouseMove={this.handleMouse}
                 onMouseUp={this.handleMouse}
@@ -248,6 +294,8 @@ export default class Game extends React.Component {
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2 - 1}
                                 loop={this.loop}
+                                onCardTouchStart={this.onCardTouchStart}
+                                onCardTouchEnd={this.onCardTouchEnd}
                             />
                         ))}
                     </div>

@@ -81,7 +81,7 @@ export default class Card extends React.PureComponent {
     }
 
     handlePointer(event) {
-
+        console.log(event.pointerId);
         if (event.type === "pointermove" || event.type === "pointerdown") {
             if (event.buttons) {
                 event.target.setPointerCapture(event.pointerId);
@@ -96,11 +96,17 @@ export default class Card extends React.PureComponent {
         }
 
         else if (event.type === "gotpointercapture") {
+            if (this.fingersOnCard === 0) {
+                this.props.onCardTouchStart(this.props.cardKey);
+            }
             this.fingersOnCard += 1;
         }
 
         else if (event.type === "lostpointercapture") {
             this.fingersOnCard -= 1;
+            if (this.fingersOnCard === 0) {
+                this.props.onCardTouchEnd(this.props.cardKey);
+            }
         }
     }
 
