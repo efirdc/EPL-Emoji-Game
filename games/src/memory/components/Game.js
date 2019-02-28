@@ -1,139 +1,292 @@
 import React from 'react';
-import GameBoard from './GameBoard.js';
+
+import Card from './Card';
+import TouchPoint from './TouchPoint.js'
+import Timer from "./Timer.js"
+import CardFlipCounter from "./CardFlipCounter.js"
 import BackgroundGL from "./BackgroundGL.js";
-import Memory from '../controllers/Memory.js';
+import AspectRatioRect from "./AspectRatioRect.js"
+import GameLogic from '../controllers/GameLogic.js';
+import HexBoard from '../controllers/HexBoard.js';
+import GameLoop from '../controllers/GameLoop.js';
+import emojiData from './EmojiData.js';
 
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
 
-const styles = {
-    body : {
-        height: "100vh", // height is 100% of the viewport size
-        display: "flex", // centers content vertically and horizontally
-        //background: "-webkit-linear-gradient(290deg, #00C9FF 0%, #92FE9D 100%)",
-        boxShadow: "inset 0 0 20px #000000",
-    },
+export default class Game extends React.Component {
 
-    background : {
-        zIndex: "-1",
-        position: "absolute",
-    }
-};
+    static Phase = {
+        PLAY: 0,
+        LEVEL_LOAD: 1,
+        LEVEL_LOSE: 2,
+        LEVEL_WIN: 3,
+    };
 
-
-class Game extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
-        //this.handlePress = this.handlePress.bind(this);
-        //this.handleRelease = this.handleRelease.bind(this);
-        this.handleClick = this.handleClick.bind(this);
+        this.loop = new GameLoop();
 
-        // Create game logic object and add some levels
-        var gameLogic = new Memory.Game(4, 5, 40);
-        gameLogic.addLevel(5, 6, 40);
-        gameLogic.addLevel(6, 7, 45);
-        gameLogic.addLevel(7, 8, 60);
-        gameLogic.addLevel(8, 9, 80);
+        this.hexBoard = new HexBoard();
+        this.gameLogic = new GameLogic();
+        this.gameLogic.addLevel(emojiData.sequence.length * 2, 12, 125);
+        this.gameLogic.setLevel(0);
+        this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
-        this.winSound = new Audio(winSoundFile);
-        this.loseSound = new Audio(loseSoundFile);
+        this.touchPoints = {}; // Touch points created by real touch events
+        this.fakeTouchPoints = {}; // Touch points simulated by the mouse
+        this.nextFakeTouchIdentifier = 1000; // Next identifier to be used for a fake touch point (needs to be > 80)
+        this.touchPointSize = 30; // size of a touch point
+        this.draggingTouchPoint = -1; // identifier of the fake touch point that is being dragged
 
-        this.state = {
-            gameLogic: gameLogic,
-        };
+        this.phase = Game.Phase.LEVEL_LOAD;
+        this.timer = 0;
+        this.cardDisplayPercent = 0;
+
+        // This binding is necessary to make `this` work in the callback
+        this.handleTouch = this.handleTouch.bind(this);
+        this.handleMouse = this.handleMouse.bind(this);
+        this.tick = this.tick.bind(this);
     }
 
-/*     handlePress(row, col) {
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
-        
-        gameLogic.pressCard(row, col);
-        
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
+    tick(deltaTime) {
+
+        this.timer += deltaTime;
+
+        if (this.phase === Game.Phase.LEVEL_LOAD) {
+            const phaseLength = 1.5;
+            this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
+            if (this.timer > phaseLength) {
+                this.phase = Game.Phase.PLAY;
+                this.gameLogic.startLevel();
+                this.timer = 0;
+            }
         }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
+
+        else if (this.phase === Game.Phase.PLAY) {
+            if (this.gameLogic.isGameLost()) {
+                this.phase = Game.Phase.LEVEL_LOSE;
+                new Audio(loseSoundFile).play();
+                setTimeout(() => this.loadNextLevel(true), 2000.0);
+            }
         }
+        this.handleInput();
         this.forceUpdate();
-        
-        
     }
 
-    handleRelease = (row, col) => {
-        var gameLogic = this.state.gameLogic;
+    // Game loop stuff
+    componentDidMount() {
+        this.loop.start();
+        this.loopID = this.loop.subscribe(this.tick);
+    }
+    componentWillUnmount() {
+        this.loop.stop();
+        this.loop.unsubscribe(this.loopID);
+    }
 
-        this.state.gameLogic.releaseCard(row, col);
-        
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
+    // Callback function for mouse events. Creates fake touch points.
+    handleMouse(event) {
+
+        if (event.type === "mousedown") {
+
+            // add or remove touch points on shift + click
+            if (event.shiftKey) {
+                if (event.target.className === "FakeTouchPoint") {
+                    delete this.fakeTouchPoints[event.target.id];
+                } else {
+                    this.fakeTouchPoints[this.nextFakeTouchIdentifier] = {x: event.clientX, y: event.clientY};
+                    this.nextFakeTouchIdentifier += 1;
+                }
+            }
+
+            // Start drag behavior if a touch point is clicked.
+            else if (event.target.className === "FakeTouchPoint") {
+                this.draggingTouchPoint = event.target.id;
+            }
         }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
+
+        // Touch point drag behavior.
+        else if (event.type === "mousemove" && this.draggingTouchPoint !== -1) {
+            this.fakeTouchPoints[this.draggingTouchPoint] = {x: event.clientX, y: event.clientY};
         }
-        this.forceUpdate();
 
-
-        
-    } */
-
-    // Called every time a card is clicked
-    handleClick(row, col){
-
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
-
-        // Toggle the card
-        var card = gameState.board[row][col];
-        if (card.faceUp) { //picture currently visible
-            setTimeout(gameLogic.releaseCard(row, col), 1000); 
-        } else { // picture not currently visible
-            setTimeout(gameLogic.pressCard(row, col),1000); // icon visible
+        else if (event.type === "mouseup") {
+            this.draggingTouchPoint = -1;
         }
+
+
+    }
+
+    // Callback function for all touch events. Gets the real touch points.
+    handleTouch(event) {
+
+        // reconstruct the touchPoints object
+        this.touchPoints = {};
+        for (let touch of event.touches) {
+            this.touchPoints[touch.identifier] = {x: touch.clientX, y: touch.clientY};
+        }
+
+        // This might stop touch points from also sending click events (needs testing)
+        //event.preventDefault();
+        //event.stopPropagation();
+    }
+
+    // This is called after every handleTouch() and handleMouse()
+    handleInput() {
+
+        // Only respond to input in the PLAY phase
+        if (this.phase !== Game.Phase.PLAY) {
+            return;
+        }
+
+        // Combine the real and fake(mouse) touch points into one object
+        let allTouchPoints = [...Object.values(this.touchPoints), ...Object.values(this.fakeTouchPoints)];
+
+        // Figure out which cards are touched.
+        let touchedCards = [];
+        let cardElements = document.getElementsByClassName("cardInputHandler");
+        for (let touchPoint of allTouchPoints) {
+            let elementsAtTouchPoint = document.elementsFromPoint(touchPoint.x, touchPoint.y);
+            for (let cardElement of cardElements) {
+                if (elementsAtTouchPoint.includes(cardElement)) {
+                    touchedCards.push(parseInt(cardElement.id));
+                }
+            }
+        }
+
+        // Update the touched cards.
+        this.gameLogic.setTouches(touchedCards);
 
         // Handle game win/loss conditions
-        if (gameLogic.isGameLost()) {
-            this.loseSound.play();
-            gameLogic.setLevel(0);
+        if (this.gameLogic.isGameWon()) {
+            this.phase = Game.Phase.LEVEL_WIN;
+            setTimeout(() => new Audio(winSoundFile).play(), 250);
+            setTimeout(() => this.loadNextLevel(true), 2000.0);
         }
-        if (gameLogic.isGameWon()) {
-            
-            this.winSound.play();
 
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-    
+        // Force the component to re-render
+    }
+
+    loadNextLevel (prevLevelWon) {
+        if (prevLevelWon) {
+            this.gameLogic.nextLevel();
+        } else {
+            this.gameLogic.setLevel(0);
         }
-        
-        
 
-        // Have to force the component to re-render because we touched state the "bad" way
+        this.hexBoard.distributeBlobs(this.gameLogic.numCards);
+        this.phase = Game.Phase.LEVEL_LOAD;
+        this.timer = 0;
+        this.cardDisplayPercent = 0;
         this.forceUpdate();
     }
 
     render() {
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
+
+        // Body contains the entire viewport
+        const bodyStyle = {
+            width: "100vw",
+            height: "100vh",
+            //background: "-webkit-linear-gradient(290deg, #00C9FF 0%, #92FE9D 100%)",
+            boxShadow: "inset 0 0 20px #000000",
+        };
+        const backgroundStyle = {
+            zIndex: "-1",
+            position: "absolute",
+        };
+
+        // Board origin is at the center of the viewport
+        // Elements in the board should have position: 'absolute' and use 'vh' units.
+        const boardStyle = {
+            height: "0",
+            width: "0",
+            position: "absolute",
+            top: "50vh",
+            left: "50vw",
+            userSelect: "none",
+            //pointerEvents: 'none'
+        };
+
+        const debugRectStyle = (rectWidth, rectHeight) => ({
+            zIndex: 3,
+            width: rectWidth * 2 + "vh",
+            height: rectHeight * 2 + "vh",
+            left: -rectWidth + "vh",
+            top: -rectHeight + "vh",
+            position: "absolute",
+            borderStyle: "solid",
+            borderColor: "black",
+            pointerEvents: "none",
+        });
+
+        let gameLogic = this.gameLogic;
+        let hexBoard =  this.hexBoard;
+        let hexPoints = hexBoard.pointsFlat;
+        let blobs = hexBoard.blobData;
+
+        let partialCards = gameLogic.cards.slice(0, Math.floor(blobs.length * this.cardDisplayPercent));
+
         return (
-            <div style={styles.body}>
-                <div style={styles.background}>
-                    <BackgroundGL
-                        colorA={"#f4fcff"}
-                        colorB={"#8ca4b8"}
+            <div
+                style={bodyStyle}
+                onTouchStart={this.handleTouch}
+                onTouchEnd={this.handleTouch}
+                onTouchMove={this.handleTouch}
+                onTouchCancel={this.handleTouch}
+                onMouseDown={this.handleMouse}
+                onMouseMove={this.handleMouse}
+                onMouseUp={this.handleMouse}
+            >
+                <AspectRatioRect aspectRatio={16/9}/>
+                <div style={boardStyle}>
+                    <div>
+                        {partialCards.map((card) => (
+                            <Card
+                                {...card}
+                                {...blobs[card.cardKey]}
+                                key={card.cardKey.toString()}
+                                size={hexBoard.hexSize * 2 - 1}
+                                loop={this.loop}
+                            />
+                        ))}
+                    </div>
+                    <div>
+                        {Object.keys(this.touchPoints).map((touchID) => (
+                            <TouchPoint
+                                {...this.touchPoints[touchID]}
+                                key={touchID.toString()}
+                                size={this.touchPointSize}
+                            />
+                        ))}
+                    </div>
+                    <div>
+                        {Object.keys(this.fakeTouchPoints).map((touchID) => (
+                            <TouchPoint
+                                {...this.fakeTouchPoints[touchID]}
+                                fake={true}
+                                id={touchID}
+                                key={touchID.toString()}
+                                size={this.touchPointSize}
+                            />
+                        ))}
+                    </div>
+                    <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
+                    <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
+                    <Timer x={-30} y={-10} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={30} y={10} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <CardFlipCounter
+                        x={-30} y={0} rotation={0}
+                        numFlips={this.gameLogic.concurrentFlips}
+                        maxFlips={this.gameLogic.maxConcurrentFlips}
+                    />
+                    <CardFlipCounter
+                        x={30} y={0} rotation={180}
+                        numFlips={this.gameLogic.concurrentFlips}
+                        maxFlips={this.gameLogic.maxConcurrentFlips}
                     />
                 </div>
-                <GameBoard
-                    gameState={gameState}
-                    //press = {(row, col) => this.handlePress(row, col)}
-                    //release = {(row, col) => this.handleRelease(row, col)}
-                    onClick = {(row, col) => this.handleClick(row, col)}
-                />
             </div>
         )
     }
 }
-
-export default Game;

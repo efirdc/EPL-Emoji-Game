@@ -1,170 +1,190 @@
-// This is based on https://github.com/AaronCCWong/react-card-flip/blob/master/src/ReactCardFlip.jsx
 import React from 'react';
-
-import './board.css';
+import emoji from 'node-emoji';
+import Twemoji from 'react-twemoji';
+import emojiData from './EmojiData.js';
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
+import "./Card.css";
+import * as colorConvert from "color-convert";
 
+export default class Card extends React.PureComponent {
 
-const styles = {
-    container: {
-        position: "relative", // definitely does something
-        transformStyle: 'preserve-3d', // probably does something
-        perspective: "500px", // lower = more stupid looking
-    },
+    static Phase = {
+        INITIAL: 0,
+        ENTER: 1,
+        PLAY: 2,
+        MATCHED: 3,
+        EXIT: 4,
+    };
 
-    card: {
-        // Parent element controls the size of the card
-        height: "100%",
-        width: "100%",
-
-        // Center content
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-
-        // Styling
-        borderRadius: "15px",
-        fontSize: "50px",
-        
-        //boxShadow: "2px 4px 6px 0 hsla(0, 0%, 0%, 0.2)",
-
-        // Flip
-        backfaceVisibility: 'hidden',
-        left: '0',
-        top: '0',
-        transformStyle: 'preserve-3d',
-        transition: "transform 0.3s",
-        position: "absolute",
-
-        clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)"
-    },
-
-    
-};
-
-class Card extends React.Component {
     constructor(props) {
         super(props);
-
-
-        this.state = {
-            offset : this.props.row % 2 == 0 ? "offset" : "false",
-            pix : this.props.hexSize * 3,
-        };
-        
 
         this.clickSound = new Audio(clickSoundFile);
         this.matchSound = new Audio(matchSoundFile);
         this.matchSound.volume = 0.65;
         this.clickSound.volume = 0.65;
+        this.phase = Card.Phase.INITIAL;
 
         // This binding is necessary to make `this` work in the callback
-        
-        this.handleClick = this.handleClick.bind(this);
-        /* this.handlePressStart = this.handlePressStart.bind(this);
-        this.handlePressEnd = this.handlePressEnd.bind(this);
-        this.handleMouseDown = this.handleMouseDown.bind(this);
-        this.handleMouseUp = this.handleMouseUp.bind(this);
-        this.handleMouseLeave = this.handleMouseLeave.bind(this); */
-
-        
-        
+        this.tick = this.tick.bind(this);
+        this.handlePointer = this.handlePointer.bind(this);
     }
 
-    componentWillReceiveProps(nextProps){
-        if (nextProps.matched && !this.props.matched && !this.props.faceUp) {
-            this.matchSound.play();
+    // Use this override to debug the Card if it is updating when it shouldn't.
+    /*
+    shouldComponentUpdate(nextProps, nextState) {
+        for (let propName in this.props) {
+            if (this.props[propName] !== nextProps[propName]) {
+                console.log("Card update because of", propName, "change.");
+                return true;
+            }
+        }
+        return false;
+    }*/
+
+    tick (deltaTime) {
+        if (this.phase === Card.Phase.INITIAL) {
+            this.setPhase(Card.Phase.ENTER);
+        }
+    }
+
+    componentDidMount() {
+        this.loopID = this.props.loop.subscribe(this.tick);
+    }
+
+    componentWillUnmount() {
+        this.props.loop.unsubscribe(this.loopID);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.matched && !this.props.matched) {
+            if (!this.props.faceUp) {
+                new Audio(matchSoundFile).play();
+            }
+            this.phase = Card.Phase.MATCHED;
+        }
+        if (nextProps.faceUp && !this.props.faceUp) {
+            new Audio(clickSoundFile).play();
+        }
+    }
+
+    setPhase(phase) {
+        this.phase = phase;
+        this.forceUpdate();
+    }
+
+    handlePointer(event) {
+        console.log(event);
+       if(event.type === "pointerover") {
+           event.target.setPointerCapture(event.pointerId);
+           console.log("over", event.target);
+       }
+       else if (event.type === "pointerleave") {
+           event.target.releasePointerCapture(event.pointerId);
+           console.log("leave", event.target);
+       }
+    }
+
+    getStyles() {
+        let pos, scale, transitionTime;
+        if (this.phase === Card.Phase.INITIAL) {
+            pos = {x:0, y:0};
+            scale = 0.0;
+        }
+        else if (this.phase === Card.Phase.ENTER) {
+            transitionTime = 0.5;
+            pos = this.props.point;
+            scale = 1.0;
+        }
+        else if (this.phase === Card.Phase.MATCHED) {
+            transitionTime = 0.3;
+            pos = this.props.point;
+            scale = 1.2;
+            setTimeout(() => (this.setPhase(Card.Phase.EXIT)), transitionTime * 1000);
+        }
+        else if (this.phase === Card.Phase.EXIT) {
+            transitionTime = 0.3;
+            pos = this.props.point;
+            scale = 0.0;
         }
 
-        if (nextProps.faceUp !== this.props.faceUp) {
-            this.clickSound.play();
+        const container = {
+            transition: `transform ${transitionTime}s`,
+            transitionTimingFunction: "cubic-bezier(.15,.94,.43,1.08)",
+            transform: `translate(${pos.x}vh, ${pos.y}vh) scale(${scale}`,
+        };
+        const cardCommon = {
+            // Position
+            height: this.props.size + "vh",
+            width: this.props.size + "vh",
+
+            // Styling
+            fontSize: this.props.size * 0.5 + "vh",
+        };
+
+        // blobID decides card back color
+        const eplColors = [
+            "#ffb748",
+            "#79bd52",
+            "#e80862",
+            "#7c4694",
+            "#009dd8",
+        ];
+        let color = eplColors[this.props.blobID % eplColors.length];
+
+        // Reduce saturation to 75% if the card is
+        if (this.props.flipRejected) {
+            let colorHsv = colorConvert.hex.hsv(color.substring(1));
+            colorHsv[2] *= 0.75;
+            color = "#" + colorConvert.hsv.hex(colorHsv);
         }
-    }
 
-    handleClick(){
-        this.props.onClick()
-    } 
-
-   /*  handlePressStart() {
-        console.log("touch started")
-        this.props.onTouchStart();
-    }
-
-    handlePressEnd() {
-        console.log("touch ended")
-        this.props.onTouchEnd();
-    }
-
-    handleMouseDown() {
-        this.props.onMouseDown();
-    }
-
-    handleMouseUp(){
-        this.props.onMouseUp();
-    }
-
-    handleMouseLeave(){
-        this.props.onMouseLeave();
-    } */
-
-
-
-    render() {
-
-        // front/back css styles change on every render
         const cardBack = {
-            ...styles.card,
+            ...cardCommon,
 
             zIndex: '2',
 
-            width: `${this.state.pix}vh`,
-            height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateX(${this.props.faceUp ? 180 : 0}deg)`,
-            backgroundColor : "#1e1e1e",
+            backgroundColor : color,
         };
         const cardFront = {
-            ...styles.card,
+            ...cardCommon,
 
             zIndex: '1',
 
-            width: `${this.state.pix}vh`,
-            height: `${this.state.pix * 1.05 }vh`,
             transform: `rotateX(${this.props.faceUp ? 0 : -180}deg)`,
-
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
-        return(
-            <div className = {this.state.offset} style={styles.container}>
-                <div
-                    className = "cardFront"
-                    style={cardFront}
-                    onClick={this.handleClick}
-                    /* onTouchStart = {this.handlePressStart}
-                    onTouchEnd = {this.handlePressEnd}
-                    onMouseDown = {this.handleMouseDown}
-                    onMouseUp = {this.handleMouseUp}
-                    onMouseLeave = {this.handleMouseLeave} */
-                >
-                    <h3 style = {{fontFamily: "Coda", fontWeight: "200"}}>{this.props.cardID}</h3>
-                </div>
+        return {cardCommon, cardFront, cardBack, container};
+    }
 
+    render() {
+        const styles = this.getStyles();
+        return(
+            <div
+                className={"container"}
+                style={styles.container}
+            >
                 <div
-                    className = "cardBack"
-                    style={cardBack}
-                    onClick={this.handleClick}
-                    /* onTouchStart = {this.handlePressStart}
-                    onTouchEnd = {this.handlePressEnd}
-                    onMouseDown = {this.handleMouseDown}
-                    onMouseUp = {this.handleMouseUp}
-                    onMouseLeave = {this.handleMouseLeave} */
+                    className={"cardInputHandler"}
+
+                    onPointerOver={this.handlePointer}
+                    onPointerLeave={this.handlePointer}
+                    style={styles.cardCommon}
+                    id={this.props.cardKey}
                 >
-                    {}
+                    <div className={"card"} style={styles.cardFront}>
+                        <Twemoji options={{ className: 'twemoji' }}>
+                            {emojiData.sequence[this.props.matchID % emojiData.sequence.length]}
+                        </Twemoji>
+                    </div>
+                    <div className={"card"} style={styles.cardBack}>
+                        {}
+                    </div>
                 </div>
             </div>
         )
     }
 }
-
-export default Card;
