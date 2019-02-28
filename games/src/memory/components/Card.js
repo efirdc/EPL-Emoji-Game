@@ -198,9 +198,7 @@ export default class Card extends React.PureComponent {
                     ref={this.inputHandlerRef}
                 >
                     <div className={"card"} style={styles.cardFront}>
-                        <Twemoji options={{ className: 'twemoji' }}>
-                            {emojiData.sequence[this.props.matchID % emojiData.sequence.length]}
-                        </Twemoji>
+                        <span role="img" >{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
                     </div>
                     <div className={"card"} style={styles.cardBack}>
                         {}
