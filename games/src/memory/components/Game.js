@@ -113,6 +113,34 @@ export default class Game extends React.Component {
         this.forceUpdate();
     }
 
+    getCardElement(x, y) {
+        let elementsAtPoint = document.elementsFromPoint(x, y);
+        for (let elem of elementsAtPoint) {
+            if (elem.className === "cardInputHandler") {
+                return elem;
+            }
+        }
+        return false;
+    }
+
+    dispatchCaptureEvent(cardElem) {
+        let fakeEvent = new window.PointerEvent("gotpointercapture", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+        });
+        cardElem.dispatchEvent(fakeEvent);
+    }
+
+    dispatchReleaseEvent(cardElem) {
+        let fakeEvent = new window.PointerEvent("lostpointercapture", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+        });
+        cardElem.dispatchEvent(fakeEvent);
+    }
+
     // Callback function for mouse events. Creates fake touch points.
     handleMouse(event) {
 
@@ -120,21 +148,29 @@ export default class Game extends React.Component {
 
             // add or remove touch points on shift + click
             if (event.shiftKey) {
+
+                // Delete a fake touch point if it is shift clicked
+                // First dispatch a release event if it was targeting a card element
                 if (event.target.className === "FakeTouchPoint") {
+                    let cardElem = this.fakeTouchPoints[event.target.id].cardElem;
+                    if (cardElem) {
+                        this.dispatchReleaseEvent(cardElem);
+                    }
                     delete this.fakeTouchPoints[event.target.id];
-                } else {
-                    this.fakeTouchPoints[this.nextFakeTouchIdentifier] = {x: event.clientX, y: event.clientY};
-                    let fakeEvent = new window.PointerEvent("pointerdown", {
-                        bubbles: true,
-                        cancelable: true,
-                        composed: true,
-                        pointerId: this.nextFakeTouchIdentifier,
-                        pointerType: "touch",
-                        clientX: event.clientX,
-                        clientY: event.clientY,
-                        buttons: 1,
-                    });
-                    window.dispatchEvent(fakeEvent);
+                }
+
+                // Create a fake touch point
+                // dispatch a capture event if it is targeting a card elemet
+                else {
+                    let cardElem = this.getCardElement(event.clientX, event.clientY);
+                    this.fakeTouchPoints[this.nextFakeTouchIdentifier] = {
+                        x: event.clientX,
+                        y: event.clientY,
+                        cardElem: cardElem,
+                    };
+                    if (cardElem) {
+                        this.dispatchCaptureEvent(cardElem);
+                    }
                     this.nextFakeTouchIdentifier += 1;
                 }
             }
@@ -147,18 +183,29 @@ export default class Game extends React.Component {
 
         // Touch point drag behavior.
         else if (event.type === "mousemove" && this.draggingTouchPoint !== -1) {
-            this.fakeTouchPoints[this.draggingTouchPoint] = {x: event.clientX, y: event.clientY};
-            let fakeEvent = new window.PointerEvent("pointermove", {
-                bubbles: true,
-                cancelable: true,
-                composed: true,
-                pointerId: this.draggingTouchPoint,
-                pointerType: "touch",
-                clientX: event.clientX,
-                clientY: event.clientY,
-                buttons: 1,
-            });
-            window.dispatchEvent(fakeEvent);
+            let prevCardElem = this.fakeTouchPoints[this.draggingTouchPoint].cardElem;
+            let newCardElem = this.getCardElement(event.clientX, event.clientY);
+            this.fakeTouchPoints[this.draggingTouchPoint] = {
+                x: event.clientX,
+                y: event.clientY,
+                cardElem: newCardElem,
+            };
+
+            // Switch from one card to another
+            if (prevCardElem && newCardElem && prevCardElem !== newCardElem) {
+                this.dispatchCaptureEvent(newCardElem);
+                this.dispatchReleaseEvent(prevCardElem);
+            }
+
+            // from no card to a card
+            else if (!prevCardElem && newCardElem) {
+                this.dispatchCaptureEvent(newCardElem);
+            }
+
+            // from card to no card
+            else if (prevCardElem && !newCardElem) {
+                this.dispatchReleaseEvent(prevCardElem);
+            }
         }
 
         else if (event.type === "mouseup") {
