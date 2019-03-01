@@ -2,6 +2,7 @@ import React from 'react';
 
 import Card from './Card';
 import TouchPoint from './TouchPoint.js'
+import FakeTouchPoints from "./FakeTouchPoints"
 import Timer from "./Timer.js"
 import CardFlipCounter from "./CardFlipCounter.js"
 import BackgroundGL from "./BackgroundGL.js";
@@ -78,6 +79,7 @@ export default class Game extends React.Component {
             }
         }
         //this.handleInput();
+        this.updateFakeTouchTargets();
         this.forceUpdate();
     }
 
@@ -141,6 +143,35 @@ export default class Game extends React.Component {
         cardElem.dispatchEvent(fakeEvent);
     }
 
+    updateFakeTouchTargets() {
+        for (let id in this.fakeTouchPoints) {
+
+            if(!this.fakeTouchPoints.hasOwnProperty(id)) {
+                continue;
+            }
+
+            let prevCardElem = this.fakeTouchPoints[id].cardElem;
+            let newCardElem = this.getCardElement(this.fakeTouchPoints[id].x, this.fakeTouchPoints[id].y);
+            this.fakeTouchPoints[id].cardElem = newCardElem;
+
+            // Switch from one card to another
+            if (prevCardElem && newCardElem && prevCardElem !== newCardElem) {
+                this.dispatchCaptureEvent(newCardElem);
+                this.dispatchReleaseEvent(prevCardElem);
+            }
+
+            // from no card to a card
+            else if (!prevCardElem && newCardElem) {
+                this.dispatchCaptureEvent(newCardElem);
+            }
+
+            // from card to no card
+            else if (prevCardElem && !newCardElem) {
+                this.dispatchReleaseEvent(prevCardElem);
+            }
+        }
+    }
+
     // Callback function for mouse events. Creates fake touch points.
     handleMouse(event) {
 
@@ -183,29 +214,8 @@ export default class Game extends React.Component {
 
         // Touch point drag behavior.
         else if (event.type === "mousemove" && this.draggingTouchPoint !== -1) {
-            let prevCardElem = this.fakeTouchPoints[this.draggingTouchPoint].cardElem;
-            let newCardElem = this.getCardElement(event.clientX, event.clientY);
-            this.fakeTouchPoints[this.draggingTouchPoint] = {
-                x: event.clientX,
-                y: event.clientY,
-                cardElem: newCardElem,
-            };
-
-            // Switch from one card to another
-            if (prevCardElem && newCardElem && prevCardElem !== newCardElem) {
-                this.dispatchCaptureEvent(newCardElem);
-                this.dispatchReleaseEvent(prevCardElem);
-            }
-
-            // from no card to a card
-            else if (!prevCardElem && newCardElem) {
-                this.dispatchCaptureEvent(newCardElem);
-            }
-
-            // from card to no card
-            else if (prevCardElem && !newCardElem) {
-                this.dispatchReleaseEvent(prevCardElem);
-            }
+            this.fakeTouchPoints[this.draggingTouchPoint].x = event.clientX;
+            this.fakeTouchPoints[this.draggingTouchPoint].y = event.clientY;
         }
 
         else if (event.type === "mouseup") {
@@ -236,7 +246,7 @@ export default class Game extends React.Component {
         }
 
         // Combine the real and fake(mouse) touch points into one object
-        let allTouchPoints = [...Object.values(this.touchPoints), ...Object.values(this.fakeTouchPoints)];
+        let allTouchPoints = [...Object.values(this.touchPoints), ...Object.values(this.touchPoints)];
 
         // Figure out which cards are touched.
         let touchedCards = [];
@@ -327,9 +337,6 @@ export default class Game extends React.Component {
             <div
                 style={bodyStyle}
                 ref={this.bodyRef}
-                onMouseDown={this.handleMouse}
-                onMouseMove={this.handleMouse}
-                onMouseUp={this.handleMouse}
             >
                 <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
@@ -355,17 +362,7 @@ export default class Game extends React.Component {
                             />
                         ))}
                     </div>
-                    <div>
-                        {Object.keys(this.fakeTouchPoints).map((touchID) => (
-                            <TouchPoint
-                                {...this.fakeTouchPoints[touchID]}
-                                fake={true}
-                                id={touchID}
-                                key={touchID.toString()}
-                                size={this.touchPointSize}
-                            />
-                        ))}
-                    </div>
+                    <FakeTouchPoints loop={this.loop}/>
                     <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
                     <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
                     <Timer x={-30} y={-10} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
