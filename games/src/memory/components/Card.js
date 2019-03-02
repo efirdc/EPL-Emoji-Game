@@ -69,11 +69,16 @@ export default class Card extends React.PureComponent {
         this.inputHandlerRef.current.addEventListener("pointermove", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("pointerdown", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("lostpointercapture", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("pointerup", this.handlePointer);
+        this.inputHandlerRef.current.addEventListener("pointerout", this.handlePointer);
+
         this.inputHandlerRef.current.addEventListener("fakecapture", this.touchStartBehavior);
         this.inputHandlerRef.current.addEventListener("fakerelease", this.touchEndBehavior);
     }
+
     componentWillUnmount() {
         this.props.loop.unsubscribe(this.loopID);
+        this.touchEndBehavior();
     }
 
     // Detect changes in props
@@ -91,25 +96,25 @@ export default class Card extends React.PureComponent {
 
     handlePointer(event) {
 
-        // Handle pointer down and move events
-        if (event.type === "pointerdown" || event.type === "pointermove") {
+        // A pointer event can be captured only if it is in the "active buttons state"
+        // https://www.w3.org/TR/pointerevents/#dfn-active-buttons-state
+        let canCapture = event.type === "pointerdown" || (event.type === "pointermove" && event.buttons);
+        let isCaptured = this.capturedPointers.includes(event.pointerId);
 
-            // If there is an active pointer on the card that hasn't been captured yet
-            // then capture it and trigger the touch start behavior
-            if (event.buttons && !this.capturedPointers.includes(event.pointerId)) {
-                event.target.setPointerCapture(event.pointerId);
-                this.capturedPointers.push(event.pointerId);
-                this.touchStartBehavior();
-            }
 
-            // If there is a captured pointer that is no longer on the card
-            // then release it so it can start firing events at other cards
-            // note: the touch end behavior is not triggered here yet because pointer capture can be released for other reasons
-            if (event.target.hasPointerCapture(event.pointerId)) {
-                let elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
-                if (!elementsAtPoint.includes(event.target)) {
-                    event.target.releasePointerCapture(event.pointerId);
-                }
+        if (canCapture && !isCaptured) {
+            event.target.setPointerCapture(event.pointerId);
+            this.capturedPointers.push(event.pointerId);
+            this.touchStartBehavior();
+        }
+
+        // If there is a captured pointer that is no longer on the card
+        // then release it so it can start firing events at other cards
+        // note: the touch end behavior is not triggered here yet because pointer capture can be released for other reasons
+        else if (this.capturedPointers.includes(event.pointerId)) {
+            let elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
+            if (!elementsAtPoint.includes(event.target)) {
+                event.target.releasePointerCapture(event.pointerId);
             }
         }
 
@@ -138,6 +143,7 @@ export default class Card extends React.PureComponent {
         }
     }
 
+    // initial values for the spring animation system.
     getInitialValues() {
         return {
             x: 0,
@@ -147,6 +153,8 @@ export default class Card extends React.PureComponent {
         };
     }
 
+    // Get target values for the spring animation system
+    // the values are "driven towards" these target values using spring forces
     getTargetValues() {
         let values = {};
         values.x = this.props.point.x;
@@ -174,7 +182,7 @@ export default class Card extends React.PureComponent {
         return values;
     }
 
-    handlePhaseTransitions() {
+    managePhaseTransitions() {
         if (this.phase === Card.Phase.MATCHED) {
             setTimeout(() => (this.setPhase(Card.Phase.EXIT)), 1000);
         }
@@ -185,6 +193,7 @@ export default class Card extends React.PureComponent {
         this.forceUpdate();
     }
 
+    // gets the inline css styles for this component using animated values.
     getStyles(values) {
 
         const container = {
@@ -244,7 +253,7 @@ export default class Card extends React.PureComponent {
     }
 
     render() {
-        this.handlePhaseTransitions();
+        this.managePhaseTransitions();
 
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
