@@ -6,6 +6,7 @@ import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
 import * as colorConvert from "color-convert";
+import {Motion, spring} from 'react-motion';
 
 export default class Card extends React.PureComponent {
 
@@ -88,11 +89,6 @@ export default class Card extends React.PureComponent {
         }
     }
 
-    setPhase(phase) {
-        this.phase = phase;
-        this.forceUpdate();
-    }
-
     handlePointer(event) {
 
         // Handle pointer down and move events
@@ -142,33 +138,56 @@ export default class Card extends React.PureComponent {
         }
     }
 
-    getStyles() {
-        let pos, scale, transitionTime;
-        if (this.phase === Card.Phase.INITIAL) {
-            pos = {x:0, y:0};
-            scale = 0.0;
-        }
-        else if (this.phase === Card.Phase.ENTER) {
-            transitionTime = 0.5;
-            pos = this.props.point;
-            scale = 1.0;
+
+    getInitialValues() {
+        return {
+            x: 0,
+            y: 0,
+            flipRotation: 0,
+            scale: 0,
+        };
+    }
+
+    getTargetValues() {
+        let values = {};
+        values.x = spring(this.props.point.x);
+        values.y = spring(this.props.point.y);
+
+        if (this.phase === Card.Phase.ENTER) {
+            values.scale = spring(1.0);
         }
         else if (this.phase === Card.Phase.MATCHED) {
-            transitionTime = 1.0;
-            pos = this.props.point;
-            scale = 1.2;
-            setTimeout(() => (this.setPhase(Card.Phase.EXIT)), transitionTime * 1000);
+            values.scale = spring(1.2);
         }
         else if (this.phase === Card.Phase.EXIT) {
-            transitionTime = 0.3;
-            pos = this.props.point;
-            scale = 0.0;
+            values.scale = spring(0.0);
+        } else {
+            values.scale = spring(1.0);
         }
 
+        if (this.props.faceUp) {
+            values.flipRotation = spring(180);
+        } else {
+            values.flipRotation = spring(0);
+        }
+        return values;
+    }
+
+    handlePhaseTransitions() {
+        if (this.phase === Card.Phase.MATCHED) {
+            setTimeout(() => (this.setPhase(Card.Phase.EXIT)), 1000);
+        }
+    }
+
+    setPhase(phase) {
+        this.phase = phase;
+        this.forceUpdate();
+    }
+
+    getStyles(values) {
+
         const container = {
-            transition: `transform ${transitionTime}s`,
-            transitionTimingFunction: "cubic-bezier(.15,.94,.43,1.08)",
-            transform: `translate(${pos.x}vh, ${pos.y}vh) scale(${scale}`,
+            transform: `translate(${values.x}vh, ${values.y}vh) scale(${values.scale})`,
         };
         const cardCommon = {
             // Position
@@ -201,7 +220,7 @@ export default class Card extends React.PureComponent {
 
             zIndex: '2',
 
-            transform: `rotateX(${this.props.faceUp ? 180 : 0}deg)`,
+            transform: `rotateX(${values.flipRotation}deg)`,
             backgroundColor : color,
         };
         const cardFront = {
@@ -209,7 +228,7 @@ export default class Card extends React.PureComponent {
 
             zIndex: '1',
 
-            transform: `rotateX(${this.props.faceUp ? 0 : -180}deg)`,
+            transform: `rotateX(${values.flipRotation - 180}deg)`,
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
@@ -217,26 +236,44 @@ export default class Card extends React.PureComponent {
     }
 
     render() {
-        const styles = this.getStyles();
+        this.handlePhaseTransitions();
+
+        let initialValues = this.getInitialValues();
+        let targetValues = this.getTargetValues();
+        if(this.props.cardKey === 3) {
+            console.log(targetValues);
+        }
+
         return(
-            <div
-                className={"container"}
-                style={styles.container}
-            >
-                <div
-                    className={"cardInputHandler"}
-                    style={styles.cardCommon}
-                    id={this.props.cardKey}
-                    ref={this.inputHandlerRef}
-                >
-                    <div className={"card"} style={styles.cardFront}>
-                        <span role="img" >{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+            <Motion defaultStyle={initialValues} style={targetValues}>
+                {interpolatedValues => {
+                    let styles = this.getStyles(interpolatedValues);
+                    if (this.props.cardKey === 3) {
+                        console.log(interpolatedValues);
+                    }
+                    return (
+                    <div
+                        className={"container"}
+                        style={styles.container}
+                    >
+                        <div
+                            className={"cardInputHandler"}
+                            style={styles.cardCommon}
+                            id={this.props.cardKey}
+                            ref={this.inputHandlerRef}
+                        >
+                            <div className={"card"} style={styles.cardFront}>
+                                <span
+                                    role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+                            </div>
+                            <div className={"card"} style={styles.cardBack}>
+                                {}
+                            </div>
+                        </div>
                     </div>
-                    <div className={"card"} style={styles.cardBack}>
-                        {}
-                    </div>
-                </div>
-            </div>
+                    )
+                }}
+            </Motion>
         )
     }
 }
