@@ -6,7 +6,7 @@ import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
 import * as colorConvert from "color-convert";
-import {Motion, spring} from 'react-motion';
+import {Motion, spring, presets} from 'react-motion';
 
 export default class Card extends React.PureComponent {
 
@@ -150,26 +150,28 @@ export default class Card extends React.PureComponent {
 
     getTargetValues() {
         let values = {};
-        values.x = spring(this.props.point.x);
-        values.y = spring(this.props.point.y);
-
-        if (this.phase === Card.Phase.ENTER) {
-            values.scale = spring(1.0);
-        }
-        else if (this.phase === Card.Phase.MATCHED) {
-            values.scale = spring(1.2);
-        }
-        else if (this.phase === Card.Phase.EXIT) {
-            values.scale = spring(0.0);
-        } else {
-            values.scale = spring(1.0);
-        }
+        values.x = this.props.point.x;
+        values.y = this.props.point.y;
 
         if (this.props.faceUp) {
-            values.flipRotation = spring(180);
+            values.flipRotation = 180;
+            values.scale = 1.0;
         } else {
-            values.flipRotation = spring(0);
+            values.flipRotation = 0;
+            values.scale = 0.9;
         }
+
+        if (this.phase === Card.Phase.MATCHED) {
+            values.scale = 1.1;
+        }
+        else if (this.phase === Card.Phase.EXIT) {
+            values.scale = 0.0;
+        }
+        values.x = spring(values.x, presets.gentle);
+        values.y = spring(values.y, presets.gentle);
+        values.flipRotation = spring(values.flipRotation, presets.wobbly);
+        values.scale = spring(values.scale, presets.wobbly);
+
         return values;
     }
 
@@ -223,16 +225,23 @@ export default class Card extends React.PureComponent {
             transform: `rotateX(${values.flipRotation}deg)`,
             backgroundColor : color,
         };
+
         const cardFront = {
             ...cardCommon,
 
-            zIndex: '1',
+            zIndex: this.props.matched || this.props.faceUp ? '3' : "1",
 
             transform: `rotateX(${values.flipRotation - 180}deg)`,
+            backgroundColor : "#000000"
+        };
+
+        const cardInner = {
+            ...cardCommon,
+            transform: "scale(0.92)",
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
         };
 
-        return {cardCommon, cardFront, cardBack, container};
+        return {cardCommon, cardFront, cardBack, container, cardInner};
     }
 
     render() {
@@ -263,8 +272,9 @@ export default class Card extends React.PureComponent {
                             ref={this.inputHandlerRef}
                         >
                             <div className={"card"} style={styles.cardFront}>
-                                <span
-                                    role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+                                <div className={"card"} style={styles.cardInner}>
+                                    <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+                                </div>
                             </div>
                             <div className={"card"} style={styles.cardBack}>
                                 {}
