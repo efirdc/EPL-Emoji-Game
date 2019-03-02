@@ -182,7 +182,7 @@ export default class Game extends React.Component {
                                 {...card}
                                 {...blobs[card.cardKey]}
                                 key={card.cardKey.toString()}
-                                size={hexBoard.hexSize * 2 - 1}
+                                size={hexBoard.hexSize * 2}
                                 loop={this.loop}
                                 onCardTouchStart={this.onCardTouchStart}
                                 onCardTouchEnd={this.onCardTouchEnd}
