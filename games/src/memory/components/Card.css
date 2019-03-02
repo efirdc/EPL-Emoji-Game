@@ -5,8 +5,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transform-style: preserve-3d;
-    perspective: 1000px;
     /*filter: drop-shadow(0 0 0.2vh #000000);*/
 }
 
@@ -16,7 +14,6 @@
     justify-content: center;
     align-items: center;
     backface-visibility: hidden;
-    transform-style: preserve-3d;
     pointer-events: all;
     z-index: 1000;
     clip-path: polygon(50% 0%, 93.30125% 25%, 93.30125% 75%, 50% 100%, 6.69875% 75%, 6.69875% 25%)
@@ -28,15 +25,6 @@
     justify-content: center;
     align-items: center;
     backface-visibility: hidden;
-    transform-style: preserve-3d;
-    transition: transform 0.3s;
     clip-path: polygon(50% 0%, 93.30125% 25%, 93.30125% 75%, 50% 100%, 6.69875% 75%, 6.69875% 25%);
     /*clip-path: polygon(0% 50%, 25% 6.69875%, 75% 6.69875%, 100% 50%, 75% 93.30125%, 25% 93.30125%) // flat top*/
-}
-
-.twemoji {
-    position: relative;
-    top: 0.5vh;
-    width: 60%;
-    height: 60%;
 }
