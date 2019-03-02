@@ -138,7 +138,6 @@ export default class Card extends React.PureComponent {
         }
     }
 
-
     getInitialValues() {
         return {
             x: 0,
@@ -249,17 +248,11 @@ export default class Card extends React.PureComponent {
 
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
-        if(this.props.cardKey === 3) {
-            console.log(targetValues);
-        }
 
         return(
             <Motion defaultStyle={initialValues} style={targetValues}>
                 {interpolatedValues => {
                     let styles = this.getStyles(interpolatedValues);
-                    if (this.props.cardKey === 3) {
-                        console.log(interpolatedValues);
-                    }
                     return (
                     <div
                         className={"container"}
