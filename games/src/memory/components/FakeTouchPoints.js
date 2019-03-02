@@ -69,21 +69,13 @@ export default class FakeTouchPoints extends React.Component {
 
     // Dispatches a pointer capture event at a card so it thinks it being touched
     dispatchCaptureEvent(cardElem) {
-        let fakeEvent = new window.PointerEvent("gotpointercapture", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-        });
+        let fakeEvent = new Event("fakecapture");
         cardElem.dispatchEvent(fakeEvent);
     }
 
     // Same thing, but a release event.
     dispatchReleaseEvent(cardElem) {
-        let fakeEvent = new window.PointerEvent("lostpointercapture", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-        });
+        let fakeEvent = new Event("fakerelease");
         cardElem.dispatchEvent(fakeEvent);
     }
 
