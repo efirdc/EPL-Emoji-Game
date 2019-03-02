@@ -53,7 +53,7 @@ export default class Game extends React.Component {
         this.timer += deltaTime;
 
         if (this.phase === Game.Phase.LEVEL_LOAD) {
-            const phaseLength = 3;
+            const phaseLength = this.gameLogic.numCards * 0.05;
             this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
             if (this.timer > phaseLength) {
                 this.phase = Game.Phase.PLAY;
