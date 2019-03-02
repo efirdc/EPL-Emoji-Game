@@ -146,8 +146,8 @@ export default class Card extends React.PureComponent {
     // initial values for the spring animation system.
     getInitialValues() {
         return {
-            x: 0,
-            y: 0,
+            x: this.props.point.x,
+            y: this.props.point.y,
             flipRotation: 0,
             scale: 0,
         };
@@ -174,10 +174,10 @@ export default class Card extends React.PureComponent {
         else if (this.phase === Card.Phase.EXIT) {
             values.scale = 0.0;
         }
-        values.x = spring(values.x, presets.gentle);
-        values.y = spring(values.y, presets.gentle);
-        values.flipRotation = spring(values.flipRotation, presets.wobbly);
-        values.scale = spring(values.scale, presets.wobbly);
+        values.x = spring(values.x, presets.stiff);
+        values.y = spring(values.y, presets.stiff);
+        values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 7});
+        values.scale = spring(values.scale, {stiffness: 90, damping: 7});
 
         return values;
     }
