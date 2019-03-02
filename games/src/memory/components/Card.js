@@ -154,7 +154,7 @@ export default class Card extends React.PureComponent {
             scale = 1.0;
         }
         else if (this.phase === Card.Phase.MATCHED) {
-            transitionTime = 0.3;
+            transitionTime = 1.0;
             pos = this.props.point;
             scale = 1.2;
             setTimeout(() => (this.setPhase(Card.Phase.EXIT)), transitionTime * 1000);
