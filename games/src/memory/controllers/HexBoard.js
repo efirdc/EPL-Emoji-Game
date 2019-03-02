@@ -25,7 +25,7 @@ export default class HexBoard {
         this.outerBox = {x: 85, y: 50};
         this.innerBox = {x: 45, y: 15};
 
-        this.hexSize = 3.45; // Should give us cards that are about 2.5 inches
+        this.hexSize = 4.5; // Should give us cards that are about 2.5 inches
 
         // The "blobs" are cells that we will put cards
 
@@ -172,6 +172,7 @@ export default class HexBoard {
         // calculate how many origins the blob fill algorithm can have
         var blobStarts = Math.max(1, Math.floor(numBlobs / 40));
         blobStarts = Math.min(blobStarts, 5);
+        blobStarts = 5;
 
         // choose the starting positions
         for (let i = 0; i < blobStarts; i++) {
