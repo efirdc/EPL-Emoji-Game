@@ -25,7 +25,7 @@ export default class FakeTouchPoints extends React.Component {
         this.draggingTouchPoint = -1;
 
         // size of a touch point
-        this.touchPointSize = 30;
+        this.touchPointSize = 20;
 
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.tick = this.tick.bind(this);

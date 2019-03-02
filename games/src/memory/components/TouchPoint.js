@@ -9,7 +9,7 @@ export default function TouchPoint(props) {
         top: 0,
         background: '#fff',
         border: 'solid 1px #999',
-        opacity: .4,
+        opacity: .9,
         borderRadius: '50%',
         height: props.size + 'px',
         width: props.size + 'px',
