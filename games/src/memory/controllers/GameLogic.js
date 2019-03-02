@@ -133,12 +133,27 @@ export default class GameLogic {
 
     setTouches(touchedCards) {
 
-        for (let card of this.cards) {
+        // Get all cards that are unmatched
+        let unmatchedCards = this.cards.filter((card) => !card.matched);
 
-            // Cant interact with matched cards.
-            if (card.matched) {
-                continue;
+        // Handle releasing of cards
+        for (let card of unmatchedCards) {
+            let touched = touchedCards.includes(card.cardKey);
+
+            // Face up card is released
+            if (card.faceUp && !touched) {
+                this.concurrentFlips -= 1;
+                card.faceUp = false;
             }
+
+            // Card with rejected flip was released.
+            else if (card.flipRejected && !touched) {
+                card.flipRejected = false;
+            }
+        }
+
+        // Handle pressing of cards
+        for (let card of unmatchedCards) {
 
             // Figure out if the card is touched.
             let touched = touchedCards.includes(card.cardKey);
@@ -158,16 +173,7 @@ export default class GameLogic {
                 }
             }
 
-            // Face up card is released
-            else if (card.faceUp && !touched) {
-                this.concurrentFlips -= 1;
-                card.faceUp = false;
-            }
 
-            // Card with rejected flip was released.
-            else if (card.flipRejected && !touched) {
-                card.flipRejected = false;
-            }
         }
 
         // Record time if game was won
