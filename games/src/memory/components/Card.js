@@ -84,13 +84,13 @@ export default class Card extends React.PureComponent {
         console.log(event.pointerId);
         if (event.type === "pointermove" || event.type === "pointerdown") {
             if (event.buttons) {
-                //event.target.setPointerCapture(event.pointerId);
+                event.target.setPointerCapture(event.pointerId);
             }
 
             if (event.target.hasPointerCapture(event.pointerId)) {
                 let elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
                 if (!elementsAtPoint.includes(event.target)) {
-                    //event.target.releasePointerCapture(event.pointerId);
+                    event.target.releasePointerCapture(event.pointerId);
                 }
             }
         }
