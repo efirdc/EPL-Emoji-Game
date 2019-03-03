@@ -14,6 +14,7 @@ import emojiData from './EmojiData.js';
 
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
+import matchSoundFile from "../sounds/match3.wav";
 
 export default class Game extends React.Component {
 
@@ -31,7 +32,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(emojiData.sequence.length * 2, 12, 125);
+        this.gameLogic.addLevel(40, 12, 125);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
@@ -63,6 +64,10 @@ export default class Game extends React.Component {
         }
 
         else if (this.phase === Game.Phase.PLAY) {
+            let matchHappened = this.gameLogic.tryMatchingCards();
+            if (matchHappened) {
+                new Audio(matchSoundFile).play();
+            }
             if (this.gameLogic.isGameLost()) {
                 this.phase = Game.Phase.LEVEL_LOSE;
                 new Audio(loseSoundFile).play();

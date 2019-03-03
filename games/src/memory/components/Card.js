@@ -1,11 +1,8 @@
 import React from 'react';
-import emoji from 'node-emoji';
-import Twemoji from 'react-twemoji';
 import emojiData from './EmojiData.js';
 import clickSoundFile from "../sounds/card_flip4.wav";
 import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
-import * as colorConvert from "color-convert";
 import {Motion, spring, presets} from 'react-motion';
 
 export default class Card extends React.PureComponent {
@@ -162,10 +159,10 @@ export default class Card extends React.PureComponent {
 
         if (this.props.faceUp) {
             values.flipRotation = 180;
-            values.scale = 1.05;
+            values.scale = 0.9;
         } else {
             values.flipRotation = 0;
-            values.scale = 0.80;
+            values.scale = 0.8;
         }
 
         if (this.phase === Card.Phase.MATCHED) {

@@ -27,6 +27,7 @@ class Card {
         this.faceUp = false;
         this.matched = false;
         this.flipRejected = false;
+        this.timeAtFaceUp = 0;
     }
 }
 
@@ -45,6 +46,11 @@ export default class GameLogic {
         this.timeToCompleteLevel = 0;
         this.timeAtLevelStart = Date.now();
         this.timeAtLevelWin = null;
+
+        // Time in ms that a card must be face up before it can be matched.
+        this.timeToMatch = 500;
+
+        this.canMatch = this.canMatch.bind(this);
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
@@ -158,22 +164,23 @@ export default class GameLogic {
             // Figure out if the card is touched.
             let touched = touchedCards.includes(card.cardKey);
 
-            // Face down card is touched
+            // If a face down card is touched
             if (!card.faceUp && touched) {
 
-                // Reject the flip if all concurrent flips are in use.
+                // Flip the card up if there is available flips
                 if (this.concurrentFlips < this.maxConcurrentFlips) {
                     card.faceUp = true;
                     card.flipRejected = false;
+                    card.timeAtFaceUp = Date.now();
                     this.concurrentFlips += 1;
                     this.flipsUsed += 1;
-                    this.tryMatch(card);
-                } else {
+                }
+
+                // Reject the flip if all concurrent flips are in use.
+                else {
                     card.flipRejected = true;
                 }
             }
-
-
         }
 
         // Record time if game was won
@@ -182,14 +189,28 @@ export default class GameLogic {
         }
     }
 
-    tryMatch(card) {
-        // If the card with a matching ID is also faceUp, set the matched flag on both cards
-        for (let compareCard of this.cards) {
-            if (compareCard !== card && card.matchID === compareCard.matchID && compareCard.faceUp) {
-                compareCard.matched = card.matched = true;
-                this.concurrentFlips -= 2;
+    // In order for a card to be matched
+    // it has to be face up, not yet matched, and it must be face up for a certain amount of time
+    canMatch(card) {
+        let timeSinceFaceUp = Date.now() - card.timeAtFaceUp;
+        return !card.matched && card.faceUp && timeSinceFaceUp > this.timeToMatch;
+    }
+
+    // Should be called every frame
+    // Handles the matching delay when cards are flipped up
+    tryMatchingCards() {
+        let matchableCards = this.cards.filter(this.canMatch);
+        let matchHappened = false;
+        for (let cardA of matchableCards) {
+            for (let cardB of matchableCards) {
+                if (cardA !== cardB && cardA.matchID === cardB.matchID && !cardA.matched) {
+                    cardA.matched = cardB.matched = true;
+                    this.concurrentFlips -= 2;
+                    matchHappened = true;
+                }
             }
         }
+        return matchHappened;
     }
 
     isGameWon() {
