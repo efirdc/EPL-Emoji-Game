@@ -14,6 +14,20 @@ function shuffle(a) {
 
 const sqrt3 = Math.sqrt(3);
 
+/* Some viable configurations
+this.outerBox = {x: 82, y: 45};
+this.innerBox = {x: 43, y: 15};
+this.hexSize = 4.2;
+
+this.outerBox = {x: 85, y: 48};
+this.innerBox = {x: 42, y: 15};
+this.hexSize = 4.95;
+
+this.outerBox = {x: 84, y: 47};
+this.innerBox = {x: 43, y: 15};
+this.hexSize = 5.8;
+*/
+
 export default class HexBoard {
     constructor() {
 
@@ -22,10 +36,10 @@ export default class HexBoard {
         this.maxRadius = 15;
 
         // Defines where the hex cells should actually be
-        this.outerBox = {x: 85, y: 50};
-        this.innerBox = {x: 45, y: 15};
-
-        this.hexSize = 4.5; // Should give us cards that are about 2.5 inches
+        // This config has 206 caRDS
+        this.outerBox = {x: 85, y: 48};
+        this.innerBox = {x: 42, y: 15};
+        this.hexSize = 4.95;
 
         // The "blobs" are cells that we will put cards
 
@@ -34,7 +48,7 @@ export default class HexBoard {
         this.pointsFlat = []; // contains {x, y} point objects of every board cell in a normal flat array
         this.blobs = []; // contains {row, col, blobID} objects
         this.blobData = []; // contains {{x, y}, blobID} objects
-        this.floodChance = 0.8; // Chance for a cell to "flood" in the blob flood fill algorithm
+        this.floodChance = 0.5; // Chance for a cell to "flood" in the blob flood fill algorithm
 
         this.initializePoints();
     }
