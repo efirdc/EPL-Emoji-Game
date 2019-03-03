@@ -162,10 +162,10 @@ export default class Card extends React.PureComponent {
 
         if (this.props.faceUp) {
             values.flipRotation = 180;
-            values.scale = 1.0;
+            values.scale = 1.05;
         } else {
             values.flipRotation = 0;
-            values.scale = 0.9;
+            values.scale = 0.80;
         }
 
         if (this.phase === Card.Phase.MATCHED) {
@@ -196,16 +196,10 @@ export default class Card extends React.PureComponent {
     // gets the inline css styles for this component using animated values.
     getStyles(values) {
 
-        const container = {
-            transform: `translate(${values.x}vh, ${values.y}vh) scale(${values.scale})`,
-        };
-        const cardCommon = {
-            // Position
+        const cardInputHandler = {
             height: this.props.size + "vh",
             width: this.props.size + "vh",
-
-            // Styling
-            fontSize: this.props.size * 0.5 + "vh",
+            transform: `translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) scale(${values.scale})`,
         };
 
         // blobID decides card back color
@@ -218,38 +212,29 @@ export default class Card extends React.PureComponent {
         ];
         let color = eplColors[this.props.blobID % eplColors.length];
 
-        // Reduce saturation to 75% if the card is
-        if (this.props.flipRejected) {
-            let colorHsv = colorConvert.hex.hsv(color.substring(1));
-            colorHsv[2] *= 0.75;
-            color = "#" + colorConvert.hsv.hex(colorHsv);
-        }
-
         const cardBack = {
-            ...cardCommon,
-
             zIndex: '2',
 
             transform: `rotateX(${values.flipRotation}deg)`,
-            backgroundColor : color,
+            backgroundColor: color,
+            filter: this.props.flipRejected ? "brightness(75%)" : "brightness(100%)",
         };
 
         const cardFront = {
-            ...cardCommon,
-
-            zIndex: this.props.matched || this.props.faceUp ? '3' : "1",
+            zIndex: this.props.faceUp ? '3' : "1",
 
             transform: `rotateX(${values.flipRotation - 180}deg)`,
             backgroundColor : "#000000"
         };
 
         const cardInner = {
-            ...cardCommon,
             transform: "scale(0.92)",
             backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
+            fontSize: this.props.size * 0.5 + "vh",
+            lineHeight: this.props.size + "vh",
         };
 
-        return {cardCommon, cardFront, cardBack, container, cardInner};
+        return {cardFront, cardBack, cardInputHandler, cardInner};
     }
 
     render() {
@@ -264,23 +249,18 @@ export default class Card extends React.PureComponent {
                     let styles = this.getStyles(interpolatedValues);
                     return (
                     <div
-                        className={"container"}
-                        style={styles.container}
+                        className={"cardInputHandler"}
+                        style={styles.cardInputHandler}
+                        id={this.props.cardKey}
+                        ref={this.inputHandlerRef}
                     >
-                        <div
-                            className={"cardInputHandler"}
-                            style={styles.cardCommon}
-                            id={this.props.cardKey}
-                            ref={this.inputHandlerRef}
-                        >
-                            <div className={"card"} style={styles.cardFront}>
-                                <div className={"card"} style={styles.cardInner}>
-                                    <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
-                                </div>
+                        <div className={"card"} style={styles.cardFront}>
+                            <div className={"card"} style={styles.cardInner}>
+                                <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
                             </div>
-                            <div className={"card"} style={styles.cardBack}>
-                                {}
-                            </div>
+                        </div>
+                        <div className={"card"} style={styles.cardBack}>
+                            {}
                         </div>
                     </div>
                     )
