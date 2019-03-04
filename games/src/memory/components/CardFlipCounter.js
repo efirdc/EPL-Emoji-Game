@@ -12,7 +12,7 @@ export default function CardFlipCounter(props) {
         zIndex: 1
     };
 
-    let displayNumber = (1 - (props.numFlips / props.maxFlips)).toFixed(2);
+    let flipsLeft = props.maxFlips - props.numFlips;
 
     return (
         <div style={counterStyle}>
@@ -23,7 +23,7 @@ export default function CardFlipCounter(props) {
                     fontSize: "5vh",
                 }}
             >
-                {displayNumber}
+                {flipsLeft}
             </h1>
         </div>
     );
