@@ -173,8 +173,8 @@ export default class Card extends React.PureComponent {
         }
         values.x = spring(values.x, presets.stiff);
         values.y = spring(values.y, presets.stiff);
-        values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 7});
-        values.scale = spring(values.scale, {stiffness: 90, damping: 7});
+        values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
+        values.scale = spring(values.scale, {stiffness: 120, damping: 7});
 
         return values;
     }
