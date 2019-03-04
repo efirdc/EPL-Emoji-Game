@@ -36,7 +36,7 @@ export default class HexBoard {
         this.maxRadius = 15;
 
         // Defines where the hex cells should actually be
-        // This config has 206 caRDS
+        // This config has 206 cards
         this.outerBox = {x: 85, y: 48};
         this.innerBox = {x: 42, y: 15};
         this.hexSize = 4.95;
@@ -48,7 +48,7 @@ export default class HexBoard {
         this.pointsFlat = []; // contains {x, y} point objects of every board cell in a normal flat array
         this.blobs = []; // contains {row, col, blobID} objects
         this.blobData = []; // contains {{x, y}, blobID} objects
-        this.floodChance = 0.5; // Chance for a cell to "flood" in the blob flood fill algorithm
+        this.floodChance = 0.7; // Chance for a cell to "flood" in the blob flood fill algorithm
 
         this.initializePoints();
     }
@@ -184,9 +184,8 @@ export default class HexBoard {
         this.blobData = [];
 
         // calculate how many origins the blob fill algorithm can have
-        var blobStarts = Math.max(1, Math.floor(numBlobs / 40));
+        var blobStarts = Math.max(1, Math.floor(numBlobs / 20));
         blobStarts = Math.min(blobStarts, 5);
-        blobStarts = 5;
 
         // choose the starting positions
         for (let i = 0; i < blobStarts; i++) {

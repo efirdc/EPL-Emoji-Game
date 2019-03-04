@@ -32,7 +32,7 @@ export default class Game extends React.Component {
 
         this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(40, 12, 125);
+        this.gameLogic.addLevel(140, 6, 125);
         this.gameLogic.setLevel(0);
         this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
@@ -54,7 +54,7 @@ export default class Game extends React.Component {
         this.timer += deltaTime;
 
         if (this.phase === Game.Phase.LEVEL_LOAD) {
-            const phaseLength = this.gameLogic.numCards * 0.05;
+            const phaseLength = this.gameLogic.numCards * 0.08;
             this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
             if (this.timer > phaseLength) {
                 this.phase = Game.Phase.PLAY;

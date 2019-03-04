@@ -31,8 +31,6 @@ class Card {
     }
 }
 
-// Constructor for the main Game class
-// Consider this class the "Controller" in the Model-View-Controller (MVC) programming pattern
 export default class GameLogic {
     constructor() {
         this.cards = [];
