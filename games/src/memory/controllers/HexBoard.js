@@ -28,6 +28,18 @@ this.innerBox = {x: 43, y: 15};
 this.hexSize = 5.8;
 */
 
+// Simple data structure that stores data for a cell
+class Cell {
+    constructor() {
+        this.row = 0;
+        this.col = 0;
+        this.point = {x: 0, y: 0};
+
+        // The "group" that this cell belongs to
+        this.groupID = -1;
+    }
+}
+
 export default class HexBoard {
     constructor() {
 
@@ -73,6 +85,7 @@ export default class HexBoard {
 
         // Reset the points and board size
         this.points = [];
+        this.pointsFlat = [];
         this.size =  0;
 
         // Check all hex cells within this.maxRadius
@@ -109,8 +122,7 @@ export default class HexBoard {
 
     // Check if a cell is already a blob
     alreadyBlobbed(cell) {
-        for (let blobNum in this.blobs) {
-            let blob = this.blobs[blobNum];
+        for (let blob of this.blobs) {
             if (blob.row === cell.row && blob.col === cell.col) {
                 return true;
             }
@@ -125,6 +137,9 @@ export default class HexBoard {
 
     // Get all cells adjacent to a cell
     getNeighbors(cell) {
+
+        // Get the local offset of neighboring cells.
+        // neighbor directions are different depending on if we are in an even/odd row
         const directions = [
             [[+1,  0], [ 0, -1], [-1, -1],
             [-1,  0], [-1, +1], [ 0, +1]],
@@ -133,6 +148,8 @@ export default class HexBoard {
         ];
         var parity = cell.row & 1;
         var localNeighbors = directions[parity];
+
+        // Convert the local neighbors to their board position by adding the row/col of the center cell
         var neighbors = [];
         for (let i = 0; i < 6; i++) {
             var localNeighbor = localNeighbors[i];
