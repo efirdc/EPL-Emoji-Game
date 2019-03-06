@@ -12,13 +12,14 @@ function shuffle(a) {
 }
 
 class Level {
-    constructor (numCards, maxConcurrentFlips, timeToComplete) {
+    constructor (numCards, maxConcurrentFlips, timeToComplete, numBlobs) {
         if (numCards % 2 !== 0) {
             console.log("Warning: Created a level with an odd number of cards.")
         }
         this.numCards = numCards;
         this.maxConcurrentFlips = maxConcurrentFlips;
         this.timeToCompleteLevel = timeToComplete;
+        this.numBlobs = numBlobs;
     }
 }
 
@@ -76,6 +77,41 @@ export default class GameLogic {
             timeElapsed = (this.timeAtLevelWin - this.timeAtLevelStart) / 1000;
         }
         return this.timeToCompleteLevel - timeElapsed;
+    }
+
+    getLevel(numStars) {
+        let level = new Level(0, 0, 0, 0);
+        if (numStars < 20) {
+            level.numBlobs = 1;
+            level.numCards = (20 + numStars) & (~1);
+        }
+        else if (numStars < 40) {
+            level.numBlobs = 2;
+        }
+        else if (numStars < 60) {
+            level.numBlobs = 3;
+        }
+        else if (numStars < 80) {
+            level.numBlobs = 4;
+        }
+        else {
+            level.numBlobs = 5;
+        }
+    }
+
+    calcNumCards(numStars, yIntercept, slope) {
+
+        // Number of cards is a linear function
+        let numCards = Math.floor(numStars * slope + yIntercept);
+
+        // If the number of cards is odd, make it even
+        // This basically works by turning off the first bit (using bitwise operations)
+        numCards = numCards & (~1);
+
+        // Limit the number of cards by the size of the hexboard
+        numCards = Math.max(numCards, this.hexBoard.boardCells.length);
+
+        return numCards;
     }
 
     // Add new levels to the memory game at runtime
