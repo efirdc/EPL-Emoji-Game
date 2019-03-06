@@ -1,3 +1,5 @@
+import HexBoard from './HexBoard.js';
+
 // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
 function shuffle(a) {
     var j, x, i;
@@ -28,11 +30,18 @@ class Card {
         this.matched = false;
         this.flipRejected = false;
         this.timeAtFaceUp = 0;
+
+        this.x = 0;
+        this.y = 0;
+        this.blobID = 0;
     }
 }
 
 export default class GameLogic {
     constructor() {
+
+        this.hexBoard = new HexBoard();
+
         this.cards = [];
         this.levels = [];
         this.currentLevel = -1;
@@ -103,22 +112,12 @@ export default class GameLogic {
         this.levelStarted = false;
         this.timeToCompleteLevel = level.timeToCompleteLevel;
         this.timeAtLevelStart = undefined;
-        this.timeAtLevelWin = undefined;
 
-        // Reset the cards array and distribute them randomly.
+        // Reset the cards array and populate with new cards
         this.cards = [];
         for (let cardKey = 0; cardKey < this.numCards; cardKey++) {
             this.cards[cardKey] = new Card(0, cardKey);
         }
-        this.distributeCardsRandomly();
-    }
-
-    startLevel() {
-        this.timeAtLevelStart = Date.now();
-        this.levelStarted = true;
-    }
-
-    distributeCardsRandomly() {
 
         // Create a shuffled array of all matchIDs
         let matchIDs = [];
@@ -133,6 +132,21 @@ export default class GameLogic {
         for (let card of this.cards){
             card.matchID = matchIDs.pop();
         }
+
+        this.hexBoard.initializeBlob(this.numCards);
+        for (let i in this.cards) {
+            let blobCell = this.hexBoard.blobCells[i];
+            let card = this.cards[i];
+            card.x = blobCell.x;
+            card.y = blobCell.y;
+            card.blobID = blobCell.blobID;
+        }
+    }
+
+    startLevel() {
+        this.timeAtLevelStart = Date.now();
+        this.levelStarted = true;
+        this.timeAtLevelWin = undefined;
     }
 
     setTouches(touchedCards) {
@@ -180,11 +194,6 @@ export default class GameLogic {
                 }
             }
         }
-
-        // Record time if game was won
-        if (this.isGameWon()) {
-            this.timeAtLevelWin = Date.now();
-        }
     }
 
     // In order for a card to be matched
@@ -215,7 +224,10 @@ export default class GameLogic {
 
         // Return false when a not faceUp card is found
         for (let card of this.cards) {
-            if (!card.faceUp) {
+            if (!card.matched) {
+                if (!this.timeAtLevelWin) {
+                    this.timeAtLevelWin = Date.now()
+                }
                 return false;
             }
         }

@@ -143,8 +143,8 @@ export default class Card extends React.PureComponent {
     // initial values for the spring animation system.
     getInitialValues() {
         return {
-            x: this.props.point.x,
-            y: this.props.point.y,
+            x: this.props.x,
+            y: this.props.y,
             flipRotation: 0,
             scale: 0,
         };
@@ -154,8 +154,8 @@ export default class Card extends React.PureComponent {
     // the values are "driven towards" these target values using spring forces
     getTargetValues() {
         let values = {};
-        values.x = this.props.point.x;
-        values.y = this.props.point.y;
+        values.x = this.props.x;
+        values.y = this.props.y;
 
         if (this.props.faceUp) {
             values.flipRotation = 180;

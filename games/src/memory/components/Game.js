@@ -8,7 +8,6 @@ import CardFlipCounter from "./CardFlipCounter.js"
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
-import HexBoard from '../controllers/HexBoard.js';
 import GameLoop from '../controllers/GameLoop.js';
 import emojiData from './EmojiData.js';
 
@@ -30,11 +29,9 @@ export default class Game extends React.Component {
 
         this.loop = new GameLoop();
 
-        this.hexBoard = new HexBoard();
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(140, 6, 125);
+        this.gameLogic.addLevel(4, 8, 5);
         this.gameLogic.setLevel(0);
-        this.hexBoard.distributeBlobs(this.gameLogic.numCards);
 
         this.touchedCards = [];
         this.touchPoints = {}; // Touch points created by real touch events
@@ -68,11 +65,7 @@ export default class Game extends React.Component {
             if (matchHappened) {
                 new Audio(matchSoundFile).play();
             }
-            if (this.gameLogic.isGameLost()) {
-                this.phase = Game.Phase.LEVEL_LOSE;
-                new Audio(loseSoundFile).play();
-                setTimeout(() => this.loadNextLevel(true), 2000.0);
-            }
+            this.handleShouldGameEnd();
         }
 
         this.forceUpdate();
@@ -100,7 +93,6 @@ export default class Game extends React.Component {
         this.touchedCards = this.touchedCards.filter((key) => key !== cardKey);
         if (this.phase === Game.Phase.PLAY) {
             this.gameLogic.setTouches(this.touchedCards);
-            this.handleShouldGameEnd()
         }
     }
 
@@ -109,6 +101,11 @@ export default class Game extends React.Component {
         if (this.gameLogic.isGameWon()) {
             this.phase = Game.Phase.LEVEL_WIN;
             setTimeout(() => new Audio(winSoundFile).play(), 250);
+            setTimeout(() => this.loadNextLevel(true), 2000.0);
+        }
+        else if (this.gameLogic.isGameLost()) {
+            this.phase = Game.Phase.LEVEL_LOSE;
+            new Audio(loseSoundFile).play();
             setTimeout(() => this.loadNextLevel(true), 2000.0);
         }
         this.forceUpdate();
@@ -121,7 +118,6 @@ export default class Game extends React.Component {
             this.gameLogic.setLevel(0);
         }
 
-        this.hexBoard.distributeBlobs(this.gameLogic.numCards);
         this.phase = Game.Phase.LEVEL_LOAD;
         this.timer = 0;
         this.cardDisplayPercent = 0;
@@ -168,16 +164,14 @@ export default class Game extends React.Component {
         });
 
         let gameLogic = this.gameLogic;
-        let hexBoard =  this.hexBoard;
-        let hexPoints = hexBoard.pointsFlat;
-        let blobs = hexBoard.blobData;
+        let cards = gameLogic.cards;
+        let hexBoard =  gameLogic.hexBoard;
 
-        let partialCards = gameLogic.cards.slice(0, Math.floor(blobs.length * this.cardDisplayPercent));
+        let partialCards = cards.slice(0, Math.floor(cards.length * this.cardDisplayPercent));
 
         return (
             <div
                 style={bodyStyle}
-                ref={this.bodyRef}
             >
                 <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
@@ -185,7 +179,6 @@ export default class Game extends React.Component {
                         {partialCards.map((card) => (
                             <Card
                                 {...card}
-                                {...blobs[card.cardKey]}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2}
                                 loop={this.loop}
@@ -204,8 +197,8 @@ export default class Game extends React.Component {
                         ))}
                     </div>
                     <FakeTouchPoints loop={this.loop}/>
-                    <div style={debugRectStyle(hexBoard.innerBox.x, hexBoard.innerBox.y)}/>
-                    <div style={debugRectStyle(hexBoard.outerBox.x, hexBoard.outerBox.y)}/>
+                    <div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
+                    <div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
                     <Timer x={-30} y={-10} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={30} y={10} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter

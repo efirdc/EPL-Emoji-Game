@@ -15,16 +15,16 @@ function shuffle(a) {
 const sqrt3 = Math.sqrt(3);
 
 /* Some viable configurations
-this.outerBox = {x: 82, y: 45};
-this.innerBox = {x: 43, y: 15};
+this.outerBounds = {x: 82, y: 45};
+this.innerBounds = {x: 43, y: 15};
 this.hexSize = 4.2;
 
-this.outerBox = {x: 85, y: 48};
-this.innerBox = {x: 42, y: 15};
+this.outerBounds = {x: 85, y: 48};
+this.innerBounds = {x: 42, y: 15};
 this.hexSize = 4.95;
 
-this.outerBox = {x: 84, y: 47};
-this.innerBox = {x: 43, y: 15};
+this.outerBounds = {x: 84, y: 47};
+this.innerBounds = {x: 43, y: 15};
 this.hexSize = 5.8;
 */
 
@@ -50,8 +50,8 @@ export default class HexBoard {
 
         // Defines where the hex cells should actually be
         // This config has 206 cards
-        this.outerBox = {x: 85, y: 48};
-        this.innerBox = {x: 42, y: 15};
+        this.outerBounds = {x: 85, y: 48};
+        this.innerBounds = {x: 42, y: 15};
         this.hexSize = 4.95;
 
         // contains the Cell objects that are part of the game board.
@@ -59,224 +59,288 @@ export default class HexBoard {
         // All boardCells should have a blobID of -1
         this.boardCells = [];
 
+        // Contains the same cells as boardCells but in a multidimensional array.
+        // They are indexable at their [row][col]
+        this.boardCellsRC = [];
+
+        // These arrays hold the cells that are inside the innerBound and outside the outerBounds
+        // These are not part of the playable game area, but we may want to draw some visual components at these points
+        this.innerCells = [];
+        this.outerCells = [];
+
+        // These arrays hold the cells that are part of innerCells and outerCells, but with the extra condition that
+        // they must be adjacent to cells that are part of the boardCells.
+        this.adjacentInnerCells = [];
+        this.adjacentOuterCells = [];
+
         // Contains the Cell objects that are part of the "blob"
         // The blob is all the cells that are selected by the flood fill algorithm
         // These cells are copies (not references) of the cells in boardCells.
         // They are ordered in the order that they "flood" into the scene.
+        // The data in these cells can be used to spawn the game objects.
         this.blobCells = [];
 
-        this.points = []; // contains {x, y} point objects of every board cell with 2d indices: [row][col]
-        this.pointsFlat = []; // contains {x, y} point objects of every board cell in a normal flat array
-        this.blobs = []; // contains {row, col, blobID} objects
-        this.blobData = []; // contains {{x, y}, blobID} objects
-        this.floodChance = 0.7; // Chance for a cell to "flood" in the blob flood fill algorithm
+        // Chance for a cell to "flood" in the blob flood fill algorithm
+        this.floodChance = 0.5;
 
+        // Initialize all cells
         this.initializeCells();
     }
 
-    getBoardSize() {
-        return this.boardCells.length;
+    // MAIN FUNCTIONS - these two do most of the heavy lifting
+
+    // Initializes all cell arrays
+    initializeCells() {
+
+        // Reset all the cell arrays
+        this.boardCells = [];
+        this.boardCellsRC = [];
+        this.outerCells = [];
+        this.innerCells = [];
+        this.adjacentInnerCells = [];
+        this.adjacentOuterCells = [];
+
+        // Iterate through all the row/column pairs within the maxRadius
+        for (let row = -this.maxRadius; row <= this.maxRadius; row++) {
+            this.boardCellsRC[row] = [];
+            for (let col = -this.maxRadius; col <= this.maxRadius; col++) {
+
+                // Create the cell at this row/col
+                let point = this.getPoint(row, col);
+                let newCell = new Cell(row, col, point.x, point.y, -1);
+
+                // If it is within the inner bounds, then it belongs to the innerCells
+                if (this.pointInBounds(point, this.innerBounds)) {
+                    this.innerCells.push(newCell);
+                }
+
+                // If it is outside the inner bounds, but inside the outer bounds, then it belongs to the boardCells
+                else if (this.pointInBounds(point, this.outerBounds)) {
+                    this.boardCells.push(newCell);
+                    this.boardCellsRC[row].push(newCell);
+                }
+
+                // If it is outside the outer bounds, then it belongs to the outerCells
+                else {
+                    this.outerCells.push(newCell);
+                }
+            }
+        }
+
+        // Find the cells from the innerCells and outerCells that are adjacent to the boardCells.
+        for (let innerCell in this.innerCells) {
+            if (this.adjacentToBoardCells(innerCell)) {
+                this.adjacentInnerCells.push(innerCell);
+            }
+        }
+        for (let outerCell in this.outerCells) {
+            if (this.adjacentToBoardCells(outerCell)) {
+                this.adjacentOuterCells.push(outerCell);
+            }
+        }
     }
+
+    // initializes the blobCells
+    initializeBlob(numCells) {
+
+        // Reset the blob
+        this.blobCells = [];
+
+        // Figure out how many starting positions the blob should
+        const maxStarts = 5;
+        let numStartCells = Math.max(1, Math.floor(numCells / 20));
+        numStartCells = Math.min(numStartCells, maxStarts);
+        numCells -= numStartCells;
+
+        // Get random distant cells from the gameBoard
+        let startCells = this.getRandomDistantCells(numStartCells);
+
+        // Use these cells to seed the blob
+        let blobIdOffset = Math.floor(Math.random() * maxStarts);
+        for (let i in startCells) {
+            let blobID = (parseInt(i) + blobIdOffset) % maxStarts;
+            let startCell = startCells[i];
+            let blobCell = new Cell(startCell.row, startCell.col, startCell.x, startCell.y, blobID);
+            this.blobCells.push(blobCell);
+        }
+
+        // Flood out from these seed cells until all cells are distributed.
+        while (numCells > 0) {
+
+            // Gets all the cells that we could flood to on this iteration
+            let potentialBlobs = this.getPotentialBlobs();
+
+            // Filter out some of them randomly. Gives a more irregular shape to the blobs
+            let willBlob = potentialBlobs.filter(() => (Math.random() < this.floodChance));
+
+            // Shuffle the cells we will add to the blob, so there is less direction bias in their spawning order
+            shuffle(willBlob);
+
+            // Add them to the blob
+            while (numCells > 0 && willBlob.length > 0) {
+                this.blobCells.push(willBlob.pop());
+                numCells -= 1;
+            }
+        }
+
+        // Actually lets group the blobCells by blobID because it looks cooler
+        let blobIdGroups = [];
+        for (let i = 0; i < maxStarts; i++) {
+            let blobIdGroup = this.blobCells.filter((blobCell) => (blobCell.blobID === i));
+            blobIdGroups.push(blobIdGroup);
+        }
+        shuffle(blobIdGroups);
+        this.blobCells = blobIdGroups.flat();
+
+    }
+
+    // UTILITY FUNCTIONS - These are used by the initialization functions
 
     // Calculate position of the center of a hex cell
     getPoint(row, col) {
         var x = this.hexSize * sqrt3 * (col + 0.5 * (row & 1));
-        var y = this.hexSize * 3/2 * row;
-        return {x:x, y:y};
+        var y = this.hexSize * 3 / 2 * row;
+        return {x: x, y: y};
     }
 
-    // Check if a point is within the outerBox but also outside the innerBox
-    pointInBounds(point) {
-        var absX = Math.abs(point.x);
-        var absY = Math.abs(point.y);
-        var inBoundsX = this.innerBox.x < absX && absX < this.outerBox.x && absY < this.outerBox.y;
-        var inBoundsY = this.innerBox.y < absY && absY < this.outerBox.y && absX < this.outerBox.x;
-        return (inBoundsX || inBoundsY);
+    // Returns true if a point is within the {x, y} boundary
+    // The point is within the boundary if its absolute value is less than the boundary.
+    pointInBounds(point, boundary) {
+        return Math.abs(point.x) < boundary.x && Math.abs(point.y) < boundary.y;
     }
 
-    initializeCells() {
-        this.boardCells = 0;
-        this.size = 0;
-
-        for (var row = -this.maxRadius; row <= this.maxRadius; row++) {
-            for (var col = -this.maxRadius; col <= this.maxRadius; col++) {
-
-                let point = this.getPoint(row, col);
-                if (!this.pointInBounds(point)) {
-                    continue;
-                }
-
-                this.size += 1;
-                this.boardCells.push(new Cell(row, col, point.x, point.y, -1));
-            }
-        }
-    }
-
-
-
-    // Check if a cell is actually part of the game board
-    validCell(row, col) {
-        for (let cell of this.boardCells) {
-            if (row === cell.row && row === cell.col) {
-                return true;
+    // Returns true if the given cell is adjacent to the boardCells and false otherwise
+    adjacentToBoardCells(cell) {
+        let neighbors = this.getNeighbors(cell);
+        for (let neighbor of neighbors) {
+            if (neighbor.row in this.boardCells && neighbor.col in this.boardCells[neighbor.row]) {
+                return true
             }
         }
         return false;
     }
 
-    // Check if a cell is already a blob
-    alreadyBlobbed(row, col) {
-        for (let blob of this.blobs) {
-            if (blob.row === cell.row && blob.col === cell.col) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // We can blob a cell if it is part of the game board and not yet blobbed
-    canBlob(cell) {
-        return this.validCell(cell) && !this.alreadyBlobbed(cell);
-    }
-
-    // Get all cells adjacent to a cell
-    getNeighbors(cell) {
-
-        // Get the local offset of neighboring cells.
-        // neighbor directions are different depending on if we are in an even/odd row
-        const directions = [
-            [[+1,  0], [ 0, -1], [-1, -1],
-            [-1,  0], [-1, +1], [ 0, +1]],
-            [[+1,  0], [+1, -1], [ 0, -1],
-            [-1,  0], [ 0, +1], [+1, +1]],
-        ];
-        var parity = cell.row & 1;
-        var localNeighbors = directions[parity];
-
-        // Convert the local neighbors to their board position by adding the row/col of the center cell
-        var neighbors = [];
-        for (let i = 0; i < 6; i++) {
-            var localNeighbor = localNeighbors[i];
-            neighbors.push({
-                row: cell.row + localNeighbor[1],
-                col: cell.col + localNeighbor[0],
-            });
-        }
-        return neighbors;
-    }
-
-    // Gets the cells that we can blob on the next blob iteration.
-    getBlobbableNeighbors() {
-
-        // Get all neighbors to the current blobs and attach the blobIds to them
-        var blobs = [];
-        var canBlobFilter = (cell) => (this.canBlob(cell));
-        for (let blob of this.blobs) {
-            let neighbors = this.getNeighbors(blob);
-            neighbors = neighbors.filter(canBlobFilter);
-            neighbors = neighbors.map((cell) => ({...cell, id: blob.id}));
-            blobs = blobs.concat(neighbors);
-        }
-
-        // Remove duplicates
-        var noDuplicates = [];
-        var numBlobs = blobs.length;
-        for (let i = 0; i < numBlobs; i++) {
-            let blob = blobs.pop();
-            let isDuplicate = false;
-            for (let cmpBlob of blobs) {
-                if (blob.col === cmpBlob.col && blob.row === cmpBlob.row) {
-                    isDuplicate = true;
-                    break;
-                }
-            }
-            if (!isDuplicate) {
-                noDuplicates.push(blob);
-            }
-        }
-        return noDuplicates;
-    }
-
-    initializeBlob(numCells) {
-        this.blobCells = [];
-
-        // calculate how many origins the blob fill algorithm can have
-        var blobStarts = Math.max(1, Math.floor(numCells / 20));
-        blobStarts = Math.min(blobStarts, 5);
-
-
-    }
-
-    // Get a random cell from the gameBoard.
+    // Get a random cell from the boardCells.
     getRandomCell() {
         let cellIndex = Math.floor(Math.random() * this.boardCells.length);
         return this.boardCells[cellIndex];
     }
 
-    getRandomCells(numRandomCells) {
+    // Gets a number of random cells from the boardCells that are reasonably far away from each other.
+    getRandomDistantCells(numRandomCells) {
 
-        let cells = [this.getRandomCell()];
+        // First cell can be any random cell
+        let distantCells = [this.getRandomCell()];
         numRandomCells -= 1;
 
-        let searchDepth = 10;
+        // For the rest, get $searchDepth random cells and then pick the one that is furthest away from the distantCells picked so far
+        // The "furthest" cell is the one that has the largest min(distancesToAllCells)
+        const searchDepth = 10;
         for (let i = 0; i < numRandomCells; i++) {
-
-
-            let bestCell = this.getRandomCell();
-            let distance = cells.reduce((accum, cell) => {
-                let deltaX = bestCell.x - cell.x;
-                let deltaY = bestCell.y - cell.y;
-                return accum + Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            });
-
+            let furthestCell = this.getRandomCell();
+            let smallestDistance = this.getSmallestDistance(furthestCell, distantCells);
             for (let j = 0; j < searchDepth; j++) {
-                let mightBeABetterCell = this.getRandomCell();
-
+                let maybeMoreDistantCell = this.getRandomCell();
+                let maybeLargerSmallestDistance = this.getSmallestDistance(maybeMoreDistantCell, distantCells);
+                if (maybeLargerSmallestDistance > smallestDistance) {
+                    furthestCell = maybeMoreDistantCell;
+                    smallestDistance = maybeLargerSmallestDistance;
+                }
             }
+            distantCells.push(furthestCell);
         }
+        return distantCells;
     }
 
-    // reset the blobs and distribute new ones using flood fill
-    distributeBlobs(numBlobs) {
-
-        // Reset the blobs and blob data
-        this.blobs = [];
-        this.blobData = [];
-
-        // calculate how many origins the blob fill algorithm can have
-        var blobStarts = Math.max(1, Math.floor(numBlobs / 20));
-        blobStarts = Math.min(blobStarts, 5);
-
-        // choose the starting positions
-        for (let i = 0; i < blobStarts; i++) {
-            var cell = this.randCell();
-            while (!this.canBlob(cell)) {
-                cell = this.randCell();
-            }
-            var blob = {...cell, id: i};
-            this.blobs.push(blob);
+    // Calculates the distances from one cell to an array of cells, then returns the smallest distance.
+    getSmallestDistance(fromCell, toCells) {
+        let smallestDistance = Infinity;
+        for (let toCell of toCells) {
+            let deltaX = fromCell.x - toCell.x;
+            let deltaY = fromCell.y - toCell.y;
+            let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            smallestDistance = Math.min(smallestDistance, distance);
         }
-        numBlobs -= blobStarts;
+        return smallestDistance;
+    }
 
-        // flood from the starting positions until we run out of blobs
-        while(numBlobs > 0) {
-            var blobs = this.getBlobbableNeighbors();
-            blobs = blobs.filter(() => (Math.random() < this.floodChance));
-            shuffle(blobs);
-            while(numBlobs > 0 && blobs.length > 0) {
-                var newBlob = blobs.pop();
-                if (!this.canBlob(newBlob)) {
-                    console.log("ERROR: Blobbing a blob that was already blobbed.");
+    // Returns an array of {row, col} objects that neighbor the given cell
+    getNeighbors(cell) {
+
+        // Get the local directions of neighboring cells.
+        // neighbor directions are different depending on if we are in an even/odd row
+        // these are in [col, row] order instead of [row, col] for some reason
+        const directions = [
+            [[+1, 0], [0, -1], [-1, -1],
+            [-1, 0], [-1, +1], [0, +1]],
+            [[+1, 0], [+1, -1], [0, -1],
+            [-1, 0], [0, +1], [+1, +1]],
+        ];
+        let parity = cell.row & 1;
+        let neighborDirections = directions[parity];
+
+        // Get the neighbor positions in board coordinates.
+        let neighbors = [];
+        for (let [colDir, rowDir] of neighborDirections) {
+            let row = cell.row + rowDir;
+            let col = cell.col + colDir;
+            neighbors.push({row: row, col: col});
+        }
+        return neighbors;
+    }
+
+    // Gets an array of the blobIDs of the blobCells adjacent to the given cell
+    getNeighborBlobIDs(cell) {
+        // Check if any neighbors are part of the blobCells
+        // If they are, store the cells blobID in neighborBlobIDs
+        let neighbors = this.getNeighbors(cell);
+        let neighborBlobIDs = [];
+        for (let neighbor of neighbors) {
+            for (let blobCell of this.blobCells) {
+                if (blobCell.row === neighbor.row && blobCell.col === neighbor.col) {
+                    neighborBlobIDs.push(blobCell.blobID);
                 }
-                this.blobs.push(newBlob);
-                numBlobs -= 1;
             }
         }
+        return neighborBlobIDs;
+    }
 
-        // store the point and ID of each blob so we can use it to position the game elements.
-        this.blobData = this.blobs.map((blob) => ({
-            point: this.points[blob.row][blob.col],
-            blobID: blob.id,
-        }));
+    // gets an array of cells that can be added to the blobCells
+    getPotentialBlobs() {
+
+        // Iterate through all of the boardCells and figure out which ones we can flood to
+        let blobbableCells = [];
+        for (let boardCell of this.boardCells) {
+
+            // Skip board cells that are already in the blob
+            if (this.inBlob(boardCell.row, boardCell.col)) {
+                continue;
+            }
+
+            // Skip cells that have no neighboring blobbed cells
+            let neighborBlobIDs = this.getNeighborBlobIDs(boardCell);
+            if (neighborBlobIDs.length === 0) {
+                continue;
+            }
+
+            // If it has neighboring blobbed cells, then choose one of their blobIDs at random
+            let randomIndex = Math.floor(Math.random() * neighborBlobIDs.length);
+            let randomBlobID = neighborBlobIDs[randomIndex];
+
+            // Create the blobbable cell by copying the fields of the board cell, but also give it the randomly chosen ID
+            let blobbableCell = new Cell(boardCell.row, boardCell.col, boardCell.x, boardCell.y, randomBlobID);
+            blobbableCells.push(blobbableCell);
+        }
+        return blobbableCells;
+    }
+
+    // Check if a cell with row, col is in the blobCells using a sequential search
+    inBlob(row, col) {
+        for (let blobCell of this.blobCells) {
+            if (blobCell.row === row && blobCell.col === col) {
+                return true;
+            }
+        }
+        return false;
     }
 }
