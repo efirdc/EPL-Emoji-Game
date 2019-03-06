@@ -45,8 +45,9 @@ export default class HexBoard {
     constructor() {
 
         // Largest row/column radius the board can have
-        // This just needs to be big enough for things to work
-        this.maxRadius = 15;
+        // These just need to be big enough for things to work
+        this.maxColumn = 13;
+        this.maxRow = 7;
 
         // Defines where the hex cells should actually be
         // This config has 206 cards
@@ -101,9 +102,9 @@ export default class HexBoard {
         this.adjacentOuterCells = [];
 
         // Iterate through all the row/column pairs within the maxRadius
-        for (let row = -this.maxRadius; row <= this.maxRadius; row++) {
+        for (let row = -this.maxRow; row <= this.maxRow; row++) {
             this.boardCellsRC[row] = [];
-            for (let col = -this.maxRadius; col <= this.maxRadius; col++) {
+            for (let col = -this.maxColumn; col <= this.maxColumn; col++) {
 
                 // Create the cell at this row/col
                 let point = this.getPoint(row, col);
