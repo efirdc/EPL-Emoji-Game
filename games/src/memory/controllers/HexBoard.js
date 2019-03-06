@@ -236,7 +236,7 @@ export default class HexBoard {
 
         // For the rest, get $searchDepth random cells and then pick the one that is furthest away from the distantCells picked so far
         // The "furthest" cell is the one that has the largest min(distancesToAllCells)
-        const searchDepth = 10;
+        const searchDepth = 50;
         for (let i = 0; i < numRandomCells; i++) {
             let furthestCell = this.getRandomCell();
             let smallestDistance = this.getSmallestDistance(furthestCell, distantCells);
