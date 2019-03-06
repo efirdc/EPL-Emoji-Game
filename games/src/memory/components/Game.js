@@ -5,6 +5,8 @@ import TouchPoint from './TouchPoint.js'
 import FakeTouchPoints from "./FakeTouchPoints"
 import Timer from "./Timer.js"
 import CardFlipCounter from "./CardFlipCounter.js"
+import InnerCells from "./InnerCells.js"
+import OuterCells from "./OuterCells.js"
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
@@ -30,7 +32,7 @@ export default class Game extends React.Component {
         this.loop = new GameLoop();
 
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(4, 8, 5);
+        this.gameLogic.addLevel(120, 6, 600);
         this.gameLogic.setLevel(0);
 
         this.touchedCards = [];
@@ -136,7 +138,9 @@ export default class Game extends React.Component {
         };
         const backgroundStyle = {
             zIndex: "-1",
-            position: "absolute",
+            position: "fixed",
+            top: "0vh",
+            left: "0vw",
         };
 
         // Board origin is at the center of the viewport
@@ -166,13 +170,13 @@ export default class Game extends React.Component {
         let gameLogic = this.gameLogic;
         let cards = gameLogic.cards;
         let hexBoard =  gameLogic.hexBoard;
+        let innerCells = hexBoard.innerCells;
+        let outerCells = hexBoard.adjacentOuterCells;
 
         let partialCards = cards.slice(0, Math.floor(cards.length * this.cardDisplayPercent));
 
         return (
-            <div
-                style={bodyStyle}
-            >
+            <div style={bodyStyle}>
                 <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
                     <div>
@@ -196,6 +200,8 @@ export default class Game extends React.Component {
                             />
                         ))}
                     </div>
+                    <InnerCells innerCells={innerCells} size={hexBoard.hexSize * 2}/>
+                    <OuterCells outerCells={outerCells} size={hexBoard.hexSize * 2}/>
                     <FakeTouchPoints loop={this.loop}/>
                     <div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
                     <div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
@@ -216,3 +222,8 @@ export default class Game extends React.Component {
         )
     }
 }
+
+/* Debug rects
+<div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
+<div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
+ */
