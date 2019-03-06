@@ -133,8 +133,9 @@ export default class Game extends React.Component {
             width: "100vw",
             height: "100vh",
             pointerEvents: "all",
-            //background: "-webkit-linear-gradient(290deg, #00C9FF 0%, #92FE9D 100%)",
-            boxShadow: "inset 0 0 20px #000000",
+            background: "radial-gradient(ellipse at center, rgba(235,245,255,1) 0%, rgba(163,206,255,1) 100%)",
+            zIndex: "-1",
+            //boxShadow: "inset 0 0 20px #000000",
         };
         const backgroundStyle = {
             zIndex: "-1",
