@@ -20,7 +20,7 @@ export default function CardFlipCounter(props) {
                 style={{
                     fontFamily: "Courier New",
                     fontWeight: "200",
-                    fontSize: "5vh",
+                    fontSize: "8vh",
                 }}
             >
                 {flipsLeft}
