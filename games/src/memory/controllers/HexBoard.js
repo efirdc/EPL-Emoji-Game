@@ -117,7 +117,7 @@ export default class HexBoard {
                 // If it is outside the inner bounds, but inside the outer bounds, then it belongs to the boardCells
                 else if (this.pointInBounds(point, this.outerBounds)) {
                     this.boardCells.push(newCell);
-                    this.boardCellsRC[row].push(newCell);
+                    this.boardCellsRC[row][col] = newCell;
                 }
 
                 // If it is outside the outer bounds, then it belongs to the outerCells
@@ -128,12 +128,12 @@ export default class HexBoard {
         }
 
         // Find the cells from the innerCells and outerCells that are adjacent to the boardCells.
-        for (let innerCell in this.innerCells) {
+        for (let innerCell of this.innerCells) {
             if (this.adjacentToBoardCells(innerCell)) {
                 this.adjacentInnerCells.push(innerCell);
             }
         }
-        for (let outerCell in this.outerCells) {
+        for (let outerCell of this.outerCells) {
             if (this.adjacentToBoardCells(outerCell)) {
                 this.adjacentOuterCells.push(outerCell);
             }
@@ -213,8 +213,8 @@ export default class HexBoard {
     adjacentToBoardCells(cell) {
         let neighbors = this.getNeighbors(cell);
         for (let neighbor of neighbors) {
-            if (neighbor.row in this.boardCells && neighbor.col in this.boardCells[neighbor.row]) {
-                return true
+            if (neighbor.row in this.boardCellsRC && neighbor.col in this.boardCellsRC[neighbor.row]) {
+                return true;
             }
         }
         return false;
