@@ -204,17 +204,15 @@ export default class Game extends React.Component {
                     <InnerCells innerCells={innerCells} size={hexBoard.hexSize * 2}/>
                     <OuterCells outerCells={outerCells} size={hexBoard.hexSize * 2}/>
                     <FakeTouchPoints loop={this.loop}/>
-                    <div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
-                    <div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
-                    <Timer x={-30} y={-10} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={30} y={10} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={-23} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={23} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
-                        x={-30} y={0} rotation={0}
+                        x={-23} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.maxConcurrentFlips}
                     />
                     <CardFlipCounter
-                        x={30} y={0} rotation={180}
+                        x={23} y={-5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.maxConcurrentFlips}
                     />
