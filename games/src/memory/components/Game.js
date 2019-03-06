@@ -15,6 +15,7 @@ import emojiData from './EmojiData.js';
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
 import matchSoundFile from "../sounds/match3.wav";
+import backgroundMusicFile from "../sounds/BackgroundMusic.mp3"
 
 export default class Game extends React.Component {
 
@@ -47,6 +48,7 @@ export default class Game extends React.Component {
         this.tick = this.tick.bind(this);
         this.onCardTouchStart = this.onCardTouchStart.bind(this);
         this.onCardTouchEnd = this.onCardTouchEnd.bind(this);
+
     }
 
     tick(deltaTime) {
@@ -54,6 +56,10 @@ export default class Game extends React.Component {
         this.timer += deltaTime;
 
         if (this.phase === Game.Phase.LEVEL_LOAD) {
+
+            //background music added
+            new Audio(backgroundMusicFile).play();
+
             const phaseLength = this.gameLogic.numCards * 0.08;
             this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
             if (this.timer > phaseLength) {
