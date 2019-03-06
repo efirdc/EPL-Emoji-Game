@@ -172,13 +172,12 @@ export default class Game extends React.Component {
         let cards = gameLogic.cards;
         let hexBoard =  gameLogic.hexBoard;
         let innerCells = hexBoard.innerCells;
-        let outerCells = hexBoard.adjacentOuterCells;
+        let outerCells = hexBoard.outerCells;
 
         let partialCards = cards.slice(0, Math.floor(cards.length * this.cardDisplayPercent));
 
         return (
             <div style={bodyStyle}>
-                <AspectRatioRect aspectRatio={16/9}/>
                 <div style={boardStyle}>
                     <div>
                         {partialCards.map((card) => (
@@ -222,7 +221,8 @@ export default class Game extends React.Component {
     }
 }
 
-/* Debug rects
+/* Debug stuff
+<AspectRatioRect aspectRatio={16/9}/>
 <div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
 <div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
  */
