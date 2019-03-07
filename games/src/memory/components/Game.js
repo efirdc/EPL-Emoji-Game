@@ -109,7 +109,7 @@ export default class Game extends React.Component {
         else if (this.gameLogic.isGameLost()) {
             this.phase = Game.Phase.LEVEL_LOSE;
             new Audio(loseSoundFile).play();
-            setTimeout(() => this.loadNextLevel(true), 2000.0);
+            setTimeout(() => this.loadNextLevel(false), 2000.0);
         }
         this.forceUpdate();
     }
