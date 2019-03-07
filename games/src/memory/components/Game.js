@@ -5,6 +5,7 @@ import TouchPoint from './TouchPoint.js'
 import FakeTouchPoints from "./FakeTouchPoints"
 import Timer from "./Timer.js"
 import CardFlipCounter from "./CardFlipCounter.js"
+import StarCounter from "./StarCounter.js"
 import InnerCells from "./InnerCells.js"
 import OuterCells from "./OuterCells.js"
 import BackgroundGL from "./BackgroundGL.js";
@@ -215,6 +216,7 @@ export default class Game extends React.Component {
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
+                    <StarCounter x={0} y={0} numStars={this.gameLogic.numStars}/>
                 </div>
             </div>
         )
