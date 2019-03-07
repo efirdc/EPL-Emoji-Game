@@ -33,7 +33,7 @@ export default class Game extends React.Component {
         this.loop = new GameLoop();
 
         this.gameLogic = new GameLogic();
-        this.gameLogic.setLevel(0);
+        this.gameLogic.setLevel(22);
         this.gameLogic.startLevel();
 
         this.touchedCards = [];

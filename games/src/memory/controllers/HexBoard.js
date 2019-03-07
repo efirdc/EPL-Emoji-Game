@@ -142,28 +142,32 @@ export default class HexBoard {
     }
 
     // initializes the blobCells
-    initializeBlob(numCells) {
+    initializeBlob(numCells, numBlobs) {
 
         // Reset the blob
         this.blobCells = [];
 
-        // Figure out how many starting positions the blob should
-        const maxStarts = 5;
-        let numStartCells = Math.max(1, Math.floor(numCells / 20));
-        numStartCells = Math.min(numStartCells, maxStarts);
-        numCells -= numStartCells;
-
         // Get random distant cells from the gameBoard
-        let startCells = this.getRandomDistantCells(numStartCells);
+        let startCells = this.getRandomDistantCells(numBlobs);
+
+        // Get a random offset between 0 -> 5 for the blobID
+        const maxBlobs = 5;
+        let blobIdOffset = Math.floor(Math.random() * maxBlobs);
 
         // Use these cells to seed the blob
-        let blobIdOffset = Math.floor(Math.random() * maxStarts);
         for (let i in startCells) {
-            let blobID = (parseInt(i) + blobIdOffset) % maxStarts;
+
+            // Offset the blobID
+            let blobID = (parseInt(i) + blobIdOffset) % maxBlobs;
+
+            // Set the blobID on the cell and add it to the blob
             let startCell = startCells[i];
             let blobCell = new Cell(startCell.row, startCell.col, startCell.x, startCell.y, blobID);
             this.blobCells.push(blobCell);
         }
+
+        // We added numBlobs cells so far, so subtract them from the total we need to add.
+        numCells -= numBlobs;
 
         // Flood out from these seed cells until all cells are distributed.
         while (numCells > 0) {
@@ -186,7 +190,7 @@ export default class HexBoard {
 
         // Actually lets group the blobCells by blobID because it looks cooler
         let blobIdGroups = [];
-        for (let i = 0; i < maxStarts; i++) {
+        for (let i = 0; i < maxBlobs; i++) {
             let blobIdGroup = this.blobCells.filter((blobCell) => (blobCell.blobID === i));
             blobIdGroups.push(blobIdGroup);
         }

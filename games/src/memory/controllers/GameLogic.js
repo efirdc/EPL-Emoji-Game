@@ -75,7 +75,6 @@ export default class GameLogic {
 
     getLevel(numStars) {
         let level = new Level();
-
         const starBrackets = [
 
             // First bracket only has one blob, so start with a small amount of cards and increase slowly
@@ -191,7 +190,8 @@ export default class GameLogic {
             card.matchID = matchIDs.pop();
         }
 
-        this.hexBoard.initializeBlob(this.level.numCards);
+        // Initialize the hexboard blob, and import the blobCells data into the cards.
+        this.hexBoard.initializeBlob(this.level.numCards, this.level.numBlobs);
         for (let i in this.cards) {
             let blobCell = this.hexBoard.blobCells[i];
             let card = this.cards[i];
