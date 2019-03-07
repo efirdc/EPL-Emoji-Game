@@ -45,7 +45,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "electron": "electron .",
+    "electron": "electron . --remote-debugging-port=9222",
     "electron-start": "node src/start-react",
     "react-start": "react-scripts start",
     "pack": "build --dir",
