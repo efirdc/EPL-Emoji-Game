@@ -9,7 +9,7 @@ export default function TouchPoint(props) {
         top: 0,
         background: '#fff',
         border: 'solid 1px #999',
-        opacity: .9,
+        opacity: .75,
         borderRadius: '50%',
         height: props.size + 'px',
         width: props.size + 'px',
@@ -24,7 +24,13 @@ export default function TouchPoint(props) {
     }};
 
     return (
-        <Motion defaultStyle={{x: props.x, y: props.y}} style={{x: spring(props.x), y: spring(props.y)}}>
+        <Motion
+            defaultStyle={{x: props.x, y: props.y}}
+            style={{
+                x: spring(props.x, {stiffness: 300, damping: 23}),
+                y: spring(props.y, {stiffness: 300, damping: 23})
+            }}
+        >
             {interpolated =>
                 <div
                     className={props.fake ? "FakeTouchPoint" : "TouchPoint"}
