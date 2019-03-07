@@ -12,14 +12,11 @@ function shuffle(a) {
 }
 
 class Level {
-    constructor (numCards, maxConcurrentFlips, timeToComplete, numBlobs) {
-        if (numCards % 2 !== 0) {
-            console.log("Warning: Created a level with an odd number of cards.")
-        }
-        this.numCards = numCards;
-        this.maxConcurrentFlips = maxConcurrentFlips;
-        this.timeToCompleteLevel = timeToComplete;
-        this.numBlobs = numBlobs;
+    constructor () {
+        this.numCards = 0;
+        this.maxConcurrentFlips = 0;
+        this.timeToComplete = 0;
+        this.numBlobs = 0;
     }
 }
 
@@ -42,16 +39,13 @@ export default class GameLogic {
     constructor() {
 
         this.hexBoard = new HexBoard();
+        this.level = new Level();
 
+        this.numStars = 0;
         this.cards = [];
-        this.levels = [];
-        this.currentLevel = -1;
-        this.numCards = 0;
         this.flipsUsed = 0;
-        this.maxConcurrentFlips = 0;
         this.concurrentFlips = 0;
         this.levelStarted = false;
-        this.timeToCompleteLevel = 0;
         this.timeAtLevelStart = Date.now();
         this.timeAtLevelWin = null;
 
@@ -66,7 +60,7 @@ export default class GameLogic {
 
         // If the level has not yet started, then return the total time to complete the level
         if (!this.levelStarted) {
-            return this.timeToCompleteLevel;
+            return this.level.timeToComplete;
         }
 
         // Decrease the time left until the game ends.
@@ -76,88 +70,116 @@ export default class GameLogic {
         } else {
             timeElapsed = (this.timeAtLevelWin - this.timeAtLevelStart) / 1000;
         }
-        return this.timeToCompleteLevel - timeElapsed;
+        return this.level.timeToComplete - timeElapsed;
     }
 
     getLevel(numStars) {
-        let level = new Level(0, 0, 0, 0);
-        if (numStars < 20) {
-            level.numBlobs = 1;
-            level.numCards = (20 + numStars) & (~1);
+        let level = new Level();
+
+        const starBrackets = [
+
+            // First bracket only has one blob, so start with a small amount of cards and increase slowly
+            {numStars: 0, numBlobs: 1, numCardsStart: 20, numCardsEnd: 40,
+                maxConcurrentFlips: 6, timeToCompleteLevel: 100},
+
+            // Adding a blob for the first time, so reduce the number of cards by a bit at the start
+            {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
+                maxConcurrentFlips: 8, timeToCompleteLevel: 100},
+
+            // Reduce by a bit again for the third blob, but not as much.
+            {numStars: 40, numBlobs: 3, numCardsStart: 54, numCardsEnd: 90,
+                maxConcurrentFlips: 10, timeToCompleteLevel: 100},
+
+            // Should get hard to manage here for 2 players.
+            // Only reduce cards by a little bit
+            {numStars: 60, numBlobs: 4, numCardsStart: 86, numCardsEnd: 120,
+                maxConcurrentFlips: 12, timeToCompleteLevel: 100},
+
+            // If they get this far they should be pretty good, so no more going easy
+            // Keep increasing cards, and dont increase concurrent flips this time
+            {numStars: 80, numBlobs: 5, numCardsStart: 122, numCardsEnd: 150,
+                maxConcurrentFlips: 12, timeToCompleteLevel: 100},
+
+            // Once we pass this point, go into "endurance mode"
+            {numStars: 100, enduranceMode: true},
+        ];
+
+        let starBracket, nextStarBracket;
+        for (let currStarBracket of starBrackets) {
+            if (currStarBracket.numStars > numStars) {
+                nextStarBracket = currStarBracket;
+                break;
+            }
+            starBracket = currStarBracket;
         }
-        else if (numStars < 40) {
-            level.numBlobs = 2;
+
+        if (starBracket.enduranceMode) {
+            // not yet defined
+            return level;
         }
-        else if (numStars < 60) {
-            level.numBlobs = 3;
-        }
-        else if (numStars < 80) {
-            level.numBlobs = 4;
-        }
-        else {
-            level.numBlobs = 5;
-        }
+
+        level.numBlobs = starBracket.numBlobs;
+        level.numCards = this.interpolateNumCards(
+            numStars,
+            starBracket.numStars,
+            nextStarBracket.numStars,
+            starBracket.numCardsStart,
+            starBracket.numCardsEnd
+        );
+        level.timeToComplete = starBracket.timeToCompleteLevel;
+        level.maxConcurrentFlips = starBracket.maxConcurrentFlips;
+        return level;
     }
 
-    calcNumCards(numStars, yIntercept, slope) {
+    // Say we want numCards to go from 40 -> 80 as numStars goes from 50 -> 70. This function does exactly that.
+    // This returns a value numCards from numCardsStart -> numCardsEnd
+    // depending on how far along numStars is from starBracketStart -> starBracketEnd
+    // It also always rounds numCards to the nearest 2, and its maximum value is the size of the hexBoard
+    interpolateNumCards(numStars, starBracketStart, starBracketEnd, numCardsStart, numCardsEnd) {
 
-        // Number of cards is a linear function
-        let numCards = Math.floor(numStars * slope + yIntercept);
+        // Do "inverse linear interpolation" to figure out t value
+        // t is a value on [0, 1] domain that measures how far along numStars is in this star difficulty bracket
+        let t = (numStars - starBracketStart) / (starBracketEnd - starBracketStart);
+
+        // Do linear interpolation with t to get the number of cards
+        let numCards = (1.0 - t) * numCardsStart + t * numCardsEnd;
+
+        // Round down to the nearest int
+        numCards = Math.floor(numCards);
 
         // If the number of cards is odd, make it even
         // This basically works by turning off the first bit (using bitwise operations)
         numCards = numCards & (~1);
 
         // Limit the number of cards by the size of the hexboard
-        numCards = Math.max(numCards, this.hexBoard.boardCells.length);
+        numCards = Math.min(numCards, this.hexBoard.boardCells.length);
 
         return numCards;
     }
 
-    // Add new levels to the memory game at runtime
-    addLevel(numCards, maxConcurrentFlips, timeToComplete) {
-        this.levels.push(new Level(numCards, maxConcurrentFlips, timeToComplete))
-    }
-
-    // Advance to the next level
-    nextLevel() {
-        let newLevelID = this.currentLevel + 1;
-        if (newLevelID >= this.levels.length) {
-            newLevelID = 0;
-        }
-        this.setLevel(newLevelID);
-    }
-
     // Sets the current level for the memory game
-    setLevel(levelID) {
+    setLevel(numStars) {
 
-        // Get the level data
-        let level = this.levels[levelID];
+        this.numStars = numStars;
 
-        // Error check
-        if (level === undefined) {
-            console.log("Error: Undefined levelID for setLevel()");
-        }
+        // Get the level settings
+        this.level = this.getLevel(numStars);
 
-        // Load the level settings
-        this.currentLevel = levelID;
-        this.numCards = level.numCards;
+        // Initialize level state data
         this.flipsUsed = 0;
-        this.maxConcurrentFlips = level.maxConcurrentFlips;
         this.concurrentFlips = 0;
         this.levelStarted = false;
-        this.timeToCompleteLevel = level.timeToCompleteLevel;
         this.timeAtLevelStart = undefined;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
-        for (let cardKey = 0; cardKey < this.numCards; cardKey++) {
+        for (let cardKey = 0; cardKey < this.level.numCards; cardKey++) {
             this.cards[cardKey] = new Card(0, cardKey);
         }
 
         // Create a shuffled array of all matchIDs
         let matchIDs = [];
-        let numMatchIDs = this.numCards / 2;
+        let numMatchIDs = this.level.numCards / 2;
         for (let i = 0; i < numMatchIDs; i++){
             matchIDs.push(i);
             matchIDs.push(i);
@@ -169,7 +191,7 @@ export default class GameLogic {
             card.matchID = matchIDs.pop();
         }
 
-        this.hexBoard.initializeBlob(this.numCards);
+        this.hexBoard.initializeBlob(this.level.numCards);
         for (let i in this.cards) {
             let blobCell = this.hexBoard.blobCells[i];
             let card = this.cards[i];
@@ -216,7 +238,7 @@ export default class GameLogic {
             if (!card.faceUp && touched) {
 
                 // Flip the card up if there is available flips
-                if (this.concurrentFlips < this.maxConcurrentFlips) {
+                if (this.concurrentFlips < this.level.maxConcurrentFlips) {
                     card.faceUp = true;
                     card.flipRejected = false;
                     card.timeAtFaceUp = Date.now();

@@ -32,8 +32,8 @@ export default class Game extends React.Component {
         this.loop = new GameLoop();
 
         this.gameLogic = new GameLogic();
-        this.gameLogic.addLevel(120, 6, 600);
         this.gameLogic.setLevel(0);
+        this.gameLogic.startLevel();
 
         this.touchedCards = [];
         this.touchPoints = {}; // Touch points created by real touch events
@@ -53,7 +53,7 @@ export default class Game extends React.Component {
         this.timer += deltaTime;
 
         if (this.phase === Game.Phase.LEVEL_LOAD) {
-            const phaseLength = this.gameLogic.numCards * 0.08;
+            const phaseLength = this.gameLogic.level.numCards * 0.08;
             this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
             if (this.timer > phaseLength) {
                 this.phase = Game.Phase.PLAY;
@@ -115,7 +115,7 @@ export default class Game extends React.Component {
 
     loadNextLevel (prevLevelWon) {
         if (prevLevelWon) {
-            this.gameLogic.nextLevel();
+            this.gameLogic.setLevel(this.gameLogic.numStars + 5);
         } else {
             this.gameLogic.setLevel(0);
         }
@@ -208,12 +208,12 @@ export default class Game extends React.Component {
                     <CardFlipCounter
                         x={-23} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
-                        maxFlips={this.gameLogic.maxConcurrentFlips}
+                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                     <CardFlipCounter
                         x={23} y={-5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
-                        maxFlips={this.gameLogic.maxConcurrentFlips}
+                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                 </div>
             </div>
