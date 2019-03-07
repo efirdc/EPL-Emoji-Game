@@ -150,20 +150,20 @@ export default class HexBoard {
         // Get random distant cells from the gameBoard
         let startCells = this.getRandomDistantCells(numBlobs);
 
-        // Get a random offset between 0 -> 5 for the blobID
-        const maxBlobs = 5;
-        let blobIdOffset = Math.floor(Math.random() * maxBlobs);
+        // Create a shuffled array of blobIDs
+        let blobIDs = [0, 1, 2, 3, 4];
+        shuffle(blobIDs);
 
         // Use these cells to seed the blob
         for (let i in startCells) {
 
-            // Offset the blobID
-            let blobID = (parseInt(i) + blobIdOffset) % maxBlobs;
+            // Get a random blobID for this cell
+            let blobID = blobIDs.pop();
 
             // Set the blobID on the cell and add it to the blob
             let startCell = startCells[i];
-            let blobCell = new Cell(startCell.row, startCell.col, startCell.x, startCell.y, blobID);
-            this.blobCells.push(blobCell);
+            let seedCell = new Cell(startCell.row, startCell.col, startCell.x, startCell.y, blobID);
+            this.blobCells.push(seedCell);
         }
 
         // We added numBlobs cells so far, so subtract them from the total we need to add.
@@ -189,6 +189,7 @@ export default class HexBoard {
         }
 
         // Actually lets group the blobCells by blobID because it looks cooler
+        const maxBlobs = 5;
         let blobIdGroups = [];
         for (let i = 0; i < maxBlobs; i++) {
             let blobIdGroup = this.blobCells.filter((blobCell) => (blobCell.blobID === i));
