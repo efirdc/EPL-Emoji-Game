@@ -195,8 +195,10 @@ export default class HexBoard {
             blobIdGroups.push(blobIdGroup);
         }
         shuffle(blobIdGroups);
-        this.blobCells = blobIdGroups.flat();
-
+        this.blobCells = [];
+        for (let group of blobIdGroups) {
+            this.blobCells = this.blobCells.concat(group);
+        }
     }
 
     // UTILITY FUNCTIONS - These are used by the initialization functions
