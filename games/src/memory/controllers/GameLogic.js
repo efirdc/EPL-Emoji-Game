@@ -21,9 +21,22 @@ class Level {
 }
 
 class Card {
+    static Phase = {
+        SPAWNING: 0,
+        FACE_DOWN: 1,
+        FACE_UP: 2,
+        FLIP_REJECTED: 30,
+        MATCHED: 40,
+        EXITING: 50,
+    };
+
     constructor (matchID, cardKey) {
         this.matchID = matchID;
         this.cardKey = cardKey;
+
+        this._phase = Card.Phase.SPAWNING;
+        this.timeAtSetPhase = Date.now();
+
         this.faceUp = false;
         this.matched = false;
         this.flipRejected = false;
@@ -32,6 +45,11 @@ class Card {
         this.x = 0;
         this.y = 0;
         this.blobID = 0;
+    }
+
+    set phase(phase) {
+        this._phase = phase;
+        this.timeAtSetPhase = Date.now();
     }
 }
 
@@ -51,6 +69,7 @@ export default class GameLogic {
 
         // Time in ms that a card must be face up before it can be matched.
         this.timeToMatch = 500;
+        this.timeToCombo = 750;
 
         this.canMatch = this.canMatch.bind(this);
     }
