@@ -1,42 +1,47 @@
 import React from 'react';
 import {Motion, spring} from 'react-motion';
 
-export default function TouchPoint(props) {
+export default class TouchPoint extends React.PureComponent {
 
-    let getStyle = (x, y) => { return {
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        background: '#fff',
-        border: 'solid 1px #999',
-        opacity: .75,
-        borderRadius: '50%',
-        height: props.size + 'px',
-        width: props.size + 'px',
-        padding: 0,
-        margin: 0,
-        display: 'block',
-        overflow: 'hidden',
-        pointerEvents: 'all',
-        //userSelect: 'none',
-        transform: 'translate(' + (x - (props.size / 2)) + 'px, ' + (y - (props.size / 2)) + 'px)',
-        zIndex: 100
-    }};
+    getStyle(x, y) {
+        return {
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            background: '#fff',
+            border: 'solid 2px #999',
+            opacity: .4,
+            borderRadius: '50%',
+            height: this.props.size + 'px',
+            width: this.props.size + 'px',
+            padding: 0,
+            margin: 0,
+            display: 'block',
+            overflow: 'hidden',
+            pointerEvents: 'all',
+            //userSelect: 'none',
+            transform: 'translate(' + (x - (this.props.size / 2)) + 'px, ' + (y - (this.props.size / 2)) + 'px)',
+            zIndex: 100
+        };
+    }
 
-    return (
-        <Motion
-            defaultStyle={{x: props.x, y: props.y}}
-            style={{
-                x: spring(props.x, {stiffness: 300, damping: 23}),
-                y: spring(props.y, {stiffness: 300, damping: 23})
-            }}
-        >
-            {interpolated =>
-                <div
-                    className={props.fake ? "FakeTouchPoint" : "TouchPoint"}
-                    style={getStyle(interpolated.x, interpolated.y)}
-                    id={props.id}
-                />}
-        </Motion>
-    );
+    render() {
+        return (
+            <Motion
+                defaultStyle={{x: this.props.x, y: this.props.y}}
+                style={{
+                    x: spring(this.props.x, {stiffness: 300, damping: 23}),
+                    y: spring(this.props.y, {stiffness: 300, damping: 23})
+                }}
+            >
+                {interpolated =>
+                    <div
+                        className={this.props.fake ? "FakeTouchPoint" : "TouchPoint"}
+                        style={this.getStyle(interpolated.x, interpolated.y)}
+                        id={this.props.id}
+                    />}
+            </Motion>
+        );
+    }
+
 }

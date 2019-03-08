@@ -156,7 +156,6 @@ export default class HexBoard {
 
         // Use these cells to seed the blob
         for (let i in startCells) {
-
             // Get a random blobID for this cell
             let blobID = blobIDs.pop();
 
