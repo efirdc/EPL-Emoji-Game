@@ -20,27 +20,23 @@ class Level {
     }
 }
 
-class Card {
-    static Phase = {
-        SPAWNING: 0,
-        FACE_DOWN: 1,
-        FACE_UP: 2,
-        FLIP_REJECTED: 30,
-        MATCHED: 40,
-        EXITING: 50,
-    };
+export const CardPhase = {
+    SPAWNING: 0,
+    FACE_DOWN: 1,
+    FACE_UP: 2,
+    FLIP_REJECTED: 30,
+    MATCHED: 40,
+    EXITING: 50,
+};
 
+class Card {
     constructor (matchID, cardKey) {
         this.matchID = matchID;
         this.cardKey = cardKey;
+        this.touched = false;
 
-        this._phase = Card.Phase.SPAWNING;
+        this._phase = CardPhase.SPAWNING;
         this.timeAtSetPhase = Date.now();
-
-        this.faceUp = false;
-        this.matched = false;
-        this.flipRejected = false;
-        this.timeAtFaceUp = 0;
 
         this.x = 0;
         this.y = 0;
@@ -50,6 +46,10 @@ class Card {
     set phase(phase) {
         this._phase = phase;
         this.timeAtSetPhase = Date.now();
+    }
+
+    get phase() {
+        return this._phase;
     }
 }
 
@@ -61,7 +61,6 @@ export default class GameLogic {
 
         this.numStars = 0;
         this.cards = [];
-        this.flipsUsed = 0;
         this.concurrentFlips = 0;
         this.levelStarted = false;
         this.timeAtLevelStart = Date.now();
@@ -69,9 +68,11 @@ export default class GameLogic {
 
         // Time in ms that a card must be face up before it can be matched.
         this.timeToMatch = 500;
+        this.timeToExit = 1000;
         this.timeToCombo = 750;
 
         this.canMatch = this.canMatch.bind(this);
+        this.shouldExit = this.shouldExit.bind(this);
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
@@ -184,7 +185,6 @@ export default class GameLogic {
         this.level = this.getLevel(numStars);
 
         // Initialize level state data
-        this.flipsUsed = 0;
         this.concurrentFlips = 0;
         this.levelStarted = false;
         this.timeAtLevelStart = undefined;
@@ -224,92 +224,158 @@ export default class GameLogic {
         this.timeAtLevelStart = Date.now();
         this.levelStarted = true;
         this.timeAtLevelWin = undefined;
+        for (let card of this.cards) {
+            card.phase = CardPhase.FACE_DOWN;
+        }
     }
 
-    setTouches(touchedCards) {
+    touchStart(cardKey) {
+        let card = this.cards.find((card) => (card.cardKey === cardKey));
+        if(!card) {
+            console.log("WARNING: touchStart on cardKey" + cardKey + " that does not exist!");
+            return;
+        }
+        if (card.touched) {
+            console.log("WARNING: touchStart on cardKey" + cardKey + " that is already touuched!");
+        }
+        card.touched = true;
+    }
+    touchEnd(cardKey) {
+        let card = this.cards.find((card) => (card.cardKey === cardKey));
+        if(!card) {
+            console.log("WARNING: touchEnd on cardKey" + cardKey + " that does not exist!");
+            return;
+        }
+        if (!card.touched) {
+            console.log("WARNING: touchEnd on cardKey" + cardKey + " that is not touuched!");
+        }
+        card.touched = false;
+    }
 
-        // Get all cards that are unmatched
-        let unmatchedCards = this.cards.filter((card) => !card.matched);
 
-        // Handle releasing of cards
-        for (let card of unmatchedCards) {
-            let touched = touchedCards.includes(card.cardKey);
+    updateCards() {
 
-            // Face up card is released
-            if (card.faceUp && !touched) {
-                this.concurrentFlips -= 1;
-                card.faceUp = false;
-            }
+        // this object is returned by this function, and stores which events have happened this update
+        let eventHappened = {
+            faceUp: false,
+            match: false,
+        };
 
-            // Card with rejected flip was released.
-            else if (card.flipRejected && !touched) {
-                card.flipRejected = false;
+        // Process all cards that are matchable
+        let matchableCards = this.cards.filter(this.canMatch);
+        while (matchableCards.length) {
+
+            // Get one card
+            let cardA = matchableCards.pop();
+
+            // Compare it to all other cards
+            for (let i = 0; i < matchableCards.length; i++) {
+                let cardB = matchableCards[i];
+
+                // Handle matches
+                if (cardA.matchID === cardB.matchID) {
+                    cardA.phase = cardB.phase = CardPhase.MATCHED;
+                    this.concurrentFlips -= 2;
+                    eventHappened.match = true;
+                    matchableCards = matchableCards.splice(i, 1);
+                    break;
+                }
             }
         }
 
-        // Handle pressing of cards
-        for (let card of unmatchedCards) {
+        // Handle releasing FACE_UP cards
+        let faceUpCards = this.cards.filter((card) => card.phase === CardPhase.FACE_UP);
+        for (let card of faceUpCards) {
 
-            // Figure out if the card is touched.
-            let touched = touchedCards.includes(card.cardKey);
+            // If the card isn't touched, release it.
+            if (!card.touched) {
+                this.concurrentFlips -= 1;
+                card.phase = CardPhase.FACE_DOWN;
+            }
+        }
 
-            // If a face down card is touched
-            if (!card.faceUp && touched) {
+        // Shuffle the FLIP_REJECTED cards so there is no bias in the order that they flip.
+        let flipRejectedCards = this.cards.filter((card) => card.phase === CardPhase.FLIP_REJECTED);
+        shuffle(flipRejectedCards);
+
+        // Process all the FLIP_REJECTED cards
+        for (let card of flipRejectedCards) {
+
+            // If the card is touched,
+            if (card.touched) {
+
+                // Flip it if concurrentFlips are not in use.
+                if (this.concurrentFlips < this.level.maxConcurrentFlips) {
+                    card.phase = CardPhase.FACE_UP;
+                    this.concurrentFlips += 1;
+                    eventHappened.faceUp = true;
+                }
+            }
+
+            // If it is no longer touched, just make it a normal FACE_DOWN card
+            else {
+                card.phase = CardPhase.FACE_DOWN;
+            }
+        }
+
+        // Process cards that are FACE_DOWN
+        let faceDownCards = this.cards.filter((card) => card.phase === CardPhase.FACE_DOWN);
+        for (let card of faceDownCards) {
+
+            // If the card is touched,
+            if (card.touched) {
 
                 // Flip the card up if there is available flips
                 if (this.concurrentFlips < this.level.maxConcurrentFlips) {
-                    card.faceUp = true;
-                    card.flipRejected = false;
-                    card.timeAtFaceUp = Date.now();
+                    card.phase = CardPhase.FACE_UP;
+                    eventHappened.faceUp = true;
                     this.concurrentFlips += 1;
-                    this.flipsUsed += 1;
                 }
 
                 // Reject the flip if all concurrent flips are in use.
                 else {
-                    card.flipRejected = true;
+                    card.phase = CardPhase.FLIP_REJECTED;
                 }
             }
         }
+
+        // Handle all cards that should exit.
+        let shouldExitCards = this.cards.filter(this.shouldExit);
+        for (let card of shouldExitCards) {
+            card.phase = CardPhase.EXITING;
+        }
+
+        return eventHappened;
     }
 
-    // In order for a card to be matched
-    // it has to be face up, not yet matched, and it must be face up for a certain amount of time
+    // In order for a card to be matched it has to be face up for a certain amount of time
     canMatch(card) {
-        let timeSinceFaceUp = Date.now() - card.timeAtFaceUp;
-        return !card.matched && card.faceUp && timeSinceFaceUp > this.timeToMatch;
+        if (card.phase !== CardPhase.FACE_UP) {
+            return false;
+        }
+        return Date.now() - card.timeAtSetPhase > this.timeToMatch;
     }
 
-    // Should be called every frame
-    // Handles the matching delay when cards are flipped up
-    tryMatchingCards() {
-        let matchableCards = this.cards.filter(this.canMatch);
-        let matchHappened = false;
-        for (let cardA of matchableCards) {
-            for (let cardB of matchableCards) {
-                if (cardA !== cardB && cardA.matchID === cardB.matchID && !cardA.matched) {
-                    cardA.matched = cardB.matched = true;
-                    this.concurrentFlips -= 2;
-                    matchHappened = true;
-                }
-            }
+    shouldExit(card) {
+        if (card.phase !== CardPhase.MATCHED) {
+            return false;
         }
-        return matchHappened;
+        return Date.now() - card.timeAtSetPhase > this.timeToExit;
     }
 
     isGameWon() {
 
-        // Return false when a not faceUp card is found
+        // Return false if an unmatched card is found
         for (let card of this.cards) {
-            if (!card.matched) {
-                if (!this.timeAtLevelWin) {
-                    this.timeAtLevelWin = Date.now()
-                }
+            if (card.phase !== CardPhase.MATCHED && card.phase !== CardPhase.EXITING) {
                 return false;
             }
         }
 
-        // Return true if all cards are faceUp
+        // If all cards are face up then record the win time and return true
+        if (!this.timeAtLevelWin) {
+            this.timeAtLevelWin = Date.now()
+        }
         return true;
     }
 

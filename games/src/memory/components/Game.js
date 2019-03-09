@@ -17,6 +17,7 @@ import emojiData from './EmojiData.js';
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'
 import matchSoundFile from "../sounds/match3.wav";
+import clickSoundFile from "../sounds/card_flip4.wav";
 
 export default class Game extends React.Component {
 
@@ -33,9 +34,8 @@ export default class Game extends React.Component {
         this.loop = new GameLoop();
 
         this.gameLogic = new GameLogic();
-        this.gameLogic.setLevel(90);
+        this.gameLogic.setLevel(0);
 
-        this.touchedCards = [];
         this.touchPoints = {}; // Touch points created by real touch events
 
         this.phase = Game.Phase.LEVEL_LOAD;
@@ -63,9 +63,12 @@ export default class Game extends React.Component {
         }
 
         else if (this.phase === Game.Phase.PLAY) {
-            let matchHappened = this.gameLogic.tryMatchingCards();
-            if (matchHappened) {
+            let eventHappened = this.gameLogic.updateCards();
+            if (eventHappened.match) {
                 new Audio(matchSoundFile).play();
+            }
+            if (eventHappened.faceUp) {
+                new Audio(clickSoundFile).play();
             }
             this.handleShouldGameEnd();
         }
@@ -84,18 +87,11 @@ export default class Game extends React.Component {
     }
 
     onCardTouchStart(cardKey) {
-        this.touchedCards.push(cardKey);
-        if (this.phase === Game.Phase.PLAY) {
-            this.gameLogic.setTouches(this.touchedCards);
-            this.handleShouldGameEnd()
-        }
+        this.gameLogic.touchStart(cardKey);
     }
 
     onCardTouchEnd(cardKey) {
-        this.touchedCards = this.touchedCards.filter((key) => key !== cardKey);
-        if (this.phase === Game.Phase.PLAY) {
-            this.gameLogic.setTouches(this.touchedCards);
-        }
+        this.gameLogic.touchEnd(cardKey);
     }
 
     handleShouldGameEnd() {
@@ -185,7 +181,6 @@ export default class Game extends React.Component {
                                 {...card}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2}
-                                loop={this.loop}
                                 onCardTouchStart={this.onCardTouchStart}
                                 onCardTouchEnd={this.onCardTouchEnd}
                             />

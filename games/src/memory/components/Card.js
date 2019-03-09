@@ -1,25 +1,13 @@
 import React from 'react';
+import { CardPhase } from "../controllers/GameLogic.js";
 import emojiData from './EmojiData.js';
-import clickSoundFile from "../sounds/card_flip4.wav";
-import matchSoundFile from "../sounds/match3.wav";
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
 
 export default class Card extends React.PureComponent {
 
-    static Phase = {
-        INITIAL: 0,
-        ENTER: 1,
-        PLAY: 2,
-        MATCHED: 3,
-        EXIT: 4,
-    };
-
     constructor(props) {
         super(props);
-
-        // phase takes on values of the Phase enum, and controls what the Card is doing at the moment
-        this.phase = Card.Phase.INITIAL;
 
         // Reference to the input handler is needed to add listeners to real events since react events can not be trusted.
         this.inputHandlerRef = React.createRef();
@@ -34,7 +22,6 @@ export default class Card extends React.PureComponent {
         this.capturedPointers = [];
 
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
-        this.tick = this.tick.bind(this);
         this.handlePointer = this.handlePointer.bind(this);
         this.touchStartBehavior = this.touchStartBehavior.bind(this);
         this.touchEndBehavior = this.touchEndBehavior.bind(this);
@@ -52,17 +39,8 @@ export default class Card extends React.PureComponent {
         return false;
     }*/
 
-    // tick runs every frame
-    // not using this too much at the moment...
-    tick (deltaTime) {
-        if (this.phase === Card.Phase.INITIAL) {
-            this.setPhase(Card.Phase.ENTER);
-        }
-    }
-
     // Set up event listeners, and loop stuff
     componentDidMount() {
-        this.loopID = this.props.loop.subscribe(this.tick);
         this.inputHandlerRef.current.addEventListener("pointermove", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("pointerdown", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("lostpointercapture", this.handlePointer);
@@ -73,24 +51,6 @@ export default class Card extends React.PureComponent {
         this.inputHandlerRef.current.addEventListener("fakerelease", this.touchEndBehavior);
     }
 
-    componentWillUnmount() {
-        this.props.loop.unsubscribe(this.loopID);
-        this.touchEndBehavior();
-    }
-
-    // Detect changes in props
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.matched && !this.props.matched) {
-            if (!this.props.faceUp) {
-                new Audio(matchSoundFile).play();
-            }
-            this.phase = Card.Phase.MATCHED;
-        }
-        if (nextProps.faceUp && !this.props.faceUp) {
-            new Audio(clickSoundFile).play();
-        }
-    }
-
     handlePointer(event) {
 
         // A pointer event can be captured only if it is in the "active buttons state"
@@ -98,7 +58,8 @@ export default class Card extends React.PureComponent {
         let canCapture = event.type === "pointerdown" || (event.type === "pointermove" && event.buttons);
         let isCaptured = this.capturedPointers.includes(event.pointerId);
 
-
+        // If the pointer can be captured and is not captured yet,
+        // then capture it trigger the touch start behavior
         if (canCapture && !isCaptured) {
             event.target.setPointerCapture(event.pointerId);
             this.capturedPointers.push(event.pointerId);
@@ -157,20 +118,36 @@ export default class Card extends React.PureComponent {
         values.x = this.props.x;
         values.y = this.props.y;
 
-        if (this.props.faceUp) {
-            values.flipRotation = 180;
-            values.scale = 0.9;
-        } else {
-            values.flipRotation = 0;
-            values.scale = 0.8;
+        const neutralScale = 0.8;
+        switch (this.props._phase) {
+
+            case CardPhase.SPAWNING:
+                values.flipRotation = 0;
+                values.scale = neutralScale;
+                break;
+
+            case CardPhase.FACE_DOWN:
+            case CardPhase.FLIP_REJECTED:
+                values.flipRotation = 0;
+                values.scale = neutralScale;
+                break;
+
+            case CardPhase.FACE_UP:
+                values.flipRotation = 180;
+                values.scale = 0.9;
+                break;
+
+            case CardPhase.MATCHED:
+                values.flipRotation = 180;
+                values.scale = 1.1;
+                break;
+
+            case CardPhase.EXITING:
+                values.flipRotation = 180;
+                values.scale = 0.0;
+                break;
         }
 
-        if (this.phase === Card.Phase.MATCHED) {
-            values.scale = 1.1;
-        }
-        else if (this.phase === Card.Phase.EXIT) {
-            values.scale = 0.0;
-        }
         values.x = spring(values.x, presets.stiff);
         values.y = spring(values.y, presets.stiff);
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
@@ -179,24 +156,13 @@ export default class Card extends React.PureComponent {
         return values;
     }
 
-    managePhaseTransitions() {
-        if (this.phase === Card.Phase.MATCHED) {
-            setTimeout(() => (this.setPhase(Card.Phase.EXIT)), 1000);
-        }
-    }
-
-    setPhase(phase) {
-        this.phase = phase;
-        this.forceUpdate();
-    }
-
     // gets the inline css styles for this component using animated values.
     getStyles(values) {
 
         const cardInputHandler = {
             height: this.props.size + "vh",
             width: this.props.size + "vh",
-            transform: `translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) scale(${values.scale})`,
+            transform: `translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) scale(${Math.max(values.scale, 0.0)})`,
         };
 
         // blobID decides card back color
@@ -214,7 +180,7 @@ export default class Card extends React.PureComponent {
 
             transform: `rotateX(${values.flipRotation}deg)`,
             backgroundColor: color,
-            filter: this.props.flipRejected ? "brightness(75%)" : "brightness(100%)",
+            filter: (this.props._phase === CardPhase.FLIP_REJECTED) ? "brightness(75%)" : "brightness(100%)",
         };
 
         const cardFront = {
@@ -224,9 +190,10 @@ export default class Card extends React.PureComponent {
             backgroundColor : "#000000"
         };
 
+        let useMatchColor = this.props._phase === CardPhase.MATCHED || this.props._phase === CardPhase.EXITING;
         const cardInner = {
             transform: "scale(0.92)",
-            backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
+            backgroundColor : useMatchColor ? "#5ef997" : "#e5eae8",
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
@@ -235,7 +202,6 @@ export default class Card extends React.PureComponent {
     }
 
     render() {
-        this.managePhaseTransitions();
 
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
