@@ -26,7 +26,8 @@ export const CardPhase = {
     FACE_UP: 2,
     FLIP_REJECTED: 30,
     MATCHED: 40,
-    EXITING: 50,
+    MATCHED_EXITING: 41,
+    EXITING:50,
 };
 
 class Card {
@@ -35,7 +36,7 @@ class Card {
         this.cardKey = cardKey;
         this.touched = false;
 
-        this._phase = CardPhase.SPAWNING;
+        this.phase = CardPhase.SPAWNING;
         this.timeAtSetPhase = Date.now();
 
         this.x = 0;
@@ -43,54 +44,69 @@ class Card {
         this.blobID = 0;
     }
 
-    set phase(phase) {
-        this._phase = phase;
+    setPhase(phase) {
+        this.phase = phase;
         this.timeAtSetPhase = Date.now();
-    }
-
-    get phase() {
-        return this._phase;
     }
 }
 
+export const GamePhase = {
+    PLAY: 0,
+    LEVEL_LOAD: 1,
+    LEVEL_LOSE: 2,
+    LEVEL_WIN: 3,
+};
+
 export default class GameLogic {
-    constructor() {
+    constructor(initialStars) {
 
         this.hexBoard = new HexBoard();
         this.level = new Level();
 
-        this.numStars = 0;
+        this.numStars = initialStars;
         this.cards = [];
+        this.newCards = [];
         this.concurrentFlips = 0;
-        this.levelStarted = false;
-        this.timeAtLevelStart = Date.now();
-        this.timeAtLevelWin = null;
+
+        this.phase = GamePhase.LEVEL_LOAD;
+        this.timeAtSetPhase = Date.now();
+
+        this.timeLeftAtLevelWin = 0;
+
+        this.cardGap = 80;
 
         // Time in ms that a card must be face up before it can be matched.
         this.timeToMatch = 500;
         this.timeToExit = 1000;
         this.timeToCombo = 750;
+        this.timeToDelete = 1000;
 
-        this.canMatch = this.canMatch.bind(this);
-        this.shouldExit = this.shouldExit.bind(this);
+        this.setLevel(initialStars);
+    }
+
+    setPhase(phase) {
+        this.phase = phase;
+        this.timeAtSetPhase = Date.now();
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
     get timeLeft () {
 
-        // If the level has not yet started, then return the total time to complete the level
-        if (!this.levelStarted) {
-            return this.level.timeToComplete;
-        }
+        switch (this.phase) {
 
-        // Decrease the time left until the game ends.
-        let timeElapsed;
-        if (!this.isGameWon()) {
-            timeElapsed = (Date.now() - this.timeAtLevelStart) / 1000;
-        } else {
-            timeElapsed = (this.timeAtLevelWin - this.timeAtLevelStart) / 1000;
+            case GamePhase.LEVEL_LOAD:
+                return this.level.timeToComplete;
+
+            case GamePhase.PLAY:
+                let timeElapsed = (Date.now() - this.timeAtSetPhase) / 1000;
+                return this.level.timeToComplete - timeElapsed;
+
+            case GamePhase.LEVEL_LOSE:
+                return 0;
+
+            case GamePhase.LEVEL_WIN:
+                return this.timeLeftAtLevelWin;
         }
-        return this.level.timeToComplete - timeElapsed;
     }
 
     getLevel(numStars) {
@@ -99,7 +115,7 @@ export default class GameLogic {
 
             // First bracket only has one blob, so start with a small amount of cards and increase slowly
             {numStars: 0, numBlobs: 1, numCardsStart: 20, numCardsEnd: 40,
-                maxConcurrentFlips: 6, timeToCompleteLevel: 100},
+                maxConcurrentFlips: 6, timeToCompleteLevel: 5},
 
             // Adding a blob for the first time, so reduce the number of cards by a bit at the start
             {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
@@ -151,7 +167,7 @@ export default class GameLogic {
     }
 
     // Say we want numCards to go from 40 -> 80 as numStars goes from 50 -> 70. This function does exactly that.
-    // This returns a value numCards from numCardsStart -> numCardsEnd
+    // It returns a value numCards from numCardsStart -> numCardsEnd
     // depending on how far along numStars is from starBracketStart -> starBracketEnd
     // It also always rounds numCards to the nearest 2, and its maximum value is the size of the hexBoard
     interpolateNumCards(numStars, starBracketStart, starBracketEnd, numCardsStart, numCardsEnd) {
@@ -186,13 +202,12 @@ export default class GameLogic {
 
         // Initialize level state data
         this.concurrentFlips = 0;
-        this.levelStarted = false;
-        this.timeAtLevelStart = undefined;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
+        this.newCards = [];
         for (let cardKey = 0; cardKey < this.level.numCards; cardKey++) {
-            this.cards[cardKey] = new Card(0, cardKey);
+            this.newCards[cardKey] = new Card(0, cardKey);
         }
 
         // Create a shuffled array of all matchIDs
@@ -205,27 +220,18 @@ export default class GameLogic {
         shuffle(matchIDs);
 
         // Distribute the shuffled matchIDs over the game cards
-        for (let card of this.cards){
+        for (let card of this.newCards){
             card.matchID = matchIDs.pop();
         }
 
         // Initialize the hexboard blob, and import the blobCells data into the cards.
         this.hexBoard.initializeBlob(this.level.numCards, this.level.numBlobs);
-        for (let i in this.cards) {
+        for (let i in this.newCards) {
             let blobCell = this.hexBoard.blobCells[i];
-            let card = this.cards[i];
+            let card = this.newCards[i];
             card.x = blobCell.x;
             card.y = blobCell.y;
             card.blobID = blobCell.blobID;
-        }
-    }
-
-    startLevel() {
-        this.timeAtLevelStart = Date.now();
-        this.levelStarted = true;
-        this.timeAtLevelWin = undefined;
-        for (let card of this.cards) {
-            card.phase = CardPhase.FACE_DOWN;
         }
     }
 
@@ -252,6 +258,93 @@ export default class GameLogic {
         card.touched = false;
     }
 
+    updateGame() {
+
+        let gameEvents = {
+            gameWon: false,
+            gameLost: false,
+            playStart: false,
+            loadStart: false,
+        };
+        let cardEvents;
+
+        if (this.phase === GamePhase.LEVEL_LOAD) {
+            let timeSinceLoadStart = Date.now() - this.timeAtSetPhase;
+            let numActiveCards = Math.floor(timeSinceLoadStart / this.cardGap);
+
+            // Move cards from newCards to cards
+            while (this.cards.length < numActiveCards && this.newCards.length) {
+                this.cards.push(this.newCards.shift());
+            }
+
+            // When all cards are moved over, move to play phase.
+            if (this.cards.length === this.level.numCards) {
+                this.setPhase(GamePhase.PLAY);
+                gameEvents.playStart = true;
+                for (let card of this.cards) {
+                    card.setPhase(CardPhase.FACE_DOWN);
+                }
+            }
+        }
+        else if (this.phase === GamePhase.PLAY) {
+            cardEvents = this.updateCards();
+            if (this.isGameWon()) {
+                this.timeLeftAtLevelWin = this.timeLeft;
+                this.setPhase(GamePhase.LEVEL_WIN);
+                gameEvents.gameWon = true;
+            }
+            else if (this.isGameLost()) {
+                this.setPhase(GamePhase.LEVEL_LOSE);
+                gameEvents.gameLost = true;
+            }
+        }
+        else if (this.phase === GamePhase.LEVEL_LOSE) {
+            cardEvents = this.updateCards();
+            let timeSinceLose = Date.now() - this.timeAtSetPhase;
+            let numCardsShouldExit = Math.floor(timeSinceLose / this.cardGap);
+
+            for (let i = 0; i < Math.min(numCardsShouldExit, this.cards.length); i++) {
+                let card = this.cards[i];
+                if (card.phase === CardPhase.EXITING) {
+                    continue;
+                }
+                card.setPhase(CardPhase.EXITING);
+            }
+
+            if (!this.cards.length) {
+                this.setLevel(0);
+                this.setPhase(GamePhase.LEVEL_LOAD);
+            }
+        }
+        else if (this.phase === GamePhase.LEVEL_WIN) {
+            let cardEvents = this.updateCards();
+            let timeSinceWin = Date.now() - this.timeAtSetPhase;
+            if (timeSinceWin > 2000) {
+                this.setLevel(this.numStars + 5);
+                this.setPhase(GamePhase.LEVEL_LOAD);
+            }
+        }
+
+        return {...gameEvents, ...cardEvents};
+    }
+
+    isGameWon() {
+
+        // Return false if an unmatched card is found
+        for (let card of this.cards) {
+            if (card.phase !== CardPhase.MATCHED && card.phase !== CardPhase.MATCHED_EXITING) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    isGameLost() {
+        if (this.isGameWon()) {
+            return false;
+        }
+        return this.timeLeft <= 0;
+    }
 
     updateCards() {
 
@@ -262,7 +355,7 @@ export default class GameLogic {
         };
 
         // Process all cards that are matchable
-        let matchableCards = this.cards.filter(this.canMatch);
+        let matchableCards = this.cards.filter((card) => this.canMatch(card));
         while (matchableCards.length) {
 
             // Get one card
@@ -274,7 +367,8 @@ export default class GameLogic {
 
                 // Handle matches
                 if (cardA.matchID === cardB.matchID) {
-                    cardA.phase = cardB.phase = CardPhase.MATCHED;
+                    cardA.setPhase(CardPhase.MATCHED);
+                    cardB.setPhase(CardPhase.MATCHED);
                     this.concurrentFlips -= 2;
                     eventHappened.match = true;
                     matchableCards = matchableCards.splice(i, 1);
@@ -290,7 +384,7 @@ export default class GameLogic {
             // If the card isn't touched, release it.
             if (!card.touched) {
                 this.concurrentFlips -= 1;
-                card.phase = CardPhase.FACE_DOWN;
+                card.setPhase(CardPhase.FACE_DOWN);
             }
         }
 
@@ -306,7 +400,7 @@ export default class GameLogic {
 
                 // Flip it if concurrentFlips are not in use.
                 if (this.concurrentFlips < this.level.maxConcurrentFlips) {
-                    card.phase = CardPhase.FACE_UP;
+                    card.setPhase(CardPhase.FACE_UP);
                     this.concurrentFlips += 1;
                     eventHappened.faceUp = true;
                 }
@@ -314,7 +408,7 @@ export default class GameLogic {
 
             // If it is no longer touched, just make it a normal FACE_DOWN card
             else {
-                card.phase = CardPhase.FACE_DOWN;
+                card.setPhase(CardPhase.FACE_DOWN);
             }
         }
 
@@ -327,23 +421,26 @@ export default class GameLogic {
 
                 // Flip the card up if there is available flips
                 if (this.concurrentFlips < this.level.maxConcurrentFlips) {
-                    card.phase = CardPhase.FACE_UP;
+                    card.setPhase(CardPhase.FACE_UP);
                     eventHappened.faceUp = true;
                     this.concurrentFlips += 1;
                 }
 
                 // Reject the flip if all concurrent flips are in use.
                 else {
-                    card.phase = CardPhase.FLIP_REJECTED;
+                    card.setPhase(CardPhase.FLIP_REJECTED);
                 }
             }
         }
 
         // Handle all cards that should exit.
-        let shouldExitCards = this.cards.filter(this.shouldExit);
+        let shouldExitCards = this.cards.filter((card) => this.shouldExit(card));
         for (let card of shouldExitCards) {
-            card.phase = CardPhase.EXITING;
+            card.setPhase(CardPhase.MATCHED_EXITING);
         }
+
+        // Handle all cards that should be deleted.
+        this.cards = this.cards.filter((card) => !this.shouldDelete(card));
 
         return eventHappened;
     }
@@ -363,26 +460,12 @@ export default class GameLogic {
         return Date.now() - card.timeAtSetPhase > this.timeToExit;
     }
 
-    isGameWon() {
-
-        // Return false if an unmatched card is found
-        for (let card of this.cards) {
-            if (card.phase !== CardPhase.MATCHED && card.phase !== CardPhase.EXITING) {
-                return false;
-            }
-        }
-
-        // If all cards are face up then record the win time and return true
-        if (!this.timeAtLevelWin) {
-            this.timeAtLevelWin = Date.now()
-        }
-        return true;
-    }
-
-    isGameLost() {
-        if (this.isGameWon()) {
+    shouldDelete(card) {
+        if (card.phase !== CardPhase.EXITING && card.phase !== CardPhase.MATCHED_EXITING) {
             return false;
         }
-        return this.timeLeft <= 0;
+        return Date.now() - card.timeAtSetPhase > this.timeToDelete;
     }
+
+
 }

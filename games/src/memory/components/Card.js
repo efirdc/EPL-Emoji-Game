@@ -119,7 +119,7 @@ export default class Card extends React.PureComponent {
         values.y = this.props.y;
 
         const neutralScale = 0.8;
-        switch (this.props._phase) {
+        switch (this.props.phase) {
 
             case CardPhase.SPAWNING:
                 values.flipRotation = 0;
@@ -142,8 +142,13 @@ export default class Card extends React.PureComponent {
                 values.scale = 1.1;
                 break;
 
-            case CardPhase.EXITING:
+            case CardPhase.MATCHED_EXITING:
                 values.flipRotation = 180;
+                values.scale = 0.0;
+                break;
+
+            case CardPhase.EXITING:
+                values.flipRotation = 0;
                 values.scale = 0.0;
                 break;
         }
@@ -180,7 +185,7 @@ export default class Card extends React.PureComponent {
 
             transform: `rotateX(${values.flipRotation}deg)`,
             backgroundColor: color,
-            filter: (this.props._phase === CardPhase.FLIP_REJECTED) ? "brightness(75%)" : "brightness(100%)",
+            filter: (this.props.phase === CardPhase.FLIP_REJECTED) ? "brightness(75%)" : "brightness(100%)",
         };
 
         const cardFront = {
@@ -190,7 +195,7 @@ export default class Card extends React.PureComponent {
             backgroundColor : "#000000"
         };
 
-        let useMatchColor = this.props._phase === CardPhase.MATCHED || this.props._phase === CardPhase.EXITING;
+        let useMatchColor = this.props.phase === CardPhase.MATCHED || this.props.phase === CardPhase.MATCHED_EXITING;
         const cardInner = {
             transform: "scale(0.92)",
             backgroundColor : useMatchColor ? "#5ef997" : "#e5eae8",

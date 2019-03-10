@@ -33,14 +33,7 @@ export default class Game extends React.Component {
 
         this.loop = new GameLoop();
 
-        this.gameLogic = new GameLogic();
-        this.gameLogic.setLevel(0);
-
-        this.touchPoints = {}; // Touch points created by real touch events
-
-        this.phase = Game.Phase.LEVEL_LOAD;
-        this.timer = 0;
-        this.cardDisplayPercent = 0;
+        this.gameLogic = new GameLogic(0);
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
@@ -50,27 +43,24 @@ export default class Game extends React.Component {
 
     tick(deltaTime) {
 
-        this.timer += deltaTime;
-
-        if (this.phase === Game.Phase.LEVEL_LOAD) {
-            const phaseLength = this.gameLogic.level.numCards * 0.08;
-            this.cardDisplayPercent = Math.min(this.timer / phaseLength, 1.0);
-            if (this.timer > phaseLength) {
-                this.phase = Game.Phase.PLAY;
-                this.gameLogic.startLevel();
-                this.timer = 0;
-            }
+        let eventHappened = this.gameLogic.updateGame();
+        if (eventHappened.match) {
+            new Audio(matchSoundFile).play();
         }
-
-        else if (this.phase === Game.Phase.PLAY) {
-            let eventHappened = this.gameLogic.updateCards();
-            if (eventHappened.match) {
-                new Audio(matchSoundFile).play();
-            }
-            if (eventHappened.faceUp) {
-                new Audio(clickSoundFile).play();
-            }
-            this.handleShouldGameEnd();
+        if (eventHappened.faceUp) {
+            new Audio(clickSoundFile).play();
+        }
+        if (eventHappened.gameWon) {
+            new Audio(winSoundFile).play();
+        }
+        if (eventHappened.gameLost) {
+            new Audio(loseSoundFile).play();
+        }
+        if (eventHappened.playStart) {
+            //
+        }
+        if (eventHappened.loadStart) {
+            //
         }
 
         this.forceUpdate();
@@ -92,34 +82,6 @@ export default class Game extends React.Component {
 
     onCardTouchEnd(cardKey) {
         this.gameLogic.touchEnd(cardKey);
-    }
-
-    handleShouldGameEnd() {
-        // Handle game win/loss conditions
-        if (this.gameLogic.isGameWon()) {
-            this.phase = Game.Phase.LEVEL_WIN;
-            setTimeout(() => new Audio(winSoundFile).play(), 250);
-            setTimeout(() => this.loadNextLevel(true), 2000.0);
-        }
-        else if (this.gameLogic.isGameLost()) {
-            this.phase = Game.Phase.LEVEL_LOSE;
-            new Audio(loseSoundFile).play();
-            setTimeout(() => this.loadNextLevel(false), 2000.0);
-        }
-        this.forceUpdate();
-    }
-
-    loadNextLevel (prevLevelWon) {
-        if (prevLevelWon) {
-            this.gameLogic.setLevel(this.gameLogic.numStars + 5);
-        } else {
-            this.gameLogic.setLevel(0);
-        }
-
-        this.phase = Game.Phase.LEVEL_LOAD;
-        this.timer = 0;
-        this.cardDisplayPercent = 0;
-        this.forceUpdate();
     }
 
     render() {
@@ -170,28 +132,17 @@ export default class Game extends React.Component {
         let innerCells = hexBoard.innerCells;
         let outerCells = hexBoard.outerCells;
 
-        let partialCards = cards.slice(0, Math.floor(cards.length * this.cardDisplayPercent));
-
         return (
             <div style={bodyStyle}>
                 <div style={boardStyle}>
                     <div>
-                        {partialCards.map((card) => (
+                        {cards.map((card) => (
                             <Card
                                 {...card}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2}
                                 onCardTouchStart={this.onCardTouchStart}
                                 onCardTouchEnd={this.onCardTouchEnd}
-                            />
-                        ))}
-                    </div>
-                    <div>
-                        {Object.keys(this.touchPoints).map((touchID) => (
-                            <TouchPoint
-                                {...this.touchPoints[touchID]}
-                                key={touchID.toString()}
-                                size={this.touchPointSize}
                             />
                         ))}
                     </div>
