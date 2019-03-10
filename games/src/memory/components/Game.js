@@ -91,7 +91,7 @@ export default class Game extends React.Component {
             width: "100vw",
             height: "100vh",
             pointerEvents: "all",
-            background: "radial-gradient(ellipse at center, rgba(235,245,255,1) 0%, rgba(163,206,255,1) 100%)",
+            background: "radial-gradient(ellipse at center, rgba(255,230,102,1) 0%, rgba(189,107,0,1) 49%, rgba(43,33,0,1) 90%)",
             zIndex: "-1",
             //boxShadow: "inset 0 0 20px #000000",
         };
