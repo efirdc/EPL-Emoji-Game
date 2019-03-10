@@ -3,6 +3,7 @@ import { CardPhase } from "../controllers/GameLogic.js";
 import emojiData from './EmojiData.js';
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
+import * as colorConvert from "color-convert";
 
 export default class Card extends React.PureComponent {
 
@@ -20,6 +21,31 @@ export default class Card extends React.PureComponent {
         // You might think we could use elem.hasPointerCapture, but the browser prefers to take its time when
         // it captures pointers sometimes (almost a full second).
         this.capturedPointers = [];
+
+        this.eplColorsDefault = [
+            "#ffb748",
+            "#79bd52",
+            "#e80862",
+            "#7c4694",
+            "#009dd8",
+        ];
+
+        this.eplColors = [
+            "#ffa424", // +15 saturation
+            "#6ebd40", // +10 saturation
+            "#e80862",
+            "#773894", // +10 saturation
+            "#009dd8",
+        ];
+        let borderLightness = 0.35;
+        let flipRejectedLightness = 0.75;
+        let hsvColors = this.eplColors.map((color) => colorConvert.hex.hsv(color.substring(1)));
+
+        let convertLightness = (hsvColor, lightness) => {
+            return "#" + colorConvert.hsv.hex([hsvColor[0], hsvColor[1] , hsvColor[2] * lightness]);
+        };
+        this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness))
+        this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness))
 
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.handlePointer = this.handlePointer.bind(this);
@@ -171,21 +197,23 @@ export default class Card extends React.PureComponent {
         };
 
         // blobID decides card back color
-        const eplColors = [
-            "#ffb748",
-            "#79bd52",
-            "#e80862",
-            "#7c4694",
-            "#009dd8",
-        ];
-        let color = eplColors[this.props.blobID % eplColors.length];
+        let colorId = this.props.blobID % this.eplColors.length;
+        let color = this.eplColors[colorId];
+        let borderColor = this.eplColorsBorder[colorId];
+        let flipRejectedColor = this.eplColorsFlipRejected[colorId];
 
         const cardBack = {
             zIndex: '2',
 
             transform: `rotateX(${values.flipRotation}deg)`,
-            backgroundColor: color,
-            filter: (this.props.phase === CardPhase.FLIP_REJECTED) ? "brightness(75%)" : "brightness(100%)",
+            backgroundColor: borderColor,
+        };
+
+        const cardBackInner = {
+            zIndex: '3',
+
+            transform: "scale(0.88)",
+            backgroundColor: (this.props.phase === CardPhase.FLIP_REJECTED) ? flipRejectedColor : color,
         };
 
         const cardFront = {
@@ -196,14 +224,16 @@ export default class Card extends React.PureComponent {
         };
 
         let useMatchColor = this.props.phase === CardPhase.MATCHED || this.props.phase === CardPhase.MATCHED_EXITING;
-        const cardInner = {
-            transform: "scale(0.92)",
+        const cardFrontInner = {
+            transform: "scale(0.88)",
             backgroundColor : useMatchColor ? "#5ef997" : "#e5eae8",
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
 
-        return {cardFront, cardBack, cardInputHandler, cardInner};
+
+
+        return {cardFront, cardBack, cardInputHandler, cardFrontInner, cardBackInner};
     }
 
     render() {
@@ -223,12 +253,14 @@ export default class Card extends React.PureComponent {
                         ref={this.inputHandlerRef}
                     >
                         <div className={"card"} style={styles.cardFront}>
-                            <div className={"card"} style={styles.cardInner}>
+                            <div className={"card"} style={styles.cardFrontInner}>
                                 <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
                             </div>
                         </div>
                         <div className={"card"} style={styles.cardBack}>
-                            {}
+                            <div className={"card"} style={styles.cardBackInner}>
+                                {}
+                            </div>
                         </div>
                     </div>
                     )
