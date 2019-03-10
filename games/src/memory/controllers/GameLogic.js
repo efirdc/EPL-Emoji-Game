@@ -115,7 +115,7 @@ export default class GameLogic {
 
             // First bracket only has one blob, so start with a small amount of cards and increase slowly
             {numStars: 0, numBlobs: 1, numCardsStart: 20, numCardsEnd: 40,
-                maxConcurrentFlips: 6, timeToCompleteLevel: 5},
+                maxConcurrentFlips: 6, timeToCompleteLevel: 100},
 
             // Adding a blob for the first time, so reduce the number of cards by a bit at the start
             {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
