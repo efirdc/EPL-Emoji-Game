@@ -172,3 +172,12 @@ export default class Game extends React.Component {
 <div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
 <div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
  */
+
+/* Background
+<div style={backgroundStyle}>
+    <BackgroundGL
+        colorA={"#f4fcff"}
+        colorB={"#8ca4b8"}
+    />
+</div>
+ */
