@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardPhase } from "../controllers/GameLogic.js";
-import emojiData from './EmojiData.js';
+import emojiData from '../controllers/EmojiData.js';
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
 import * as colorConvert from "color-convert";
@@ -254,7 +254,7 @@ export default class Card extends React.PureComponent {
                     >
                         <div className={"card"} style={styles.cardFront}>
                             <div className={"card"} style={styles.cardFrontInner}>
-                                <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+                                <span role="img">{this.props.emoji}</span>
                             </div>
                         </div>
                         <div className={"card"} style={styles.cardBack}>

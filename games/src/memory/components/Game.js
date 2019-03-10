@@ -12,7 +12,6 @@ import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
-import emojiData from './EmojiData.js';
 
 import winSoundFile from '../sounds/win.wav';
 import loseSoundFile from '../sounds/lose.wav'

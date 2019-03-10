@@ -1,4 +1,5 @@
 import HexBoard from './HexBoard.js';
+import emojiData from './EmojiData.js';
 
 // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
 function shuffle(a) {
@@ -31,8 +32,8 @@ export const CardPhase = {
 };
 
 class Card {
-    constructor (matchID, cardKey) {
-        this.matchID = matchID;
+    constructor (emoji, cardKey) {
+        this.emoji = emoji;
         this.cardKey = cardKey;
         this.touched = false;
 
@@ -82,6 +83,9 @@ export default class GameLogic {
         this.timeToDelete = 1000;
 
         this.setLevel(initialStars);
+
+        console.log(this.getUniqueEmojis())
+        this.compareEmojis();
     }
 
     setPhase(phase) {
@@ -210,18 +214,18 @@ export default class GameLogic {
             this.newCards[cardKey] = new Card(0, cardKey);
         }
 
-        // Create a shuffled array of all matchIDs
-        let matchIDs = [];
-        let numMatchIDs = this.level.numCards / 2;
-        for (let i = 0; i < numMatchIDs; i++){
-            matchIDs.push(i);
-            matchIDs.push(i);
+        // Create a shuffled array of all emojis
+        let emojisNeeded = this.level.numCards / 2;
+        let useEmojis = [];
+        for (let i = 0; i < emojisNeeded; i++){
+            useEmojis.push(emojiData.sequence[i]);
+            useEmojis.push(emojiData.sequence[i]);
         }
-        shuffle(matchIDs);
+        shuffle(useEmojis);
 
-        // Distribute the shuffled matchIDs over the game cards
+        // Distribute the shuffled emojis over the game cards
         for (let card of this.newCards){
-            card.matchID = matchIDs.pop();
+            card.emoji = useEmojis.pop();
         }
 
         // Initialize the hexboard blob, and import the blobCells data into the cards.
@@ -366,7 +370,7 @@ export default class GameLogic {
                 let cardB = matchableCards[i];
 
                 // Handle matches
-                if (cardA.matchID === cardB.matchID) {
+                if (cardA.emoji === cardB.emoji) {
                     cardA.setPhase(CardPhase.MATCHED);
                     cardB.setPhase(CardPhase.MATCHED);
                     this.concurrentFlips -= 2;
@@ -467,5 +471,46 @@ export default class GameLogic {
         return Date.now() - card.timeAtSetPhase > this.timeToDelete;
     }
 
+    getUniqueEmojis() {
+        let emojis = new Set();
+
+        // get the specials
+        for (let emoji of emojiData.specials) {
+            emojis.add(emoji);
+        }
+
+        // afraid of
+        for (let scaredEmoji in emojiData.afraidOf) {
+            emojis.add(scaredEmoji);
+            for (let scaryEmoji of emojiData.afraidOf[scaredEmoji]) {
+                emojis.add(scaryEmoji)
+            }
+        }
+
+        for (let comboEmoji in emojiData.comboBonusWith) {
+            emojis.add(comboEmoji);
+            for (let comboBonusEmoji of emojiData.comboBonusWith[comboEmoji]) {
+                emojis.add(comboBonusEmoji);
+            }
+        }
+
+        for (let emoji of emojiData.filler) {
+            emojis.add(emoji);
+        }
+
+        return Array.from(emojis);
+    }
+
+    compareEmojis() {
+        let uniqueEmojis = this.getUniqueEmojis();
+        let sequence = emojiData.sequence;
+        let missing = []
+        for (let emoji of uniqueEmojis) {
+            if (!sequence.includes(emoji)) {
+                missing.push(emoji);
+            }
+        }
+        console.log(missing);
+    }
 
 }
