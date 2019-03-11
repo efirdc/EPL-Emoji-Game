@@ -33,7 +33,7 @@ export default class Game extends React.Component {
 
         this.loop = new GameLoop();
 
-        this.gameLogic = new GameLogic(0);
+        this.gameLogic = new GameLogic(90);
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
@@ -146,7 +146,7 @@ export default class Game extends React.Component {
                             />
                         ))}
                     </div>
-                    <InnerCells innerCells={innerCells} size={hexBoard.hexSize * 2}/>
+                    <InnerCells innerCells={innerCells} size={hexBoard.hexSize * 2} hull={hexBoard.cornerCellCenters}/>
                     <OuterCells outerCells={outerCells} size={hexBoard.hexSize * 2}/>
                     <FakeTouchPoints loop={this.loop}/>
                     <Timer x={-23} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>

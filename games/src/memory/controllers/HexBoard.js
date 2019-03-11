@@ -54,6 +54,18 @@ export default class HexBoard {
         this.outerBounds = {x: 85, y: 48};
         this.innerBounds = {x: 42, y: 15};
         this.hexSize = 4.95;
+        this.boardCellOverrides = [
+            //[-2, -2], [-2, -3], [-2, -4],
+            //[-2,  2], [-2,  3], [-2,  4],
+            //[ 2, -2], [ 2, -3], [ 2, -4],
+            //[ 2,  2], [ 2,  3], [ 2,  4],
+        ];
+        this.innerCellOverrides = [
+            [0, -5], [0,  5]
+        ];
+        this.outerCellOverrides = [
+
+        ];
 
         // contains the Cell objects that are part of the game board.
         // This is initialized during construction and should probably not be modified.
@@ -73,6 +85,10 @@ export default class HexBoard {
         // they must be adjacent to cells that are part of the boardCells.
         this.adjacentInnerCells = [];
         this.adjacentOuterCells = [];
+
+        //
+        this.cornerCells = [[0, -5], [-2, -4], [-2,  4], [0,  5], [ 2,  4], [ 2, -4]];
+        this.cornerCellCenters = [];
 
         // Contains the Cell objects that are part of the "blob"
         // The blob is all the cells that are selected by the flood fill algorithm
@@ -110,13 +126,16 @@ export default class HexBoard {
                 let point = this.getPoint(row, col);
                 let newCell = new Cell(row, col, point.x, point.y, -1);
 
+                let innerOverride = this.isOverrideCell(row, col, this.innerCellOverrides);
+                let boardOverride = this.isOverrideCell(row, col, this.boardCellOverrides);
+                let outerOverride = this.isOverrideCell(row, col, this.outerCellOverrides);
+
                 // If it is within the inner bounds, then it belongs to the innerCells
-                if (this.pointInBounds(point, this.innerBounds)) {
+                if ((this.pointInBounds(point, this.innerBounds) || innerOverride) && !boardOverride) {
                     this.innerCells.push(newCell);
                 }
-
                 // If it is outside the inner bounds, but inside the outer bounds, then it belongs to the boardCells
-                else if (this.pointInBounds(point, this.outerBounds)) {
+                else if ((this.pointInBounds(point, this.outerBounds) || boardOverride) && !outerOverride) {
                     this.boardCells.push(newCell);
                     this.boardCellsRC[row][col] = newCell;
                 }
@@ -139,6 +158,8 @@ export default class HexBoard {
                 this.adjacentOuterCells.push(outerCell);
             }
         }
+
+        this.cornerCellCenters = this.cornerCells.map(([row, col]) => this.getPoint(row, col));
     }
 
     // initializes the blobCells
@@ -214,6 +235,16 @@ export default class HexBoard {
     // The point is within the boundary if its absolute value is less than the boundary.
     pointInBounds(point, boundary) {
         return Math.abs(point.x) < boundary.x && Math.abs(point.y) < boundary.y;
+    }
+
+    isOverrideCell(row, col, overrides) {
+        for (let [rowException, colException] of overrides) {
+
+            if (row === rowException && col === colException) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Returns true if the given cell is adjacent to the boardCells and false otherwise
