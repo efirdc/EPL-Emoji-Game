@@ -249,15 +249,29 @@ export default class Card extends React.Component {
         }
 
         const cardFrontInner = {
-            transform: "scale(0.88)",
+            transform: `scale(0.88)`,
             backgroundColor : frontColor,
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
 
+        const horizontalLineWidth = 30;
+        let emojiRotationVector = {x:0, y:0};
+        if (Math.abs(this.props.x) < horizontalLineWidth) {
+            emojiRotationVector = {x:0, y:this.props.y};
+        }
+        else if ( this.props.x > horizontalLineWidth) {
+            emojiRotationVector = {x: this.props.x - horizontalLineWidth, y: this.props.y};
+        }
+        else {
+            emojiRotationVector = {x: this.props.x + horizontalLineWidth, y: this.props.y};
+        }
+        let emojiAngle = Math.atan2(emojiRotationVector.y, emojiRotationVector.x) * 180 / Math.PI - 90;
+        const emoji = {
+          transform: `rotate(${emojiAngle}deg)`,
+        };
 
-
-        return {cardFront, cardBack, cardInputHandler, cardFrontInner, cardBackInner};
+        return {cardFront, cardBack, cardInputHandler, cardFrontInner, cardBackInner, emoji};
     }
 
     render() {
@@ -278,7 +292,9 @@ export default class Card extends React.Component {
                     >
                         <div className={"card"} style={styles.cardFront}>
                             <div className={"card"} style={styles.cardFrontInner}>
-                                <span role="img">{this.props.emoji}</span>
+                                <div style={styles.emoji}>
+                                    <span role="img" style={styles.emoji}>{this.props.emoji}</span>
+                                 </div>
                             </div>
                         </div>
                         <div className={"card"} style={styles.cardBack}>
