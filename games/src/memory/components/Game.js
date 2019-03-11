@@ -4,6 +4,7 @@ import Card from './Card';
 import TouchPoint from './TouchPoint.js'
 import Timer from "./Timer.js"
 import CardFlipCounter from "./CardFlipCounter.js"
+import Star from "./Star.js";
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
@@ -285,6 +286,7 @@ export default class Game extends React.Component {
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.maxConcurrentFlips}
                     />
+                    <Star/>
                 </div>
             </div>
         )
