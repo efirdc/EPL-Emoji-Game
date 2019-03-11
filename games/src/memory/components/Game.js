@@ -5,6 +5,7 @@ import TouchPoint from './TouchPoint.js'
 import FakeTouchPoints from "./FakeTouchPoints"
 import Timer from "./Timer.js"
 import CardFlipCounter from "./CardFlipCounter.js"
+import ComboCounter from "./ComboCounter.js"
 import StarCounter from "./StarCounter.js"
 import InnerCells from "./InnerCells.js"
 import OuterCells from "./OuterCells.js"
@@ -151,14 +152,22 @@ export default class Game extends React.Component {
                     <Timer x={-23} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={23} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
-                        x={-23} y={5} rotation={0}
+                        x={-16} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                     <CardFlipCounter
-                        x={23} y={-5} rotation={180}
+                        x={16} y={-5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
+                    />
+                    <ComboCounter
+                        x={-30} y={5} rotation={0}
+                        combo={this.gameLogic.comboCounter}
+                    />
+                    <ComboCounter
+                        x={30} y={-5} rotation={180}
+                        combo={this.gameLogic.comboCounter}
                     />
                     <StarCounter x={0} y={0} numStars={this.gameLogic.numStars}/>
                 </div>

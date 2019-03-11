@@ -28,7 +28,9 @@ export const CardPhase = {
     FLIP_REJECTED: 30,
     MATCHED: 40,
     MATCHED_EXITING: 41,
-    EXITING:50,
+    COMBO: 50,
+    COMBO_EXITING: 51,
+    EXITING:60,
 };
 
 class Card {
@@ -68,19 +70,19 @@ export default class GameLogic {
         this.cards = [];
         this.newCards = [];
         this.concurrentFlips = 0;
+        this.comboCards = [];
 
         this.phase = GamePhase.LEVEL_LOAD;
         this.timeAtSetPhase = Date.now();
 
         this.timeLeftAtLevelWin = 0;
 
-        this.cardGap = 80;
-
-        // Time in ms that a card must be face up before it can be matched.
+        // Timing stuff
         this.timeToMatch = 500;
         this.timeToExit = 1000;
-        this.timeToCombo = 750;
+        this.timeToCombo = 1500;
         this.timeToDelete = 1000;
+        this.timeToSpawnCard = 80;
 
         this.setLevel(initialStars);
 
@@ -91,6 +93,10 @@ export default class GameLogic {
     setPhase(phase) {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
+    }
+
+    get comboCounter() {
+        return this.comboCards.length;
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
@@ -274,7 +280,7 @@ export default class GameLogic {
 
         if (this.phase === GamePhase.LEVEL_LOAD) {
             let timeSinceLoadStart = Date.now() - this.timeAtSetPhase;
-            let numActiveCards = Math.floor(timeSinceLoadStart / this.cardGap);
+            let numActiveCards = Math.floor(timeSinceLoadStart / this.timeToSpawnCard);
 
             // Move cards from newCards to cards
             while (this.cards.length < numActiveCards && this.newCards.length) {
@@ -305,7 +311,7 @@ export default class GameLogic {
         else if (this.phase === GamePhase.LEVEL_LOSE) {
             cardEvents = this.updateCards();
             let timeSinceLose = Date.now() - this.timeAtSetPhase;
-            let numCardsShouldExit = Math.floor(timeSinceLose / this.cardGap);
+            let numCardsShouldExit = Math.floor(timeSinceLose / this.timeToSpawnCard);
 
             for (let i = 0; i < Math.min(numCardsShouldExit, this.cards.length); i++) {
                 let card = this.cards[i];
@@ -336,7 +342,10 @@ export default class GameLogic {
 
         // Return false if an unmatched card is found
         for (let card of this.cards) {
-            if (card.phase !== CardPhase.MATCHED && card.phase !== CardPhase.MATCHED_EXITING) {
+            if (card.phase !== CardPhase.MATCHED &&
+                card.phase !== CardPhase.MATCHED_EXITING &&
+                card.phase !== CardPhase.COMBO &&
+                card.phase !== CardPhase.COMBO_EXITING) {
                 return false;
             }
         }
@@ -358,6 +367,35 @@ export default class GameLogic {
             match: false,
         };
 
+        // Clear the combo array if time runs out to make the next match
+        if (this.comboCards.length !== 0) {
+
+            // Get the time since the last match
+            let lastMatchPair = this.comboCards[this.comboCards.length - 1];
+            let timeSinceLastMatch = Date.now() - lastMatchPair.first.timeAtSetPhase;
+
+            // When time runs out,
+            if (timeSinceLastMatch > this.timeToCombo) {
+
+                // If there was only one pair (no combo) the cards should start MATCHED_EXITING
+                if (this.comboCards.length === 1) {
+                    lastMatchPair.first.setPhase(CardPhase.MATCHED_EXITING);
+                    lastMatchPair.second.setPhase(CardPhase.MATCHED_EXITING);
+                }
+
+                // otherwise, there was a combo, so they should start COMBO_EXITING
+                else {
+                    for (let comboPair of this.comboCards) {
+                        comboPair.first.setPhase(CardPhase.COMBO_EXITING);
+                        comboPair.second.setPhase(CardPhase.COMBO_EXITING);
+                    }
+                }
+
+                // Clear the comboCards
+                this.comboCards = [];
+            }
+        }
+
         // Process all cards that are matchable
         let matchableCards = this.cards.filter((card) => this.canMatch(card));
         while (matchableCards.length) {
@@ -371,11 +409,24 @@ export default class GameLogic {
 
                 // Handle matches
                 if (cardA.emoji === cardB.emoji) {
-                    cardA.setPhase(CardPhase.MATCHED);
-                    cardB.setPhase(CardPhase.MATCHED);
                     this.concurrentFlips -= 2;
                     eventHappened.match = true;
                     matchableCards = matchableCards.splice(i, 1);
+                    let matchPair = {first: cardA, second:cardB};
+                    if (this.comboCards.length === 0) {
+                        cardA.setPhase(CardPhase.MATCHED);
+                        cardB.setPhase(CardPhase.MATCHED);
+                    }
+                    else {
+                        cardA.setPhase(CardPhase.COMBO);
+                        cardB.setPhase(CardPhase.COMBO);
+                        if (this.comboCards.length === 1) {
+                            let firstMatchPair = this.comboCards[0];
+                            firstMatchPair.first.setPhase(CardPhase.COMBO);
+                            firstMatchPair.second.setPhase(CardPhase.COMBO);
+                        }
+                    }
+                    this.comboCards.push(matchPair);
                     break;
                 }
             }
@@ -438,10 +489,10 @@ export default class GameLogic {
         }
 
         // Handle all cards that should exit.
-        let shouldExitCards = this.cards.filter((card) => this.shouldExit(card));
-        for (let card of shouldExitCards) {
-            card.setPhase(CardPhase.MATCHED_EXITING);
-        }
+        //let shouldExitCards = this.cards.filter((card) => this.shouldExit(card));
+        //for (let card of shouldExitCards) {
+        //    card.setPhase(CardPhase.MATCHED_EXITING);
+        //}
 
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));

@@ -5,7 +5,7 @@ import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
 import * as colorConvert from "color-convert";
 
-export default class Card extends React.PureComponent {
+export default class Card extends React.Component {
 
     constructor(props) {
         super(props);
@@ -44,8 +44,8 @@ export default class Card extends React.PureComponent {
         let convertLightness = (hsvColor, lightness) => {
             return "#" + colorConvert.hsv.hex([hsvColor[0], hsvColor[1] , hsvColor[2] * lightness]);
         };
-        this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness))
-        this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness))
+        this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness));
+        this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness));
 
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.handlePointer = this.handlePointer.bind(this);
@@ -53,17 +53,20 @@ export default class Card extends React.PureComponent {
         this.touchEndBehavior = this.touchEndBehavior.bind(this);
     }
 
-    // Use this override to debug the Card if it is updating when it shouldn't.
-    /*
     shouldComponentUpdate(nextProps, nextState) {
         for (let propName in this.props) {
             if (this.props[propName] !== nextProps[propName]) {
-                console.log("Card update because of", propName, "change.");
+                //console.log("Card update because of", propName, "change.");
                 return true;
             }
         }
+
+        if (nextProps.phase === CardPhase.COMBO || nextProps.phase === CardPhase.MATCHED) {
+            return true;
+        }
+
         return false;
-    }*/
+    }
 
     // Set up event listeners, and loop stuff
     componentDidMount() {
@@ -164,11 +167,19 @@ export default class Card extends React.PureComponent {
                 break;
 
             case CardPhase.MATCHED:
+            case CardPhase.COMBO:
                 values.flipRotation = 180;
-                values.scale = 1.1;
+                if (Date.now() - this.props.timeAtSetPhase < 400) {
+                    values.scale = 1.2;
+                }
+                else {
+                    values.scale = 0.95;
+                }
+
                 break;
 
             case CardPhase.MATCHED_EXITING:
+            case CardPhase.COMBO_EXITING:
                 values.flipRotation = 180;
                 values.scale = 0.0;
                 break;
@@ -223,10 +234,23 @@ export default class Card extends React.PureComponent {
             backgroundColor : "#000000"
         };
 
-        let useMatchColor = this.props.phase === CardPhase.MATCHED || this.props.phase === CardPhase.MATCHED_EXITING;
+        let frontColor;
+        switch (this.props.phase) {
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_EXITING:
+                frontColor = "#5ef997";
+                break;
+            case CardPhase.COMBO:
+            case CardPhase.COMBO_EXITING:
+                frontColor = "#00e9ea";
+                break;
+            default:
+                frontColor = "#e5eae8";
+        }
+
         const cardFrontInner = {
             transform: "scale(0.88)",
-            backgroundColor : useMatchColor ? "#5ef997" : "#e5eae8",
+            backgroundColor : frontColor,
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
