@@ -251,8 +251,7 @@ export default class Card extends React.Component {
         const cardFrontInner = {
             transform: `scale(0.88)`,
             backgroundColor : frontColor,
-            fontSize: this.props.size * 0.5 + "vh",
-            lineHeight: this.props.size + "vh",
+
         };
 
         const horizontalLineWidth = 30;
@@ -268,10 +267,26 @@ export default class Card extends React.Component {
         }
         let emojiAngle = Math.atan2(emojiRotationVector.y, emojiRotationVector.x) * 180 / Math.PI - 90;
         const emoji = {
-          transform: `rotate(${emojiAngle}deg)`,
+            zIndex: '4',
+            position: 'absolute',
+            isolation: 'isolate',
+            transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
+            fontSize: this.props.size * 0.5 + "vh",
+            lineHeight: this.props.size + "vh",
         };
 
-        return {cardFront, cardBack, cardInputHandler, cardFrontInner, cardBackInner, emoji};
+
+        const comboCounter = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
+            fontSize: this.props.size * 0.5 + "vh",
+            color: '#fb000c',
+            lineHeight: this.props.size + "vh",
+        };
+
+        return {cardFront, cardBack, cardInputHandler, cardFrontInner, cardBackInner, emoji, comboCounter};
     }
 
     render() {
@@ -292,9 +307,13 @@ export default class Card extends React.Component {
                     >
                         <div className={"card"} style={styles.cardFront}>
                             <div className={"card"} style={styles.cardFrontInner}>
+                                <div style={styles.comboCounter}>
+                                    {'1x'}
+                                </div>
                                 <div style={styles.emoji}>
-                                    <span role="img" style={styles.emoji}>{this.props.emoji}</span>
-                                 </div>
+                                    {this.props.emoji}
+                                </div>
+
                             </div>
                         </div>
                         <div className={"card"} style={styles.cardBack}>

@@ -88,7 +88,6 @@ export default class GameLogic {
 
         this.setLevel(initialStars);
 
-        console.log(this.getUniqueEmojis())
         this.compareEmojis();
     }
 
