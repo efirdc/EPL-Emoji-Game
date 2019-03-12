@@ -387,7 +387,7 @@ export default class GameLogic {
 
                 // otherwise, there was a combo, so they should start COMBO_EXITING
                 else {
-                    for (let i = 0; i < this.comboCards; i++) {
+                    for (let i = 0; i < this.comboCards.length; i++) {
                         let comboPair = this.comboCards[i];
                         comboPair.first.setPhase(CardPhase.COMBO_EXITING);
                         comboPair.second.setPhase(CardPhase.COMBO_EXITING);
