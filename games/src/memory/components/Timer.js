@@ -10,6 +10,8 @@ export default function Timer(props) {
         width: 0,
         transform: `translate(${props.x}vh, ${props.y}vh) rotate(${props.rotation}deg)`,
         zIndex: 1
+
+
     };
 
     let time = Math.max(0, Math.ceil(props.time));
@@ -19,9 +21,13 @@ export default function Timer(props) {
         <div style={containerStyle}>
             <h1
                 style={{
-                    fontFamily: "Courier New",
                     fontWeight: "200",
                     fontSize: "8vh",
+
+                    fontFamily: "'Arial Black', Gadget, sans-serif",
+                    color: '#e5eae8',
+                    WebkitTextStrokeWidth: 0.5 + 'vh',
+                    WebkitTextStrokeColor: "black",
                 }}
             >
                 {minutes + ":" + seconds}

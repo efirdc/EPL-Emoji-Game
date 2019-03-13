@@ -18,9 +18,12 @@ export default function CardFlipCounter(props) {
         <div style={counterStyle}>
             <h1
                 style={{
-                    fontFamily: "Courier New",
-                    fontWeight: "200",
                     fontSize: "8vh",
+
+                    fontFamily: "'Arial Black', Gadget, sans-serif",
+                    color: '#e5eae8',
+                    WebkitTextStrokeWidth: 0.5 + 'vh',
+                    WebkitTextStrokeColor: "black",
                 }}
             >
                 {flipsLeft}
