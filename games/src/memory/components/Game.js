@@ -18,13 +18,6 @@ import Sounds from '../controllers/Sounds.js';
 
 export default class Game extends React.Component {
 
-    static Phase = {
-        PLAY: 0,
-        LEVEL_LOAD: 1,
-        LEVEL_LOSE: 2,
-        LEVEL_WIN: 3,
-    };
-
     constructor(props) {
         super(props);
 
