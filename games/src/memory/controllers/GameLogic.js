@@ -91,6 +91,18 @@ export default class GameLogic {
         this.setLevel(initialStars);
 
         this.compareEmojis();
+
+        this.flipCheat = false;
+        this.controlCheats = this.controlCheats.bind(this);
+        document.addEventListener("keypress", this.controlCheats);
+    }
+
+    controlCheats(keyEvent) {
+
+        // 1 key
+        if(keyEvent.charCode === 49) {
+            this.flipCheat = !this.flipCheat;
+        }
     }
 
     setPhase(phase) {
@@ -128,7 +140,7 @@ export default class GameLogic {
 
             // First bracket only has one blob, so start with a small amount of cards and increase slowly
             {numStars: 0, numBlobs: 1, numCardsStart: 20, numCardsEnd: 40,
-                maxConcurrentFlips: 6, timeToCompleteLevel: 100},
+                maxConcurrentFlips: 3, timeToCompleteLevel: 100},
 
             // Adding a blob for the first time, so reduce the number of cards by a bit at the start
             {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
@@ -465,7 +477,7 @@ export default class GameLogic {
             if (card.touched) {
 
                 // Flip it if concurrentFlips are not in use.
-                if (this.concurrentFlips < this.level.maxConcurrentFlips) {
+                if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
                     card.setPhase(CardPhase.FACE_UP);
                     this.concurrentFlips += 1;
                     eventHappened.faceUp = true;
@@ -486,7 +498,7 @@ export default class GameLogic {
             if (card.touched) {
 
                 // Flip the card up if there is available flips
-                if (this.concurrentFlips < this.level.maxConcurrentFlips) {
+                if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
                     card.setPhase(CardPhase.FACE_UP);
                     eventHappened.faceUp = true;
                     this.concurrentFlips += 1;
