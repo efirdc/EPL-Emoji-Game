@@ -83,6 +83,22 @@ export default class FakeTouchPoints extends React.Component {
     // So we have to continuously retarget the touch points to make sure they are actually referencing the right card elements
     // This is called every frame right now, which gets really slow with lots of touch points
     updateTouchTargets() {
+        if (this.props.clearTouchPoints) {
+            for (let touchID in this.touchPoints) {
+
+                // Skip the objects prototype properties
+                if (!this.touchPoints.hasOwnProperty(touchID)) {
+                    continue;
+                }
+
+                let touchPoint = this.touchPoints[touchID];
+                if (touchPoint.cardElem) {
+                    this.dispatchReleaseEvent(touchPoint.cardElem);
+                }
+            }
+            this.touchPoints = [];
+            return
+        }
 
         // Loop through every touch point
         for (let touchID in this.touchPoints) {

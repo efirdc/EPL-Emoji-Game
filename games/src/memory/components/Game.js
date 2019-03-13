@@ -11,7 +11,7 @@ import InnerCells from "./InnerCells.js"
 import OuterCells from "./OuterCells.js"
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js"
-import GameLogic from '../controllers/GameLogic.js';
+import GameLogic, {GamePhase} from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
 
 import Sounds from '../controllers/Sounds.js';
@@ -153,7 +153,7 @@ export default class Game extends React.Component {
                     </div>
                     <InnerCells innerCells={innerCells} size={hexBoard.hexSize * 2} hull={hexBoard.cornerCellCenters}/>
                     <OuterCells outerCells={outerCells} size={hexBoard.hexSize * 2}/>
-                    <FakeTouchPoints loop={this.loop}/>
+                    <FakeTouchPoints loop={this.loop} clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}/>
                     <Timer x={-23} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={23} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
