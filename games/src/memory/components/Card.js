@@ -277,7 +277,7 @@ export default class Card extends React.Component {
         };
 
         let comboIndicatorRadius = 3.5;
-        let comboIndicatorSize = 0.35 * this.props.size;
+        let comboIndicatorSize = 0.30 * this.props.size;
         let comboIndicatorAngle = emojiAngle - 35;
         let comboIndicatorTiltAngle = 10;
 
@@ -320,9 +320,7 @@ export default class Card extends React.Component {
                     return (
                         <div style={styles.cardMain} >
                             <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
-                            <div style={styles.comboIndicatorContainer}>
-                                <div style={styles.comboIndicator}>{combo}</div>
-                            </div>
+
                             <div className={"card"} style={styles.cardFront}>
                                 <div className={"card"} style={styles.cardFrontInner}>
                                     <div style={styles.emoji}>
@@ -335,9 +333,9 @@ export default class Card extends React.Component {
                                     {}
                                 </div>
                             </div>
-
-
-
+                            <div style={styles.comboIndicatorContainer}>
+                                <div style={styles.comboIndicator}>{combo}</div>
+                            </div>
 
                         </div>
                     )
