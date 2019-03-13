@@ -201,7 +201,10 @@ export default class Card extends React.Component {
     // gets the inline css styles for this component using animated values.
     getStyles(values) {
 
-        const cardInputHandler = {
+
+        const cardMain = {
+            zIndex: '1',
+            position: 'fixed',
             height: this.props.size + "vh",
             width: this.props.size + "vh",
             transform: `translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) scale(${Math.max(values.scale, 0.0)})`,
@@ -238,11 +241,9 @@ export default class Card extends React.Component {
         switch (this.props.phase) {
             case CardPhase.MATCHED:
             case CardPhase.MATCHED_EXITING:
-                frontColor = "#5ef997";
-                break;
             case CardPhase.COMBO:
             case CardPhase.COMBO_EXITING:
-                frontColor = "#00e9ea";
+                frontColor = "#5ef997";
                 break;
             default:
                 frontColor = "#e5eae8";
@@ -251,7 +252,6 @@ export default class Card extends React.Component {
         const cardFrontInner = {
             transform: `scale(0.88)`,
             backgroundColor : frontColor,
-
         };
 
         const horizontalLineWidth = 30;
@@ -265,28 +265,45 @@ export default class Card extends React.Component {
         else {
             emojiRotationVector = {x: this.props.x + horizontalLineWidth, y: this.props.y};
         }
-        let emojiAngle = Math.atan2(emojiRotationVector.y, emojiRotationVector.x) * 180 / Math.PI - 90;
+
+        let emojiAngleRad = Math.atan2(emojiRotationVector.y, emojiRotationVector.x);
+        let emojiAngle = emojiAngleRad * 180 / Math.PI - 90;
         const emoji = {
             zIndex: '4',
-            position: 'absolute',
             isolation: 'isolate',
             transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
 
+        let comboIndicatorRadius = 3.5;
+        let comboIndicatorSize = 0.35 * this.props.size;
+        let comboIndicatorAngle = emojiAngle - 35;
+        let comboIndicatorTiltAngle = 10;
 
-        const comboCounter = {
+        const comboIndicatorContainer = {
             zIndex: '5',
             position: 'absolute',
-            isolation: 'isolate',
-            transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
-            fontSize: this.props.size * 0.5 + "vh",
-            color: '#fb000c',
-            lineHeight: this.props.size + "vh",
+            top: "50%",
+            left: "50%",
+            width: '0vh',
+            height: '0vh',
+            transform: `rotate(${comboIndicatorAngle}deg) translate(0vh, -${comboIndicatorRadius}vh)`
         };
 
-        return {cardFront, cardBack, cardInputHandler, cardFrontInner, cardBackInner, emoji, comboCounter};
+        const comboIndicator = {
+            zIndex: '5',
+            position: 'absolute',
+            transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg)`,
+            fontFamily: "'Arial Black', Gadget, sans-serif",
+            fontSize: comboIndicatorSize + "vh",
+            color: '#e92200',
+            webkitTextStrokeWidth: 0.2 + 'vh',
+            webkitTextStrokeColor: "black",
+            lineHeight: comboIndicatorSize + "vh",
+        };
+
+        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, comboIndicator, comboIndicatorContainer};
     }
 
     render() {
@@ -298,30 +315,31 @@ export default class Card extends React.Component {
             <Motion defaultStyle={initialValues} style={targetValues}>
                 {interpolatedValues => {
                     let styles = this.getStyles(interpolatedValues);
+                    let showCombo = this.props.comboCounter;
+                    let combo = showCombo ? this.props.comboCounter + 'x' : '';
                     return (
-                    <div
-                        className={"cardInputHandler"}
-                        style={styles.cardInputHandler}
-                        id={this.props.cardKey}
-                        ref={this.inputHandlerRef}
-                    >
-                        <div className={"card"} style={styles.cardFront}>
-                            <div className={"card"} style={styles.cardFrontInner}>
-                                <div style={styles.comboCounter}>
-                                    {'1x'}
+                        <div style={styles.cardMain} >
+                            <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
+                            <div style={styles.comboIndicatorContainer}>
+                                <div style={styles.comboIndicator}>{combo}</div>
+                            </div>
+                            <div className={"card"} style={styles.cardFront}>
+                                <div className={"card"} style={styles.cardFrontInner}>
+                                    <div style={styles.emoji}>
+                                        {this.props.emoji}
+                                    </div>
                                 </div>
-                                <div style={styles.emoji}>
-                                    {this.props.emoji}
+                            </div>
+                            <div className={"card"} style={styles.cardBack}>
+                                <div className={"card"} style={styles.cardBackInner}>
+                                    {}
                                 </div>
+                            </div>
 
-                            </div>
+
+
+
                         </div>
-                        <div className={"card"} style={styles.cardBack}>
-                            <div className={"card"} style={styles.cardBackInner}>
-                                {}
-                            </div>
-                        </div>
-                    </div>
                     )
                 }}
             </Motion>
