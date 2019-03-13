@@ -2,15 +2,15 @@ import React from 'react';
 import {Howl, Howler} from 'howler';
 
 import Card from './Card';
-import TouchPoint from './TouchPoint.js'
-import FakeTouchPoints from "./FakeTouchPoints"
-import Timer from "./Timer.js"
-import CardFlipCounter from "./CardFlipCounter.js"
-import StarCounter from "./StarCounter.js"
-import InnerCells from "./InnerCells.js"
-import OuterCells from "./OuterCells.js"
+import TouchPoint from './TouchPoint.js';
+import FakeTouchPoints from "./FakeTouchPoints";
+import Timer from "./Timer.js";
+import CardFlipCounter from "./CardFlipCounter.js";
+import StarCounter from "./StarCounter.js";
+import InnerFrame from "./InnerFrame.js";
+import BorderCells from "./BorderCells.js";
 import BackgroundGL from "./BackgroundGL.js";
-import AspectRatioRect from "./AspectRatioRect.js"
+import AspectRatioRect from "./AspectRatioRect.js";
 import GameLogic, {GamePhase} from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
 
@@ -127,7 +127,7 @@ export default class Game extends React.Component {
         let gameLogic = this.gameLogic;
         let cards = gameLogic.cards;
         let hexBoard =  gameLogic.hexBoard;
-        let innerCells = hexBoard.innerCells;
+        let innerCells = hexBoard.adjacentInnerCells;
         let outerCells = hexBoard.outerCells;
 
         return (
@@ -144,8 +144,8 @@ export default class Game extends React.Component {
                             />
                         ))}
                     </div>
-                    <InnerCells innerCells={innerCells} size={hexBoard.hexSize * 2} hull={hexBoard.cornerCellCenters}/>
-                    <OuterCells outerCells={outerCells} size={hexBoard.hexSize * 2}/>
+                    <InnerFrame hull={hexBoard.cornerCellCenters}/>
+                    <BorderCells outerCells={outerCells} innerCells={innerCells} size={hexBoard.hexSize * 2}/>
                     <FakeTouchPoints loop={this.loop} clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}/>
                     <Timer x={-23} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={23} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
