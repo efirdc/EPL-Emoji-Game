@@ -1,4 +1,5 @@
 import React from 'react';
+import {Howl, Howler} from 'howler';
 
 import Card from './Card';
 import TouchPoint from './TouchPoint.js'
@@ -13,10 +14,7 @@ import AspectRatioRect from "./AspectRatioRect.js"
 import GameLogic from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
 
-import winSoundFile from '../sounds/win.wav';
-import loseSoundFile from '../sounds/lose.wav'
-import matchSoundFile from "../sounds/match3.wav";
-import clickSoundFile from "../sounds/card_flip4.wav";
+import Sounds from '../controllers/Sounds.js';
 
 export default class Game extends React.Component {
 
@@ -38,28 +36,36 @@ export default class Game extends React.Component {
         this.tick = this.tick.bind(this);
         this.onCardTouchStart = this.onCardTouchStart.bind(this);
         this.onCardTouchEnd = this.onCardTouchEnd.bind(this);
+        this.playWinSound.bind(this);
+    }
+
+    playWinSound() {
+        Sounds.winSound.play()
     }
 
     tick(deltaTime) {
 
         let eventHappened = this.gameLogic.updateGame();
         if (eventHappened.match) {
-            new Audio(matchSoundFile).play();
+            let i = Math.min(Math.floor(this.gameLogic.comboCounter / 2), Sounds.matchSounds.length - 1);
+            Sounds.matchSounds[i].play();
         }
         if (eventHappened.faceUp) {
-            new Audio(clickSoundFile).play();
+            let i = Math.floor(Math.random() * (Sounds.flipSounds.length));
+            Sounds.flipSounds[i].play();
         }
         if (eventHappened.gameWon) {
-            new Audio(winSoundFile).play();
+            setTimeout(this.playWinSound, 500);
         }
         if (eventHappened.gameLost) {
-            new Audio(loseSoundFile).play();
+            Sounds.loseSound.play();
+
         }
         if (eventHappened.playStart) {
-            //
+
         }
         if (eventHappened.loadStart) {
-            //
+            Sounds.loadSound.play()
         }
 
         this.forceUpdate();

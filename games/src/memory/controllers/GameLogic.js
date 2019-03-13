@@ -83,8 +83,10 @@ export default class GameLogic {
         this.timeToMatch = 500;
         this.timeToExit = 1000;
         this.timeToCombo = 1500;
+        this.timeBetweenCombos = 1000;
         this.timeToDelete = 1000;
-        this.timeToSpawnCard = 80;
+        this.timeToSpawnCard = 100;
+        this.timeToTransitionToLoad = 4000;
 
         this.setLevel(initialStars);
 
@@ -325,14 +327,16 @@ export default class GameLogic {
             if (!this.cards.length) {
                 this.setLevel(0);
                 this.setPhase(GamePhase.LEVEL_LOAD);
+                gameEvents.loadStart = true;
             }
         }
         else if (this.phase === GamePhase.LEVEL_WIN) {
             let cardEvents = this.updateCards();
             let timeSinceWin = Date.now() - this.timeAtSetPhase;
-            if (timeSinceWin > 2000) {
+            if (timeSinceWin > this.timeToTransitionToLoad) {
                 this.setLevel(this.numStars + 5);
                 this.setPhase(GamePhase.LEVEL_LOAD);
+                gameEvents.loadStart = true;
             }
         }
 
@@ -399,7 +403,14 @@ export default class GameLogic {
 
         // Process all cards that are matchable
         let matchableCards = this.cards.filter((card) => this.canMatch(card));
-        while (matchableCards.length) {
+
+        let timeSinceLastMatch = Infinity;
+        if (this.comboCards.length) {
+            let lastMatch = this.comboCards[this.comboCards.length - 1];
+            timeSinceLastMatch = Date.now() - lastMatch.first.timeAtSetPhase;
+        }
+
+        while (matchableCards.length && timeSinceLastMatch > this.timeBetweenCombos) {
 
             // Get one card
             let cardA = matchableCards.pop();
@@ -425,11 +436,6 @@ export default class GameLogic {
                         cardB.setPhase(CardPhase.COMBO);
                         cardA.comboCounter = this.comboCards.length + 1;
                         cardB.comboCounter = this.comboCards.length + 1;
-                        if (this.comboCards.length === 1) {
-                            let firstMatchPair = this.comboCards[0];
-                            firstMatchPair.first.setPhase(CardPhase.COMBO);
-                            firstMatchPair.second.setPhase(CardPhase.COMBO);
-                        }
                     }
                     this.comboCards.push(matchPair);
                     break;
