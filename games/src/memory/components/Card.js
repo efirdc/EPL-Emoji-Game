@@ -305,8 +305,8 @@ export default class Card extends React.Component {
             fontFamily: "'Arial Black', Gadget, sans-serif",
             fontSize: comboIndicatorSize + "vh",
             color: '#e92200',
-            webkitTextStrokeWidth: 0.2 + 'vh',
-            webkitTextStrokeColor: "black",
+            WebkitTextStrokeWidth: 0.2 + 'vh',
+            WebkitTextStrokeColor: "black",
             lineHeight: comboIndicatorSize + "vh",
         };
 
