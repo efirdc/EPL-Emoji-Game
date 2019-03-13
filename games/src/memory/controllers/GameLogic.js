@@ -46,7 +46,7 @@ class Card {
         this.y = 0;
         this.blobID = 0;
 
-        this.comboCounter = 1;
+        this.comboCounter = 0;
     }
 
     setPhase(phase) {
@@ -386,12 +386,9 @@ export default class GameLogic {
 
                 // otherwise, there was a combo, so they should start COMBO_EXITING
                 else {
-                    for (let i = 0; i < this.comboCards.length; i++) {
-                        let comboPair = this.comboCards[i];
+                    for (let comboPair of this.comboCards) {
                         comboPair.first.setPhase(CardPhase.COMBO_EXITING);
                         comboPair.second.setPhase(CardPhase.COMBO_EXITING);
-                        comboPair.first.comboCounter = i + 1;
-                        comboPair.second.comboCounter = i + 1;
                     }
                 }
 
@@ -424,10 +421,14 @@ export default class GameLogic {
                     else {
                         cardA.setPhase(CardPhase.COMBO);
                         cardB.setPhase(CardPhase.COMBO);
+                        cardA.comboCounter = this.comboCards.length + 1;
+                        cardB.comboCounter = this.comboCards.length + 1;
                         if (this.comboCards.length === 1) {
                             let firstMatchPair = this.comboCards[0];
                             firstMatchPair.first.setPhase(CardPhase.COMBO);
                             firstMatchPair.second.setPhase(CardPhase.COMBO);
+                            firstMatchPair.first.comboCounter= 1;
+                            firstMatchPair.second.comboCounter = 1;
                         }
                     }
                     this.comboCards.push(matchPair);
