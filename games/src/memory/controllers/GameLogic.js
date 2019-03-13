@@ -417,6 +417,8 @@ export default class GameLogic {
                     if (this.comboCards.length === 0) {
                         cardA.setPhase(CardPhase.MATCHED);
                         cardB.setPhase(CardPhase.MATCHED);
+                        cardA.comboCounter = this.comboCards.length + 1;
+                        cardB.comboCounter = this.comboCards.length + 1;
                     }
                     else {
                         cardA.setPhase(CardPhase.COMBO);
@@ -427,8 +429,6 @@ export default class GameLogic {
                             let firstMatchPair = this.comboCards[0];
                             firstMatchPair.first.setPhase(CardPhase.COMBO);
                             firstMatchPair.second.setPhase(CardPhase.COMBO);
-                            firstMatchPair.first.comboCounter= 1;
-                            firstMatchPair.second.comboCounter = 1;
                         }
                     }
                     this.comboCards.push(matchPair);
