@@ -137,6 +137,7 @@ export default class Card extends React.Component {
             y: this.props.y,
             flipRotation: 0,
             scale: 0,
+            comboIndicatorScale: 0,
         };
     }
 
@@ -146,6 +147,7 @@ export default class Card extends React.Component {
         let values = {};
         values.x = this.props.x;
         values.y = this.props.y;
+        values.comboIndicatorScale = 0.0;
 
         const neutralScale = 0.8;
         switch (this.props.phase) {
@@ -176,6 +178,10 @@ export default class Card extends React.Component {
                     values.scale = 0.95;
                 }
 
+                if (Date.now() - this.props.timeAtSetPhase < 1500) {
+                    values.comboIndicatorScale = 1.0;
+                }
+
                 break;
 
             case CardPhase.MATCHED_EXITING:
@@ -194,6 +200,7 @@ export default class Card extends React.Component {
         values.y = spring(values.y, presets.stiff);
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
         values.scale = spring(values.scale, {stiffness: 120, damping: 7});
+        values.comboIndicatorScale = spring(values.comboIndicatorScale, {stiffness: 150, damping: 15});
 
         return values;
     }
@@ -294,7 +301,7 @@ export default class Card extends React.Component {
         const comboIndicator = {
             zIndex: '5',
             position: 'absolute',
-            transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg)`,
+            transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg) scale(${values.comboIndicatorScale})`,
             fontFamily: "'Arial Black', Gadget, sans-serif",
             fontSize: comboIndicatorSize + "vh",
             color: '#e92200',
