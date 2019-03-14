@@ -174,9 +174,6 @@ export default class Card extends React.Component {
                 if (Date.now() - this.props.timeAtSetPhase < lingerTime) {
                     values.comboIndicatorScale = this.props.specialMatch ? 1.3 : 1.0;
                 }
-                if (this.props.specialMatch && (Date.now() - this.props.timeAtSetPhase < 50)) {
-                    values.rotation = -20
-                }
                 break;
 
             case CardPhase.MATCHED_SPECIAL_OTHER:
@@ -187,10 +184,6 @@ export default class Card extends React.Component {
                 else {
                     values.scale = 0.95;
                 }
-
-                if (this.props.specialMatch && (Date.now() - this.props.timeAtSetPhase < 50)) {
-                    values.rotation = -20
-                }
                 break;
 
             case CardPhase.EXITING:
@@ -199,6 +192,13 @@ export default class Card extends React.Component {
                 break;
         }
 
+        if (this.props.phase === CardPhase.MATCHED_SPECIAL_THIS || this.props.phase === CardPhase.MATCHED_SPECIAL_OTHER) {
+            if (Date.now() - this.props.timeAtSetPhase < 100) {
+                values.rotation = -20;
+            } else if (Date.now() - this.props.timeAtSetPhase < 200) {
+                values.rotation = 20;
+            }
+        }
         values.x = spring(values.x, presets.stiff);
         values.y = spring(values.y, presets.stiff);
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
