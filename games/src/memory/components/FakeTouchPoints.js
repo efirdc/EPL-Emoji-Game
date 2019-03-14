@@ -130,6 +130,9 @@ export default class FakeTouchPoints extends React.Component {
             // then release the card
             else if (prevCardElem && !currentCardElem) {
                 this.dispatchReleaseEvent(prevCardElem);
+                if (this.draggingTouchPoint !== touchID) {
+                    delete this.touchPoints[touchID];
+                }
             }
         }
     }

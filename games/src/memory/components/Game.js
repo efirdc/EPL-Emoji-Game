@@ -24,7 +24,7 @@ export default class Game extends React.Component {
 
         this.loop = new GameLoop();
 
-        this.gameLogic = new GameLogic(90);
+        this.gameLogic = new GameLogic(0);
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
