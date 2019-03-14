@@ -304,6 +304,10 @@ export default class GameLogic {
         }
 
         if (this.phase === GamePhase.LEVEL_LOAD) {
+
+            // Disable cheats
+            this.flipCheat = false;
+
             let timeSinceLoadStart = Date.now() - this.timeAtSetPhase;
             let numActiveCards = Math.floor(timeSinceLoadStart / this.timeToSpawnCard);
 
