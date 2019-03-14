@@ -61,7 +61,7 @@ export default class Card extends React.Component {
             }
         }
 
-        if (this.props.matched) {
+        if (this.props.matched && !this.props.exiting && (Date.now() - this.props.timeAtSetPhase) < 4000) {
             return true;
         }
 
