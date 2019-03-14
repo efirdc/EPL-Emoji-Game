@@ -61,7 +61,7 @@ export default class Card extends React.Component {
             }
         }
 
-        if (nextProps.phase === CardPhase.COMBO || nextProps.phase === CardPhase.MATCHED) {
+        if (this.props.matched) {
             return true;
         }
 
@@ -136,6 +136,7 @@ export default class Card extends React.Component {
             x: this.props.x,
             y: this.props.y,
             flipRotation: 0,
+            rotation: 0,
             scale: 0,
             comboIndicatorScale: 0,
         };
@@ -149,28 +150,37 @@ export default class Card extends React.Component {
         values.y = this.props.y;
         values.comboIndicatorScale = 0.0;
 
-        const neutralScale = 0.8;
+        values.flipRotation = this.props.faceUp ? 180 : 0;
+        values.scale = this.props.faceUp ? 0.9 : 0.8;
+
+
+        values.rotation = 0.0;
+
+
         switch (this.props.phase) {
-
-            case CardPhase.SPAWNING:
-                values.flipRotation = 0;
-                values.scale = neutralScale;
-                break;
-
-            case CardPhase.FACE_DOWN:
-            case CardPhase.FLIP_REJECTED:
-                values.flipRotation = 0;
-                values.scale = neutralScale;
-                break;
-
-            case CardPhase.FACE_UP:
-                values.flipRotation = 180;
-                values.scale = 0.9;
-                break;
-
             case CardPhase.MATCHED:
-            case CardPhase.COMBO:
-                values.flipRotation = 180;
+            case CardPhase.MATCHED_SPECIAL_THIS:
+
+                // Get bigger, then small again (but still kind of big)
+                if (Date.now() - this.props.timeAtSetPhase < 400) {
+                    values.scale = 1.1;
+                }
+                else {
+                    values.scale = 0.95;
+                }
+
+                // Bring up the combo indicator and keep it around for a while.
+                let lingerTime = this.props.specialMatch ? 3500 : 1500;
+                if (Date.now() - this.props.timeAtSetPhase < lingerTime) {
+                    values.comboIndicatorScale = this.props.specialMatch ? 1.3 : 1.0;
+                }
+                if (this.props.specialMatch && (Date.now() - this.props.timeAtSetPhase < 50)) {
+                    values.rotation = -20
+                }
+                break;
+
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                // Get bigger, then small again (but still kind of big)
                 if (Date.now() - this.props.timeAtSetPhase < 400) {
                     values.scale = 1.2;
                 }
@@ -178,16 +188,9 @@ export default class Card extends React.Component {
                     values.scale = 0.95;
                 }
 
-                if (Date.now() - this.props.timeAtSetPhase < 1500) {
-                    values.comboIndicatorScale = 1.0;
+                if (this.props.specialMatch && (Date.now() - this.props.timeAtSetPhase < 50)) {
+                    values.rotation = -20
                 }
-
-                break;
-
-            case CardPhase.MATCHED_EXITING:
-            case CardPhase.COMBO_EXITING:
-                values.flipRotation = 180;
-                values.scale = 0.0;
                 break;
 
             case CardPhase.EXITING:
@@ -201,6 +204,7 @@ export default class Card extends React.Component {
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
         values.scale = spring(values.scale, {stiffness: 120, damping: 7});
         values.comboIndicatorScale = spring(values.comboIndicatorScale, {stiffness: 150, damping: 15});
+        values.rotation = spring(values.rotation, {stiffness: 120, damping: 5});
 
         return values;
     }
@@ -214,7 +218,11 @@ export default class Card extends React.Component {
             position: 'fixed',
             height: this.props.size + "vh",
             width: this.props.size + "vh",
-            transform: `translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) scale(${Math.max(values.scale, 0.0)})`,
+            transform: `
+                translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) 
+                scale(${Math.max(values.scale, 0.0)}) 
+                rotate(${values.rotation}deg)
+            `,
         };
 
         // blobID decides card back color
@@ -245,15 +253,10 @@ export default class Card extends React.Component {
         };
 
         let frontColor;
-        switch (this.props.phase) {
-            case CardPhase.MATCHED:
-            case CardPhase.MATCHED_EXITING:
-            case CardPhase.COMBO:
-            case CardPhase.COMBO_EXITING:
-                frontColor = "#5ef997";
-                break;
-            default:
-                frontColor = "#e5eae8";
+        if (this.props.matched) {
+            frontColor = this.props.specialMatch ? "#f296ff" : "#5ef997";
+        } else {
+            frontColor = "#e5eae8";
         }
 
         const cardFrontInner = {
@@ -306,7 +309,7 @@ export default class Card extends React.Component {
             transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg) scale(${values.comboIndicatorScale})`,
             fontFamily: "'Arial Black', Gadget, sans-serif",
             fontSize: comboIndicatorSize + "vh",
-            color: '#e92200',
+            color: this.props.specialMatch ? "#ff00bb" : '#e92200',
             WebkitTextStrokeWidth: 0.2 + 'vh',
             WebkitTextStrokeColor: "black",
             lineHeight: comboIndicatorSize + "vh",

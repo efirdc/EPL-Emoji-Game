@@ -27,31 +27,76 @@ export const CardPhase = {
     FACE_UP: 2,
     FLIP_REJECTED: 30,
     MATCHED: 40,
-    MATCHED_EXITING: 41,
-    COMBO: 50,
-    COMBO_EXITING: 51,
+    MATCHED_SPECIAL_THIS: 41,
+    MATCHED_SPECIAL_OTHER: 42,
     EXITING:60,
 };
 
 class Card {
     constructor (emoji, cardKey) {
+
         this.emoji = emoji;
         this.cardKey = cardKey;
         this.touched = false;
 
-        this.phase = CardPhase.SPAWNING;
-        this.timeAtSetPhase = Date.now();
+        this.specialMatch = false;
 
         this.x = 0;
         this.y = 0;
         this.blobID = 0;
 
-        this.comboCounter = 0;
+        this.setPhase(CardPhase.SPAWNING);
     }
 
     setPhase(phase) {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
+
+        switch(phase) {
+            case CardPhase.SPAWNING:
+                this.faceUp = false;
+                this.flipRejected = false;
+                this.matched = false;
+                this.specialMatch = false;
+                this.exiting = false;
+                break;
+            case CardPhase.FACE_DOWN:
+                this.faceUp = false;
+                this.flipRejected = false;
+                break;
+            case CardPhase.FLIP_REJECTED:
+                this.faceUp = false;
+                this.flipRejected = true;
+                break;
+            case CardPhase.FACE_UP:
+                this.faceUp = true;
+                this.flipRejected = false;
+                break;
+            case CardPhase.MATCHED:
+                this.matched = true;
+                this.specialMatch = false;
+                break;
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                this.matched = true;
+                this.specialMatch = true;
+                break;
+            case CardPhase.EXITING:
+                this.exiting = true;
+                break;
+        }
+    }
+
+    comboBonusWith(otherCard) {
+        let thisCombos = false;
+        let otherCombos = false;
+        if (emojiData.comboBonusWith[this.emoji]) {
+            thisCombos = emojiData.comboBonusWith[this.emoji].includes(otherCard.emoji);
+        }
+        else if (emojiData.comboBonusWith[otherCard.emoji]) {
+            otherCombos = emojiData.comboBonusWith[otherCard.emoji].includes(this.emoji);
+        }
+        return thisCombos || otherCombos;
     }
 }
 
@@ -74,6 +119,7 @@ export default class GameLogic {
         this.newCards = [];
         this.concurrentFlips = 0;
         this.comboCards = [];
+        this.comboCounter = 0;
 
         this.phase = GamePhase.GAME_INIT;
         this.timeAtSetPhase = Date.now();
@@ -82,7 +128,6 @@ export default class GameLogic {
 
         // Timing stuff
         this.timeToMatch = 500;
-        this.timeToExit = 1000;
         this.timeToCombo = 1500;
         this.timeBetweenCombos = 1000;
         this.timeToDelete = 1000;
@@ -109,10 +154,6 @@ export default class GameLogic {
     setPhase(phase) {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
-    }
-
-    get comboCounter() {
-        return this.comboCards.length;
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
@@ -373,10 +414,7 @@ export default class GameLogic {
 
         // Return false if an unmatched card is found
         for (let card of this.cards) {
-            if (card.phase !== CardPhase.MATCHED &&
-                card.phase !== CardPhase.MATCHED_EXITING &&
-                card.phase !== CardPhase.COMBO &&
-                card.phase !== CardPhase.COMBO_EXITING) {
+            if (!card.matched) {
                 return false;
             }
         }
@@ -396,6 +434,7 @@ export default class GameLogic {
         let eventHappened = {
             faceUp: false,
             match: false,
+            specialMatch: false,
         };
 
         // Clear the combo array if time runs out to make the next match
@@ -408,34 +447,29 @@ export default class GameLogic {
             // When time runs out,
             if (timeSinceLastMatch > this.timeToCombo) {
 
-                // If there was only one pair (no combo) the cards should start MATCHED_EXITING
-                if (this.comboCards.length === 1) {
-                    lastMatchPair.first.setPhase(CardPhase.MATCHED_EXITING);
-                    lastMatchPair.second.setPhase(CardPhase.MATCHED_EXITING);
-                }
-
-                // otherwise, there was a combo, so they should start COMBO_EXITING
-                else {
-                    for (let comboPair of this.comboCards) {
-                        comboPair.first.setPhase(CardPhase.COMBO_EXITING);
-                        comboPair.second.setPhase(CardPhase.COMBO_EXITING);
-                    }
+                // the cards should start MATCHED_EXITING
+                for (let comboPair of this.comboCards) {
+                    comboPair.first.setPhase(CardPhase.EXITING);
+                    comboPair.second.setPhase(CardPhase.EXITING);
                 }
 
                 // Clear the comboCards
                 this.comboCards = [];
+                this.comboCounter = 0;
             }
         }
 
-        // Process all cards that are matchable
-        let matchableCards = this.cards.filter((card) => this.canMatch(card));
-
+        // Get the time since the last match
         let timeSinceLastMatch = Infinity;
         if (this.comboCards.length) {
             let lastMatch = this.comboCards[this.comboCards.length - 1];
             timeSinceLastMatch = Date.now() - lastMatch.first.timeAtSetPhase;
         }
 
+        // Process all cards that are matchable
+        let matchableCards = this.cards.filter((card) => this.canMatch(card));
+
+        // If the time between combos is over
         while (matchableCards.length && timeSinceLastMatch > this.timeBetweenCombos) {
 
             // Get one card
@@ -447,23 +481,40 @@ export default class GameLogic {
 
                 // Handle matches
                 if (cardA.emoji === cardB.emoji) {
+
+                    // Update important things
+                    this.comboCounter += 1;
                     this.concurrentFlips -= 2;
                     eventHappened.match = true;
+
+                    // Remove cardB from matchableCards so it isnt tested anymore
                     matchableCards = matchableCards.splice(i, 1);
-                    let matchPair = {first: cardA, second:cardB};
-                    if (this.comboCards.length === 0) {
+
+                    // Check if another matched pair has a combo bonus with this pair
+                    let comboBonus = 0;
+                    for (let comboPair of this.comboCards) {
+                        if (cardA.comboBonusWith(comboPair.first)) {
+                            comboBonus += 2;
+                            comboPair.first.setPhase(CardPhase.MATCHED_SPECIAL_OTHER);
+                            comboPair.second.setPhase(CardPhase.MATCHED_SPECIAL_OTHER);
+                        }
+                    }
+
+                    // Set the card phase
+                    if (comboBonus !== 0) {
+                        cardA.setPhase(CardPhase.MATCHED_SPECIAL_THIS);
+                        cardB.setPhase(CardPhase.MATCHED_SPECIAL_THIS);
+                    } else {
                         cardA.setPhase(CardPhase.MATCHED);
                         cardB.setPhase(CardPhase.MATCHED);
-                        cardA.comboCounter = this.comboCards.length + 1;
-                        cardB.comboCounter = this.comboCards.length + 1;
                     }
-                    else {
-                        cardA.setPhase(CardPhase.COMBO);
-                        cardB.setPhase(CardPhase.COMBO);
-                        cardA.comboCounter = this.comboCards.length + 1;
-                        cardB.comboCounter = this.comboCards.length + 1;
-                    }
-                    this.comboCards.push(matchPair);
+
+                    // Set the combo counter
+                    this.comboCounter += comboBonus;
+                    cardA.comboCounter = this.comboCounter;
+                    cardB.comboCounter = this.comboCounter;
+
+                    this.comboCards.push({first: cardA, second:cardB});
                     break;
                 }
             }
@@ -525,12 +576,6 @@ export default class GameLogic {
             }
         }
 
-        // Handle all cards that should exit.
-        //let shouldExitCards = this.cards.filter((card) => this.shouldExit(card));
-        //for (let card of shouldExitCards) {
-        //    card.setPhase(CardPhase.MATCHED_EXITING);
-        //}
-
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
 
@@ -545,15 +590,8 @@ export default class GameLogic {
         return Date.now() - card.timeAtSetPhase > this.timeToMatch;
     }
 
-    shouldExit(card) {
-        if (card.phase !== CardPhase.MATCHED) {
-            return false;
-        }
-        return Date.now() - card.timeAtSetPhase > this.timeToExit;
-    }
-
     shouldDelete(card) {
-        if (card.phase !== CardPhase.EXITING && card.phase !== CardPhase.MATCHED_EXITING) {
+        if (!card.exiting) {
             return false;
         }
         return Date.now() - card.timeAtSetPhase > this.timeToDelete;
