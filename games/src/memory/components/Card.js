@@ -210,7 +210,7 @@ export default class Card extends React.Component {
 
 
         const cardMain = {
-            zIndex: '1',
+            zIndex: 1 + this.props.comboCounter,
             position: 'fixed',
             height: this.props.size + "vh",
             width: this.props.size + "vh",
@@ -291,6 +291,7 @@ export default class Card extends React.Component {
         const comboIndicatorContainer = {
             zIndex: '5',
             position: 'absolute',
+            isolation: 'isolate',
             top: "50%",
             left: "50%",
             width: '0vh',
@@ -301,6 +302,7 @@ export default class Card extends React.Component {
         const comboIndicator = {
             zIndex: '5',
             position: 'absolute',
+            isolation: 'isolate',
             transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg) scale(${values.comboIndicatorScale})`,
             fontFamily: "'Arial Black', Gadget, sans-serif",
             fontSize: comboIndicatorSize + "vh",
@@ -328,6 +330,10 @@ export default class Card extends React.Component {
                         <div style={styles.cardMain} >
                             <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
 
+                            <div style={styles.comboIndicatorContainer}>
+                                <div style={styles.comboIndicator}>{combo}</div>
+                            </div>
+
                             <div className={"card"} style={styles.cardFront}>
                                 <div className={"card"} style={styles.cardFrontInner}>
                                     <div style={styles.emoji}>
@@ -340,9 +346,7 @@ export default class Card extends React.Component {
                                     {}
                                 </div>
                             </div>
-                            <div style={styles.comboIndicatorContainer}>
-                                <div style={styles.comboIndicator}>{combo}</div>
-                            </div>
+
 
                         </div>
                     )
