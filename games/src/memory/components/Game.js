@@ -41,7 +41,7 @@ export default class Game extends React.Component {
 
         let eventHappened = this.gameLogic.updateGame();
         if (eventHappened.match) {
-            let i = Math.min(Math.floor(this.gameLogic.comboCounter / 2), Sounds.matchSounds.length - 1);
+            let i = Math.min(Math.floor((this.gameLogic.comboCounter-1) / 3), Sounds.matchSounds.length - 1);
             Sounds.matchSounds[i].play();
         }
         if (eventHappened.faceUp) {
