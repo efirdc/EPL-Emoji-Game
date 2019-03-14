@@ -96,6 +96,7 @@ export default class FakeTouchPoints extends React.Component {
                     this.dispatchReleaseEvent(touchPoint.cardElem);
                 }
             }
+            this.draggingTouchPoint = -1;
             this.touchPoints = [];
             return
         }
