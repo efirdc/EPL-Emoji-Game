@@ -40,6 +40,7 @@ class Card {
         this.touched = false;
 
         this.specialMatch = false;
+        this.comboCounter = 1;
 
         this.x = 0;
         this.y = 0;
