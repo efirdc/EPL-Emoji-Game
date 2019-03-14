@@ -1,4 +1,5 @@
 import React from 'react';
+import "./Patterns.css";
 
 export default class BorderCells extends React.PureComponent {
     render() {

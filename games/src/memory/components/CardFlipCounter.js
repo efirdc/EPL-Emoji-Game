@@ -1,4 +1,5 @@
 import React from 'react';
+import "./Fonts.css"
 
 export default function CardFlipCounter(props) {
     let counterStyle = {
@@ -17,13 +18,9 @@ export default function CardFlipCounter(props) {
     return (
         <div style={counterStyle}>
             <h1
+                className={"mainFontStyle"}
                 style={{
-                    fontSize: "8vh",
-
-                    fontFamily: "'Arial Black', Gadget, sans-serif",
-                    color: '#e5eae8',
-                    WebkitTextStrokeWidth: 0.5 + 'vh',
-                    WebkitTextStrokeColor: "black",
+                    fontSize: "7vh",
                 }}
             >
                 {flipsLeft}

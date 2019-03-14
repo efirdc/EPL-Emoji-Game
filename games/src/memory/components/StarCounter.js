@@ -1,4 +1,5 @@
 import React from 'react';
+import "./Fonts.css";
 
 export default function StarCounter(props) {
     let counterStyle = {
@@ -15,12 +16,9 @@ export default function StarCounter(props) {
     return (
         <div style={counterStyle}>
             <h1
+                className={"mainFontStyle"}
                 style={{
                     fontSize: "14vh",
-                    fontFamily: "'Arial Black', Gadget, sans-serif",
-                    color: '#e5eae8',
-                    WebkitTextStrokeWidth: 0.5 + 'vh',
-                    WebkitTextStrokeColor: "black",
                 }}
             >
                 {props.numStars}

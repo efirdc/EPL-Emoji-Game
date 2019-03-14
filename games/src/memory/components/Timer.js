@@ -1,4 +1,5 @@
 import React from 'react';
+import "./Fonts.css"
 
 export default function Timer(props) {
     let containerStyle = {
@@ -9,9 +10,7 @@ export default function Timer(props) {
         height: 0,
         width: 0,
         transform: `translate(${props.x}vh, ${props.y}vh) rotate(${props.rotation}deg)`,
-        zIndex: 1
-
-
+        zIndex: 1,
     };
 
     let time = Math.max(0, Math.ceil(props.time));
@@ -20,14 +19,10 @@ export default function Timer(props) {
     return (
         <div style={containerStyle}>
             <h1
+                className={"mainFontStyle"}
                 style={{
                     fontWeight: "200",
-                    fontSize: "8vh",
-
-                    fontFamily: "'Arial Black', Gadget, sans-serif",
-                    color: '#e5eae8',
-                    WebkitTextStrokeWidth: 0.5 + 'vh',
-                    WebkitTextStrokeColor: "black",
+                    fontSize: "7vh",
                 }}
             >
                 {minutes + ":" + seconds}

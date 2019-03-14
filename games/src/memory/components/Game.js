@@ -13,6 +13,7 @@ import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js";
 import GameLogic, {GamePhase} from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
+import "./Patterns.css"
 
 import Sounds from '../controllers/Sounds.js';
 
@@ -23,7 +24,7 @@ export default class Game extends React.Component {
 
         this.loop = new GameLoop();
 
-        this.gameLogic = new GameLogic(0);
+        this.gameLogic = new GameLogic(90);
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
@@ -89,7 +90,7 @@ export default class Game extends React.Component {
             width: "100vw",
             height: "100vh",
             pointerEvents: "all",
-            background: "radial-gradient(ellipse at center, rgba(255,230,102,1) 0%, rgba(189,107,0,1) 49%, rgba(43,33,0,1) 90%)",
+            //background: "radial-gradient(ellipse at center, rgba(255,230,102,1) 0%, rgba(189,107,0,1) 49%, rgba(43,33,0,1) 90%)",
             zIndex: "-1",
             //boxShadow: "inset 0 0 20px #000000",
         };
@@ -131,7 +132,7 @@ export default class Game extends React.Component {
         let outerCells = hexBoard.outerCells;
 
         return (
-            <div style={bodyStyle}>
+            <div className={"radialGradient1"} style={bodyStyle}>
                 <div style={boardStyle}>
                     <div>
                         {cards.map((card) => (
@@ -147,15 +148,15 @@ export default class Game extends React.Component {
                     <InnerFrame hull={hexBoard.cornerCellCenters}/>
                     <BorderCells outerCells={outerCells} innerCells={innerCells} size={hexBoard.hexSize * 2}/>
                     <FakeTouchPoints loop={this.loop} clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}/>
-                    <Timer x={-23} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={23} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={-24} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={24} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
-                        x={-23} y={5} rotation={0}
+                        x={-24} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                     <CardFlipCounter
-                        x={23} y={-5} rotation={180}
+                        x={24} y={-5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
