@@ -142,7 +142,11 @@ export default class Game extends React.Component {
                     </div>
                     <InnerFrame hull={hexBoard.cornerCellCenters}/>
                     <BorderCells outerCells={outerCells} innerCells={innerCells} size={hexBoard.hexSize * 2}/>
-                    <FakeTouchPoints loop={this.loop} clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}/>
+                    <FakeTouchPoints
+                        loop={this.loop}
+                        clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
+                        gameLogic={gameLogic}
+                    />
                     <Timer x={-24} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={24} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
