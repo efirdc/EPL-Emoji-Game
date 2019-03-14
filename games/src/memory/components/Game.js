@@ -30,11 +30,6 @@ export default class Game extends React.Component {
         this.tick = this.tick.bind(this);
         this.onCardTouchStart = this.onCardTouchStart.bind(this);
         this.onCardTouchEnd = this.onCardTouchEnd.bind(this);
-        this.playWinSound.bind(this);
-    }
-
-    playWinSound() {
-        Sounds.winSound.play()
     }
 
     tick(deltaTime) {
@@ -49,7 +44,7 @@ export default class Game extends React.Component {
             Sounds.flipSounds[i].play();
         }
         if (eventHappened.gameWon) {
-            setTimeout(this.playWinSound, 500);
+            setTimeout(() => (Sounds.winSound.play()), 500);
         }
         if (eventHappened.gameLost) {
             Sounds.loseSound.play();
