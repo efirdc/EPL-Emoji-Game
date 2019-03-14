@@ -1,139 +1,182 @@
 import React from 'react';
-import GameBoard from './GameBoard.js';
+import {Howl, Howler} from 'howler';
+
+import Card from './Card';
+import TouchPoint from './TouchPoint.js';
+import FakeTouchPoints from "./FakeTouchPoints";
+import Timer from "./Timer.js";
+import CardFlipCounter from "./CardFlipCounter.js";
+import StarCounter from "./StarCounter.js";
+import InnerFrame from "./InnerFrame.js";
+import BorderCells from "./BorderCells.js";
 import BackgroundGL from "./BackgroundGL.js";
-import Memory from '../controllers/Memory.js';
+import AspectRatioRect from "./AspectRatioRect.js";
+import GameLogic, {GamePhase} from '../controllers/GameLogic.js';
+import GameLoop from '../controllers/GameLoop.js';
+import "./Patterns.css"
 
-import winSoundFile from '../sounds/win.wav';
-import loseSoundFile from '../sounds/lose.wav'
+import Sounds from '../controllers/Sounds.js';
 
-const styles = {
-    body : {
-        height: "100vh", // height is 100% of the viewport size
-        display: "flex", // centers content vertically and horizontally
-        //background: "-webkit-linear-gradient(290deg, #00C9FF 0%, #92FE9D 100%)",
-        boxShadow: "inset 0 0 20px #000000",
-    },
+export default class Game extends React.Component {
 
-    background : {
-        zIndex: "-1",
-        position: "absolute",
-    }
-};
-
-
-class Game extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
 
-        //this.handlePress = this.handlePress.bind(this);
-        //this.handleRelease = this.handleRelease.bind(this);
-        this.handleClick = this.handleClick.bind(this);
+        this.loop = new GameLoop();
 
-        // Create game logic object and add some levels
-        var gameLogic = new Memory.Game(4, 5, 40);
-        gameLogic.addLevel(5, 6, 40);
-        gameLogic.addLevel(6, 7, 45);
-        gameLogic.addLevel(7, 8, 60);
-        gameLogic.addLevel(8, 9, 80);
+        this.gameLogic = new GameLogic(0);
 
-        this.winSound = new Audio(winSoundFile);
-        this.loseSound = new Audio(loseSoundFile);
-
-        this.state = {
-            gameLogic: gameLogic,
-        };
+        // This binding is necessary to make `this` work in the callback
+        this.tick = this.tick.bind(this);
+        this.onCardTouchStart = this.onCardTouchStart.bind(this);
+        this.onCardTouchEnd = this.onCardTouchEnd.bind(this);
     }
 
-/*     handlePress(row, col) {
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
-        
-        gameLogic.pressCard(row, col);
-        
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
+    tick(deltaTime) {
+
+        let eventHappened = this.gameLogic.updateGame();
+        if (eventHappened.match) {
+            let i = Math.min(Math.floor((this.gameLogic.comboCounter-1) / 3), Sounds.matchSounds.length - 1);
+            Sounds.matchSounds[i].play();
         }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
+        if (eventHappened.faceUp) {
+            let i = Math.floor(Math.random() * (Sounds.flipSounds.length));
+            Sounds.flipSounds[i].play();
         }
+        if (eventHappened.gameWon) {
+            setTimeout(() => (Sounds.winSound.play()), 500);
+        }
+        if (eventHappened.gameLost) {
+            Sounds.loseSound.play();
+
+        }
+        if (eventHappened.playStart) {
+
+        }
+        if (eventHappened.loadStart) {
+            Sounds.loadSound.play()
+        }
+
         this.forceUpdate();
-        
-        
     }
 
-    handleRelease = (row, col) => {
-        var gameLogic = this.state.gameLogic;
+    // Game loop stuff
+    componentDidMount() {
+        this.loop.start();
+        this.loopID = this.loop.subscribe(this.tick);
+    }
+    componentWillUnmount() {
+        this.loop.stop();
+        this.loop.unsubscribe(this.loopID);
+    }
 
-        this.state.gameLogic.releaseCard(row, col);
-        
-        if (gameLogic.isGameLost()) {
-            gameLogic.setLevel(0);
-        }
-        if (gameLogic.isGameWon()) {
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-        }
-        this.forceUpdate();
+    onCardTouchStart(cardKey) {
+        this.gameLogic.touchStart(cardKey);
+    }
 
-
-        
-    } */
-
-    // Called every time a card is clicked
-    handleClick(row, col){
-
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
-
-        // Toggle the card
-        var card = gameState.board[row][col];
-        if (card.faceUp) { //picture currently visible
-            setTimeout(gameLogic.releaseCard(row, col), 1000); 
-        } else { // picture not currently visible
-            setTimeout(gameLogic.pressCard(row, col),1000); // icon visible
-        }
-
-        // Handle game win/loss conditions
-        if (gameLogic.isGameLost()) {
-            this.loseSound.play();
-            gameLogic.setLevel(0);
-        }
-        if (gameLogic.isGameWon()) {
-            
-            this.winSound.play();
-
-            setTimeout(gameLogic.nextLevel(), 1000); // one second delay so the level jump isn't so jarring
-            ;
-    
-        }
-        
-        
-
-        // Have to force the component to re-render because we touched state the "bad" way
-        this.forceUpdate();
+    onCardTouchEnd(cardKey) {
+        this.gameLogic.touchEnd(cardKey);
     }
 
     render() {
-        var gameLogic = this.state.gameLogic;
-        var gameState = gameLogic.gameState;
+
+        // Body contains the entire viewport
+        const bodyStyle = {
+            width: "100vw",
+            height: "100vh",
+            pointerEvents: "all",
+            //background: "radial-gradient(ellipse at center, rgba(255,230,102,1) 0%, rgba(189,107,0,1) 49%, rgba(43,33,0,1) 90%)",
+            zIndex: "-1",
+            //boxShadow: "inset 0 0 20px #000000",
+        };
+        const backgroundStyle = {
+            zIndex: "-1",
+            position: "fixed",
+            top: "0vh",
+            left: "0vw",
+        };
+
+        // Board origin is at the center of the viewport
+        // Elements in the board should have position: 'absolute' and use 'vh' units.
+        const boardStyle = {
+            height: "0",
+            width: "0",
+            position: "absolute",
+            top: "50vh",
+            left: "50vw",
+            userSelect: "none",
+            //pointerEvents: 'none'
+        };
+
+        const debugRectStyle = (rectWidth, rectHeight) => ({
+            zIndex: 3,
+            width: rectWidth * 2 + "vh",
+            height: rectHeight * 2 + "vh",
+            left: -rectWidth + "vh",
+            top: -rectHeight + "vh",
+            position: "absolute",
+            borderStyle: "solid",
+            borderColor: "black",
+            pointerEvents: "none",
+        });
+
+        let gameLogic = this.gameLogic;
+        let cards = gameLogic.cards;
+        let hexBoard =  gameLogic.hexBoard;
+        let innerCells = hexBoard.adjacentInnerCells;
+        let outerCells = hexBoard.outerCells;
+
         return (
-            <div style={styles.body}>
-                <div style={styles.background}>
-                    <BackgroundGL
-                        colorA={"#f4fcff"}
-                        colorB={"#8ca4b8"}
+            <div className={"radialGradient1"} style={bodyStyle}>
+                <div style={boardStyle}>
+                    <div>
+                        {cards.map((card) => (
+                            <Card
+                                {...card}
+                                key={card.cardKey.toString()}
+                                size={hexBoard.hexSize * 2}
+                                onCardTouchStart={this.onCardTouchStart}
+                                onCardTouchEnd={this.onCardTouchEnd}
+                            />
+                        ))}
+                    </div>
+                    <InnerFrame hull={hexBoard.cornerCellCenters}/>
+                    <BorderCells outerCells={outerCells} innerCells={innerCells} size={hexBoard.hexSize * 2}/>
+                    <FakeTouchPoints
+                        loop={this.loop}
+                        clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
+                        gameLogic={gameLogic}
                     />
+                    <Timer x={-24} y={-6.5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={24} y={6.5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <CardFlipCounter
+                        x={-24} y={5} rotation={0}
+                        numFlips={this.gameLogic.concurrentFlips}
+                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
+                    />
+                    <CardFlipCounter
+                        x={24} y={-5} rotation={180}
+                        numFlips={this.gameLogic.concurrentFlips}
+                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
+                    />
+                    <StarCounter x={0} y={0} numStars={this.gameLogic.numStars}/>
                 </div>
-                <GameBoard
-                    gameState={gameState}
-                    //press = {(row, col) => this.handlePress(row, col)}
-                    //release = {(row, col) => this.handleRelease(row, col)}
-                    onClick = {(row, col) => this.handleClick(row, col)}
-                />
             </div>
         )
     }
 }
 
-export default Game;
+/* Debug stuff
+<AspectRatioRect aspectRatio={16/9}/>
+<div style={debugRectStyle(hexBoard.innerBounds.x, hexBoard.innerBounds.y)}/>
+<div style={debugRectStyle(hexBoard.outerBounds.x, hexBoard.outerBounds.y)}/>
+ */
+
+/* Background
+<div style={backgroundStyle}>
+    <BackgroundGL
+        colorA={"#f4fcff"}
+        colorB={"#8ca4b8"}
+    />
+</div>
+ */
