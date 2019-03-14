@@ -118,6 +118,10 @@ export default class GameLogic {
     // Gets the time left in a level. This is used to determine the loss condition.
     get timeLeft () {
 
+        if (this.numStars === 0) {
+            return Infinity;
+        }
+
         switch (this.phase) {
 
             case GamePhase.LEVEL_LOAD:

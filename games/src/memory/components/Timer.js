@@ -13,9 +13,14 @@ export default function Timer(props) {
         zIndex: 1,
     };
 
-    let time = Math.max(0, Math.ceil(props.time));
-    let minutes = Math.floor(time / 60).toString().padStart(2, '0');
-    let seconds = Math.floor(time - minutes * 60).toString().padStart(2, '0');
+    let minutes, seconds;
+    if (props.time === Infinity) {
+        minutes = seconds = '\u2011\u2011'; // Unicode characters for '--' but without line breaks
+    } else {
+        let time = Math.max(0, Math.ceil(props.time));
+        minutes = Math.floor(time / 60).toString().padStart(2, '0');
+        seconds = Math.floor(time - minutes * 60).toString().padStart(2, '0');
+    }
     return (
         <div style={containerStyle}>
             <h1
@@ -23,6 +28,7 @@ export default function Timer(props) {
                 style={{
                     fontWeight: "200",
                     fontSize: "7vh",
+                    hyphens: "none",
                 }}
             >
                 {minutes + ":" + seconds}
