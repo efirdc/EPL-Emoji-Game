@@ -25,7 +25,7 @@ export default class FakeTouchPoints extends React.Component {
         this.draggingTouchPoint = -1;
 
         // size of a touch point
-        this.touchPointSize = 20;
+        this.touchPointSize = 30;
 
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.tick = this.tick.bind(this);
@@ -83,6 +83,23 @@ export default class FakeTouchPoints extends React.Component {
     // So we have to continuously retarget the touch points to make sure they are actually referencing the right card elements
     // This is called every frame right now, which gets really slow with lots of touch points
     updateTouchTargets() {
+        if (this.props.clearTouchPoints) {
+            for (let touchID in this.touchPoints) {
+
+                // Skip the objects prototype properties
+                if (!this.touchPoints.hasOwnProperty(touchID)) {
+                    continue;
+                }
+
+                let touchPoint = this.touchPoints[touchID];
+                if (touchPoint.cardElem) {
+                    this.dispatchReleaseEvent(touchPoint.cardElem);
+                }
+            }
+            this.draggingTouchPoint = -1;
+            this.touchPoints = [];
+            return
+        }
 
         // Loop through every touch point
         for (let touchID in this.touchPoints) {
@@ -92,8 +109,20 @@ export default class FakeTouchPoints extends React.Component {
                 continue;
             }
 
-            // Get the card elements targeted on the previous and current update.
+            // Get the card element targeted on the previous update
             let prevCardElem = this.touchPoints[touchID].cardElem;
+
+            // If this card element is matched, delete the touch point
+            if (prevCardElem) {
+                let card = this.props.gameLogic.cards.find((card) => (card.cardKey.toString() === prevCardElem.id));
+                if (card.matched && this.draggingTouchPoint !== touchID) {
+                    delete this.touchPoints[touchID];
+                    this.dispatchReleaseEvent(prevCardElem);
+                    break;
+                }
+            }
+
+            // Find the new card element
             let currentCardElem = this.getCardElement(this.touchPoints[touchID].x, this.touchPoints[touchID].y);
             this.touchPoints[touchID].cardElem = currentCardElem;
 
@@ -114,6 +143,9 @@ export default class FakeTouchPoints extends React.Component {
             // then release the card
             else if (prevCardElem && !currentCardElem) {
                 this.dispatchReleaseEvent(prevCardElem);
+                if (this.draggingTouchPoint !== touchID) {
+                    delete this.touchPoints[touchID];
+                }
             }
         }
     }
