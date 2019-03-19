@@ -1,8 +1,6 @@
 import React from 'react';
-import {Howl, Howler} from 'howler';
 
 import Card from './Card';
-import TouchPoint from './TouchPoint.js';
 import FakeTouchPoints from "./FakeTouchPoints";
 import Timer from "./Timer.js";
 import CardFlipCounter from "./CardFlipCounter.js";
