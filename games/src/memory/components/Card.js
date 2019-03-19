@@ -110,6 +110,9 @@ export default class Card extends React.Component {
             this.capturedPointers = this.capturedPointers.filter((id) => (id !== event.pointerId));
             this.touchEndBehavior();
         }
+
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     // This must be called every time a finger enters the card

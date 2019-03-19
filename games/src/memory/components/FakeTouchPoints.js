@@ -109,8 +109,20 @@ export default class FakeTouchPoints extends React.Component {
                 continue;
             }
 
-            // Get the card elements targeted on the previous and current update.
+            // Get the card element targeted on the previous update
             let prevCardElem = this.touchPoints[touchID].cardElem;
+
+            // If this card element is matched, delete the touch point
+            if (prevCardElem) {
+                let card = this.props.gameLogic.cards.find((card) => (card.cardKey.toString() === prevCardElem.id));
+                if (card.matched && this.draggingTouchPoint !== touchID) {
+                    delete this.touchPoints[touchID];
+                    this.dispatchReleaseEvent(prevCardElem);
+                    break;
+                }
+            }
+
+            // Find the new card element
             let currentCardElem = this.getCardElement(this.touchPoints[touchID].x, this.touchPoints[touchID].y);
             this.touchPoints[touchID].cardElem = currentCardElem;
 

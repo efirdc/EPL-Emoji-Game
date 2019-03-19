@@ -1,8 +1,6 @@
 import React from 'react';
-import {Howl, Howler} from 'howler';
 
 import Card from './Card';
-import TouchPoint from './TouchPoint.js';
 import FakeTouchPoints from "./FakeTouchPoints";
 import Timer from "./Timer.js";
 import CardFlipCounter from "./CardFlipCounter.js";
@@ -25,6 +23,8 @@ export default class Game extends React.Component {
         this.loop = new GameLoop();
 
         this.gameLogic = new GameLogic(0);
+
+        this.bodyRef = React.createRef();
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
@@ -64,6 +64,10 @@ export default class Game extends React.Component {
     componentDidMount() {
         this.loop.start();
         this.loopID = this.loop.subscribe(this.tick);
+        this.bodyRef.current.addEventListener("touchstart", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchmove", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchend", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchcancel", this.preventDefaultTouch);
     }
     componentWillUnmount() {
         this.loop.stop();
@@ -72,6 +76,10 @@ export default class Game extends React.Component {
 
     onCardTouchStart(cardKey) {
         this.gameLogic.touchStart(cardKey);
+    }
+
+    preventDefaultTouch(event) {
+        event.preventDefault();
     }
 
     onCardTouchEnd(cardKey) {
@@ -105,7 +113,7 @@ export default class Game extends React.Component {
             top: "50vh",
             left: "50vw",
             userSelect: "none",
-            //pointerEvents: 'none'
+            pointerEvents: 'all',
         };
 
         const debugRectStyle = (rectWidth, rectHeight) => ({
@@ -127,7 +135,7 @@ export default class Game extends React.Component {
         let outerCells = hexBoard.outerCells;
 
         return (
-            <div className={"radialGradient1"} style={bodyStyle}>
+            <div className={"radialGradient1"} style={bodyStyle} ref={this.bodyRef}>
                 <div style={boardStyle}>
                     <div>
                         {cards.map((card) => (
@@ -142,9 +150,13 @@ export default class Game extends React.Component {
                     </div>
                     <InnerFrame hull={hexBoard.cornerCellCenters}/>
                     <BorderCells outerCells={outerCells} innerCells={innerCells} size={hexBoard.hexSize * 2}/>
-                    <FakeTouchPoints loop={this.loop} clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}/>
-                    <Timer x={-24} y={-5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={24} y={5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <FakeTouchPoints
+                        loop={this.loop}
+                        clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
+                        gameLogic={gameLogic}
+                    />
+                    <Timer x={-24} y={-6.5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={24} y={6.5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
                         x={-24} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
