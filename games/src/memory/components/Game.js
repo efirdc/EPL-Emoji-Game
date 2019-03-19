@@ -24,6 +24,8 @@ export default class Game extends React.Component {
 
         this.gameLogic = new GameLogic(0);
 
+        this.bodyRef = React.createRef();
+
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
         this.onCardTouchStart = this.onCardTouchStart.bind(this);
@@ -62,6 +64,10 @@ export default class Game extends React.Component {
     componentDidMount() {
         this.loop.start();
         this.loopID = this.loop.subscribe(this.tick);
+        this.bodyRef.current.addEventListener("touchstart", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchmove", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchend", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchcancel", this.preventDefaultTouch);
     }
     componentWillUnmount() {
         this.loop.stop();
@@ -70,6 +76,10 @@ export default class Game extends React.Component {
 
     onCardTouchStart(cardKey) {
         this.gameLogic.touchStart(cardKey);
+    }
+
+    preventDefaultTouch(event) {
+        event.preventDefault();
     }
 
     onCardTouchEnd(cardKey) {
@@ -103,7 +113,7 @@ export default class Game extends React.Component {
             top: "50vh",
             left: "50vw",
             userSelect: "none",
-            //pointerEvents: 'none'
+            pointerEvents: 'all',
         };
 
         const debugRectStyle = (rectWidth, rectHeight) => ({
@@ -125,7 +135,7 @@ export default class Game extends React.Component {
         let outerCells = hexBoard.outerCells;
 
         return (
-            <div className={"radialGradient1"} style={bodyStyle}>
+            <div className={"radialGradient1"} style={bodyStyle} ref={this.bodyRef}>
                 <div style={boardStyle}>
                     <div>
                         {cards.map((card) => (
