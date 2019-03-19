@@ -58,4 +58,44 @@ export default
     '💥', // cards fly away on face up
     '😈', // Gets stuck up, does bad things until you match him
   ],
+
+  comboBonusSounds: {
+    '🧟‍': 'someFileName.mp3',
+    '🧛‍': 'someFileName.mp3',
+    '🤑': 'someFileName.mp3',
+    '👶': 'someFileName.mp3',
+    '🤵': 'someFileName.mp3',
+    '👩‍🍳': 'someFileName.mp3',
+    '👮': 'someFileName.mp3',
+    '🛸': 'someFileName.mp3',
+    '👨‍🚒': 'someFileName.mp3',
+    '👩‍⚕️': 'someFileName.mp3',
+    '👨‍🚀': 'someFileName.mp3',
+    '🤯': 'someFileName.mp3',
+    '👩‍🎤': 'someFileName.mp3',
+  },
+
+  afraidOfSounds: {
+    '😺': 'someFileName.mp3',
+    '🐶': 'someFileName.mp3',
+    '🐷': 'someFileName.mp3',
+    '🥶': 'someFileName.mp3',
+    '⛄': 'someFileName.mp3',
+    '🐵': 'someFileName.mp3',
+    '🐦': 'someFileName.mp3',
+    '😱': 'someFileName.mp3',
+    '👶': 'someFileName.mp3',
+    '🤓': 'someFileName.mp3',
+    '🤢': 'someFileName.mp3',
+  },
+
+  specialsSounds: [
+    '⏱': 'someFileName.mp3',
+    '🧞‍': 'someFileName.mp3',
+    '🧙‍': 'someFileName.mp3',
+    '🔥': 'someFileName.mp3',
+    '⚡': 'someFileName.mp3',
+    '💥': 'someFileName.mp3',
+    '😈': 'someFileName.mp3',
+  ],
 }
