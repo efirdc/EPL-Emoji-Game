@@ -110,9 +110,6 @@ export default class Card extends React.Component {
             this.capturedPointers = this.capturedPointers.filter((id) => (id !== event.pointerId));
             this.touchEndBehavior();
         }
-
-        event.preventDefault();
-        event.stopPropagation();
     }
 
     // This must be called every time a finger enters the card
@@ -335,7 +332,6 @@ export default class Card extends React.Component {
                     return (
                         <div style={styles.cardMain} >
                             <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
-
                             <div style={styles.comboIndicatorContainer}>
                                 <div style={styles.comboIndicator}>{combo}</div>
                             </div>
