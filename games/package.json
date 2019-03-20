@@ -19,9 +19,11 @@
     "foreman": "^3.0.1",
     "gl-react": "^3.15.0",
     "gl-react-dom": "^3.15.0",
+    "howler": "^2.1.1",
     "i": "^0.3.6",
     "node-emoji": "^1.10.0",
     "npm": "^6.8.0",
+    "polygon-offset": "^0.3.1",
     "prop-types": "^15.7.2",
     "rc-progress": "^2.3.0",
     "react": "^16.8.3",
@@ -36,7 +38,8 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",
-    "electron-builder": "^19.24.1"
+    "electron-builder": "^19.24.1",
+    "electron-packager": "^13.1.1"
   },
   "homepage": ".",
   "main": "src/start.js",
@@ -45,12 +48,13 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "electron": "electron .",
+    "electron": "electron . --remote-debugging-port=9222",
     "electron-start": "node src/start-react",
     "react-start": "react-scripts start",
     "pack": "build --dir",
     "dist": "npm run build && build",
-    "postinstall": "install-app-deps"
+    "postinstall": "install-app-deps",
+    "electron-packager": "electron-packager ."
   },
   "build": {
     "appId": "com.electron.electron-with-create-react-app",

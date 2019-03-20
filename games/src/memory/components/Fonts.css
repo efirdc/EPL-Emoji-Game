@@ -1,0 +1,7 @@
+.mainFontStyle {
+    font-family: "Arial Black", fantasy;
+    -webkit-text-stroke-width: 0.3vh;
+    -webkit-text-stroke-color: #000000;
+    color: #fbf9ff;
+    text-shadow: 0 0 0.2vh #000000;
+}

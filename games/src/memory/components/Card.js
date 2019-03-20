@@ -1,25 +1,14 @@
 import React from 'react';
-import emojiData from './EmojiData.js';
-import clickSoundFile from "../sounds/card_flip4.wav";
-import matchSoundFile from "../sounds/match3.wav";
+import { CardPhase } from "../controllers/GameLogic.js";
+import emojiData from '../controllers/EmojiData.js';
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
+import * as colorConvert from "color-convert";
 
-export default class Card extends React.PureComponent {
-
-    static Phase = {
-        INITIAL: 0,
-        ENTER: 1,
-        PLAY: 2,
-        MATCHED: 3,
-        EXIT: 4,
-    };
+export default class Card extends React.Component {
 
     constructor(props) {
         super(props);
-
-        // phase takes on values of the Phase enum, and controls what the Card is doing at the moment
-        this.phase = Card.Phase.INITIAL;
 
         // Reference to the input handler is needed to add listeners to real events since react events can not be trusted.
         this.inputHandlerRef = React.createRef();
@@ -33,36 +22,54 @@ export default class Card extends React.PureComponent {
         // it captures pointers sometimes (almost a full second).
         this.capturedPointers = [];
 
+        this.eplColorsDefault = [
+            "#ffb748",
+            "#79bd52",
+            "#e80862",
+            "#7c4694",
+            "#009dd8",
+        ];
+
+        this.eplColors = [
+            "#ffa424", // +15 saturation
+            "#6ebd40", // +10 saturation
+            "#e80862",
+            "#773894", // +10 saturation
+            "#009dd8",
+        ];
+        let borderLightness = 0.35;
+        let flipRejectedLightness = 0.75;
+        let hsvColors = this.eplColors.map((color) => colorConvert.hex.hsv(color.substring(1)));
+
+        let convertLightness = (hsvColor, lightness) => {
+            return "#" + colorConvert.hsv.hex([hsvColor[0], hsvColor[1] , hsvColor[2] * lightness]);
+        };
+        this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness));
+        this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness));
+
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
-        this.tick = this.tick.bind(this);
         this.handlePointer = this.handlePointer.bind(this);
         this.touchStartBehavior = this.touchStartBehavior.bind(this);
         this.touchEndBehavior = this.touchEndBehavior.bind(this);
     }
 
-    // Use this override to debug the Card if it is updating when it shouldn't.
-    /*
     shouldComponentUpdate(nextProps, nextState) {
         for (let propName in this.props) {
             if (this.props[propName] !== nextProps[propName]) {
-                console.log("Card update because of", propName, "change.");
+                //console.log("Card update because of", propName, "change.");
                 return true;
             }
         }
-        return false;
-    }*/
 
-    // tick runs every frame
-    // not using this too much at the moment...
-    tick (deltaTime) {
-        if (this.phase === Card.Phase.INITIAL) {
-            this.setPhase(Card.Phase.ENTER);
+        if (this.props.matched && !this.props.exiting && (Date.now() - this.props.timeAtSetPhase) < 4000) {
+            return true;
         }
+
+        return false;
     }
 
     // Set up event listeners, and loop stuff
     componentDidMount() {
-        this.loopID = this.props.loop.subscribe(this.tick);
         this.inputHandlerRef.current.addEventListener("pointermove", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("pointerdown", this.handlePointer);
         this.inputHandlerRef.current.addEventListener("lostpointercapture", this.handlePointer);
@@ -73,24 +80,6 @@ export default class Card extends React.PureComponent {
         this.inputHandlerRef.current.addEventListener("fakerelease", this.touchEndBehavior);
     }
 
-    componentWillUnmount() {
-        this.props.loop.unsubscribe(this.loopID);
-        this.touchEndBehavior();
-    }
-
-    // Detect changes in props
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.matched && !this.props.matched) {
-            if (!this.props.faceUp) {
-                new Audio(matchSoundFile).play();
-            }
-            this.phase = Card.Phase.MATCHED;
-        }
-        if (nextProps.faceUp && !this.props.faceUp) {
-            new Audio(clickSoundFile).play();
-        }
-    }
-
     handlePointer(event) {
 
         // A pointer event can be captured only if it is in the "active buttons state"
@@ -98,7 +87,8 @@ export default class Card extends React.PureComponent {
         let canCapture = event.type === "pointerdown" || (event.type === "pointermove" && event.buttons);
         let isCaptured = this.capturedPointers.includes(event.pointerId);
 
-
+        // If the pointer can be captured and is not captured yet,
+        // then capture it trigger the touch start behavior
         if (canCapture && !isCaptured) {
             event.target.setPointerCapture(event.pointerId);
             this.capturedPointers.push(event.pointerId);
@@ -143,10 +133,12 @@ export default class Card extends React.PureComponent {
     // initial values for the spring animation system.
     getInitialValues() {
         return {
-            x: this.props.point.x,
-            y: this.props.point.y,
+            x: this.props.x,
+            y: this.props.y,
             flipRotation: 0,
+            rotation: 0,
             scale: 0,
+            comboIndicatorScale: 0,
         };
     }
 
@@ -154,67 +146,103 @@ export default class Card extends React.PureComponent {
     // the values are "driven towards" these target values using spring forces
     getTargetValues() {
         let values = {};
-        values.x = this.props.point.x;
-        values.y = this.props.point.y;
+        values.x = this.props.x;
+        values.y = this.props.y;
+        values.comboIndicatorScale = 0.0;
 
-        if (this.props.faceUp) {
-            values.flipRotation = 180;
-            values.scale = 0.9;
-        } else {
-            values.flipRotation = 0;
-            values.scale = 0.8;
+        values.flipRotation = this.props.faceUp ? 180 : 0;
+        values.scale = this.props.faceUp ? 0.9 : 0.8;
+
+
+        values.rotation = 0.0;
+
+
+        switch (this.props.phase) {
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+
+                // Get bigger, then small again (but still kind of big)
+                if (Date.now() - this.props.timeAtSetPhase < 400) {
+                    values.scale = 1.1;
+                }
+                else {
+                    values.scale = 0.95;
+                }
+
+                // Bring up the combo indicator and keep it around for a while.
+                let lingerTime = this.props.specialMatch ? 3500 : 1500;
+                if (Date.now() - this.props.timeAtSetPhase < lingerTime) {
+                    values.comboIndicatorScale = this.props.specialMatch ? 1.3 : 1.0;
+                }
+                break;
+
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                // Get bigger, then small again (but still kind of big)
+                if (Date.now() - this.props.timeAtSetPhase < 400) {
+                    values.scale = 1.2;
+                }
+                else {
+                    values.scale = 0.95;
+                }
+                break;
+
+            case CardPhase.EXITING:
+                values.flipRotation = 0;
+                values.scale = 0.0;
+                break;
         }
 
-        if (this.phase === Card.Phase.MATCHED) {
-            values.scale = 1.1;
-        }
-        else if (this.phase === Card.Phase.EXIT) {
-            values.scale = 0.0;
+        if (this.props.phase === CardPhase.MATCHED_SPECIAL_THIS || this.props.phase === CardPhase.MATCHED_SPECIAL_OTHER) {
+            if (Date.now() - this.props.timeAtSetPhase < 100) {
+                values.rotation = -20;
+            } else if (Date.now() - this.props.timeAtSetPhase < 200) {
+                values.rotation = 20;
+            }
         }
         values.x = spring(values.x, presets.stiff);
         values.y = spring(values.y, presets.stiff);
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
         values.scale = spring(values.scale, {stiffness: 120, damping: 7});
+        values.comboIndicatorScale = spring(values.comboIndicatorScale, {stiffness: 150, damping: 15});
+        values.rotation = spring(values.rotation, {stiffness: 120, damping: 5});
 
         return values;
-    }
-
-    managePhaseTransitions() {
-        if (this.phase === Card.Phase.MATCHED) {
-            setTimeout(() => (this.setPhase(Card.Phase.EXIT)), 1000);
-        }
-    }
-
-    setPhase(phase) {
-        this.phase = phase;
-        this.forceUpdate();
     }
 
     // gets the inline css styles for this component using animated values.
     getStyles(values) {
 
-        const cardInputHandler = {
+
+        const cardMain = {
+            zIndex: 1 + this.props.comboCounter,
+            position: 'fixed',
             height: this.props.size + "vh",
             width: this.props.size + "vh",
-            transform: `translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) scale(${values.scale})`,
+            transform: `
+                translate(${values.x - 0.5 * this.props.size}vh, ${values.y - 0.5 * this.props.size}vh) 
+                scale(${Math.max(values.scale, 0.0)}) 
+                rotate(${values.rotation}deg)
+            `,
         };
 
         // blobID decides card back color
-        const eplColors = [
-            "#ffb748",
-            "#79bd52",
-            "#e80862",
-            "#7c4694",
-            "#009dd8",
-        ];
-        let color = eplColors[this.props.blobID % eplColors.length];
+        let colorId = this.props.blobID % this.eplColors.length;
+        let color = this.eplColors[colorId];
+        let borderColor = this.eplColorsBorder[colorId];
+        let flipRejectedColor = this.eplColorsFlipRejected[colorId];
 
         const cardBack = {
             zIndex: '2',
 
             transform: `rotateX(${values.flipRotation}deg)`,
-            backgroundColor: color,
-            filter: this.props.flipRejected ? "brightness(75%)" : "brightness(100%)",
+            backgroundColor: borderColor,
+        };
+
+        const cardBackInner = {
+            zIndex: '3',
+
+            transform: "scale(0.88)",
+            backgroundColor: (this.props.phase === CardPhase.FLIP_REJECTED) ? flipRejectedColor : color,
         };
 
         const cardFront = {
@@ -224,18 +252,73 @@ export default class Card extends React.PureComponent {
             backgroundColor : "#000000"
         };
 
-        const cardInner = {
-            transform: "scale(0.92)",
-            backgroundColor : this.props.matched ? "#5ef997" : "#e5eae8",
+        let frontColor;
+        if (this.props.matched) {
+            frontColor = this.props.specialMatch ? "#f296ff" : "#5ef997";
+        } else {
+            frontColor = "#e5eae8";
+        }
+
+        const cardFrontInner = {
+            transform: `scale(0.88)`,
+            backgroundColor : frontColor,
+        };
+
+        const horizontalLineWidth = 30;
+        let emojiRotationVector = {x:0, y:0};
+        if (Math.abs(this.props.x) < horizontalLineWidth) {
+            emojiRotationVector = {x:0, y:this.props.y};
+        }
+        else if ( this.props.x > horizontalLineWidth) {
+            emojiRotationVector = {x: this.props.x - horizontalLineWidth, y: this.props.y};
+        }
+        else {
+            emojiRotationVector = {x: this.props.x + horizontalLineWidth, y: this.props.y};
+        }
+
+        let emojiAngleRad = Math.atan2(emojiRotationVector.y, emojiRotationVector.x);
+        let emojiAngle = emojiAngleRad * 180 / Math.PI - 90;
+        const emoji = {
+            zIndex: '4',
+            isolation: 'isolate',
+            transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
 
-        return {cardFront, cardBack, cardInputHandler, cardInner};
+        let comboIndicatorRadius = 3.5;
+        let comboIndicatorSize = 0.30 * this.props.size;
+        let comboIndicatorAngle = emojiAngle - 35;
+        let comboIndicatorTiltAngle = 10;
+
+        const comboIndicatorContainer = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            top: "50%",
+            left: "50%",
+            width: '0vh',
+            height: '0vh',
+            transform: `rotate(${comboIndicatorAngle}deg) translate(0vh, -${comboIndicatorRadius}vh)`
+        };
+
+        const comboIndicator = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg) scale(${values.comboIndicatorScale})`,
+            fontFamily: "'Arial Black', Gadget, sans-serif",
+            fontSize: comboIndicatorSize + "vh",
+            color: this.props.specialMatch ? "#ff00bb" : '#e92200',
+            WebkitTextStrokeWidth: 0.2 + 'vh',
+            WebkitTextStrokeColor: "black",
+            lineHeight: comboIndicatorSize + "vh",
+        };
+
+        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, comboIndicator, comboIndicatorContainer};
     }
 
     render() {
-        this.managePhaseTransitions();
 
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
@@ -244,22 +327,30 @@ export default class Card extends React.PureComponent {
             <Motion defaultStyle={initialValues} style={targetValues}>
                 {interpolatedValues => {
                     let styles = this.getStyles(interpolatedValues);
+                    let showCombo = this.props.comboCounter;
+                    let combo = showCombo ? this.props.comboCounter + 'x' : '';
                     return (
-                    <div
-                        className={"cardInputHandler"}
-                        style={styles.cardInputHandler}
-                        id={this.props.cardKey}
-                        ref={this.inputHandlerRef}
-                    >
-                        <div className={"card"} style={styles.cardFront}>
-                            <div className={"card"} style={styles.cardInner}>
-                                <span role="img">{emojiData.sequence[this.props.matchID % emojiData.sequence.length]}</span>
+                        <div style={styles.cardMain} >
+                            <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
+                            <div style={styles.comboIndicatorContainer}>
+                                <div style={styles.comboIndicator}>{combo}</div>
                             </div>
+
+                            <div className={"card"} style={styles.cardFront}>
+                                <div className={"card"} style={styles.cardFrontInner}>
+                                    <div style={styles.emoji}>
+                                        {this.props.emoji}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={"card"} style={styles.cardBack}>
+                                <div className={"card"} style={styles.cardBackInner}>
+                                    {}
+                                </div>
+                            </div>
+
+
                         </div>
-                        <div className={"card"} style={styles.cardBack}>
-                            {}
-                        </div>
-                    </div>
                     )
                 }}
             </Motion>
