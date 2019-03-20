@@ -641,6 +641,16 @@ export default class GameLogic {
         return Date.now() - card.timeAtSetPhase > this.timeToDelete;
     }
 
+    getComboScore(combo) {
+        let scores = [1.0, 1.5, 1.5, 1.75, 1.75, 1.75, 2.0, 2.0, 2.0, 2.25];
+        let scoresIndex = Math.min(combo - 1, scores.length - 1);
+        return scores[scoresIndex];
+    }
+
+    getReallyGoodComboScore() {
+        return this.level.numCards * 2.0;
+    }
+
     // These two functions are just for debugging and figuring out which Emojis are used.
     getUniqueEmojis() {
         let emojis = new Set();
