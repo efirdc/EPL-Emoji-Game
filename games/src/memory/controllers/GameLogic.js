@@ -138,9 +138,9 @@ export default class GameLogic {
 
         this.setLevel(initialStars);
 
-        this.compareEmojis();
-
         this.flipCheat = false;
+        this.winCheat = false;
+        this.loseCheat = false;
         this.controlCheats = this.controlCheats.bind(this);
         document.addEventListener("keypress", this.controlCheats);
     }
@@ -148,8 +148,14 @@ export default class GameLogic {
     controlCheats(keyEvent) {
 
         // 1 key
-        if(keyEvent.charCode === 49) {
+        if (keyEvent.charCode === 49) {
             this.flipCheat = !this.flipCheat;
+        }
+        else if (keyEvent.charCode === 50) {
+            this.winCheat = true;
+        }
+        else if (keyEvent.charCode === 51) {
+            this.loseCheat = true;
         }
     }
 
@@ -333,41 +339,65 @@ export default class GameLogic {
 
     updateGame() {
 
+        // Return object that stores gameEvents
         let gameEvents = {
             gameWon: false,
             gameLost: false,
             playStart: false,
             loadStart: false,
         };
+
+        // Receives the cardEvents from updateCards(). Is merged with gameEvents when this function returns.
         let cardEvents;
 
+        // Dirty if statement for handling cheats
+        if (this.phase === GamePhase.PLAY || this.phase === GamePhase.LEVEL_WIN || this.phase === GamePhase.LEVEL_LOAD) {
+            if (this.winCheat) {
+                this.winCheat = false;
+                this.setLevel(this.numStars + 5);
+                this.setPhase(GamePhase.LEVEL_LOAD);
+            }
+            else if (this.loseCheat) {
+                this.loseCheat = false;
+                this.setPhase(GamePhase.LEVEL_LOSE);
+            }
+        }
+
+        // Game is only in the INIT phase at first launch.
+        // This is really just an awful way of triggering the loadStart event.
         if (this.phase === GamePhase.GAME_INIT) {
             this.setPhase(GamePhase.LEVEL_LOAD);
             gameEvents.loadStart = true;
         }
 
+        // Level loading phase
         if (this.phase === GamePhase.LEVEL_LOAD) {
 
-            // Disable cheats
+            // Disable the flipCheat
             this.flipCheat = false;
 
+            // The time since load start determines how many cards should be spawned in
             let timeSinceLoadStart = Date.now() - this.timeAtSetPhase;
             let numActiveCards = Math.floor(timeSinceLoadStart / this.timeToSpawnCard);
 
-            // Move cards from newCards to cards
+            // Move cards from newCards to cards to spawn the cards in
             while (this.cards.length < numActiveCards && this.newCards.length) {
                 this.cards.push(this.newCards.shift());
             }
 
-            // When all cards are moved over, move to play phase.
+            // When all cards are spawned in, move to play phase.
             if (this.cards.length === this.level.numCards) {
                 this.setPhase(GamePhase.PLAY);
                 gameEvents.playStart = true;
+
+                // Initialize cards to FACE_DOWN state.
                 for (let card of this.cards) {
                     card.setPhase(CardPhase.FACE_DOWN);
                 }
             }
         }
+
+        // Main PLAY phase. Updates the cards and checks if the game is won/lost.
         else if (this.phase === GamePhase.PLAY) {
             cardEvents = this.updateCards();
             if (this.isGameWon()) {
@@ -380,11 +410,20 @@ export default class GameLogic {
                 gameEvents.gameLost = true;
             }
         }
+
+        // Lose transition phase.
         else if (this.phase === GamePhase.LEVEL_LOSE) {
+
+            // Doesnt hurt to let the user interact with cards (removing this might cause a bug actually)
             cardEvents = this.updateCards();
+
+            // Time since the lose event determines how many cards should be exiting
             let timeSinceLose = Date.now() - this.timeAtSetPhase;
             let numCardsShouldExit = Math.floor(timeSinceLose / this.timeToSpawnCard);
 
+            // This is kind of dumb because EXITING cards are removed from this.cards.
+            // So the rate that cards exit the scene actually increases during the transition
+            // but that is actually kind of a nice effect so lets keep it
             for (let i = 0; i < Math.min(numCardsShouldExit, this.cards.length); i++) {
                 let card = this.cards[i];
                 if (card.phase === CardPhase.EXITING) {
@@ -393,12 +432,15 @@ export default class GameLogic {
                 card.setPhase(CardPhase.EXITING);
             }
 
+            // Once all cards have exited, move to LEVEL_LOAD phase.
             if (!this.cards.length) {
                 this.setLevel(0);
                 this.setPhase(GamePhase.LEVEL_LOAD);
                 gameEvents.loadStart = true;
             }
         }
+
+        // Handle game win transition.
         else if (this.phase === GamePhase.LEVEL_WIN) {
             let cardEvents = this.updateCards();
             let timeSinceWin = Date.now() - this.timeAtSetPhase;
@@ -599,6 +641,7 @@ export default class GameLogic {
         return Date.now() - card.timeAtSetPhase > this.timeToDelete;
     }
 
+    // These two functions are just for debugging and figuring out which Emojis are used.
     getUniqueEmojis() {
         let emojis = new Set();
 
@@ -628,11 +671,10 @@ export default class GameLogic {
 
         return Array.from(emojis);
     }
-
     compareEmojis() {
         let uniqueEmojis = this.getUniqueEmojis();
         let sequence = emojiData.sequence;
-        let missing = []
+        let missing = [];
         for (let emoji of uniqueEmojis) {
             if (!sequence.includes(emoji)) {
                 missing.push(emoji);
@@ -640,5 +682,4 @@ export default class GameLogic {
         }
         console.log(missing);
     }
-
 }
