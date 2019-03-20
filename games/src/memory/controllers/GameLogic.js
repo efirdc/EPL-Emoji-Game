@@ -194,25 +194,25 @@ export default class GameLogic {
 
             // First bracket only has one blob, so start with a small amount of cards and increase slowly
             {numStars: 0, numBlobs: 1, numCardsStart: 20, numCardsEnd: 40,
-                maxConcurrentFlips: 4, timeToCompleteLevel: 45},
+                maxConcurrentFlips: 6, timeToCompleteLevel: 60},
 
             // Adding a blob for the first time, so reduce the number of cards by a bit at the start
             {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
-                maxConcurrentFlips: 6, timeToCompleteLevel: 60},
+                maxConcurrentFlips: 8, timeToCompleteLevel: 90},
 
             // Reduce by a bit again for the third blob, but not as much.
             {numStars: 40, numBlobs: 3, numCardsStart: 54, numCardsEnd: 90,
-                maxConcurrentFlips: 8, timeToCompleteLevel: 80},
+                maxConcurrentFlips: 10, timeToCompleteLevel: 120},
 
             // Should get hard to manage here for 2 players.
             // Only reduce cards by a little bit
             {numStars: 60, numBlobs: 4, numCardsStart: 86, numCardsEnd: 120,
-                maxConcurrentFlips: 10, timeToCompleteLevel: 110},
+                maxConcurrentFlips: 12, timeToCompleteLevel: 150},
 
             // If they get this far they should be pretty good, so no more going easy
             // Keep increasing cards, and dont increase concurrent flips this time
             {numStars: 80, numBlobs: 5, numCardsStart: 122, numCardsEnd: 150,
-                maxConcurrentFlips: 10, timeToCompleteLevel: 130},
+                maxConcurrentFlips: 12, timeToCompleteLevel: 150},
 
             // Once we pass this point, go into "endurance mode"
             {numStars: 100, enduranceMode: true},
