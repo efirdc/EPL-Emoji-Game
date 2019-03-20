@@ -50,6 +50,7 @@ class Card {
     }
 
     setPhase(phase) {
+        this.prevPhase = this.phase;
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
