@@ -22,7 +22,7 @@ export default class Game extends React.Component {
 
         this.loop = new GameLoop();
 
-        this.gameLogic = new GameLogic(0);
+        this.gameLogic = new GameLogic();
 
         this.bodyRef = React.createRef();
 

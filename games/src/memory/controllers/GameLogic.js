@@ -111,7 +111,7 @@ export const GamePhase = {
 };
 
 export default class GameLogic {
-    constructor(initialStars) {
+    constructor() {
 
         this.hexBoard = new HexBoard();
         this.level = new Level();
@@ -136,7 +136,7 @@ export default class GameLogic {
         this.timeToSpawnCard = 100;
         this.timeToTransitionToLoad = 4000;
 
-        this.setLevel(initialStars);
+        this.setLevel(0);
 
         this.flipCheat = false;
         this.winCheat = false;
