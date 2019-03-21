@@ -155,15 +155,15 @@ export default class Game extends React.Component {
                         clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
                         gameLogic={gameLogic}
                     />
-                    <Timer x={-24} y={-6.5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={24} y={6.5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={-26} y={-6.5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={26} y={6.5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
-                        x={-24} y={5} rotation={0}
+                        x={-26} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                     <CardFlipCounter
-                        x={24} y={-5} rotation={180}
+                        x={26} y={-5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
