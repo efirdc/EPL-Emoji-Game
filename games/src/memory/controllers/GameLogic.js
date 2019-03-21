@@ -116,12 +116,13 @@ export default class GameLogic {
         this.hexBoard = new HexBoard();
         this.level = new Level();
 
-        this.numStars = initialStars;
+        this.numStars = 0;
         this.cards = [];
         this.newCards = [];
         this.concurrentFlips = 0;
         this.comboCards = [];
         this.comboCounter = 0;
+        this.comboScore = 0;
 
         this.phase = GamePhase.GAME_INIT;
         this.timeAtSetPhase = Date.now();
@@ -136,7 +137,7 @@ export default class GameLogic {
         this.timeToSpawnCard = 100;
         this.timeToTransitionToLoad = 4000;
 
-        this.setLevel(0);
+        this.setLevel(this.numStars);
 
         this.flipCheat = false;
         this.winCheat = false;
@@ -281,6 +282,8 @@ export default class GameLogic {
 
         // Initialize level state data
         this.concurrentFlips = 0;
+        this.comboCounter = 0;
+        this.comboScore = 0;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
@@ -445,7 +448,7 @@ export default class GameLogic {
             let cardEvents = this.updateCards();
             let timeSinceWin = Date.now() - this.timeAtSetPhase;
             if (timeSinceWin > this.timeToTransitionToLoad) {
-                this.setLevel(this.numStars + 5);
+                this.setLevel(this.numStars + this.getNumStarsFromPerformance());
                 this.setPhase(GamePhase.LEVEL_LOAD);
                 gameEvents.loadStart = true;
             }
@@ -558,7 +561,11 @@ export default class GameLogic {
                     cardA.comboCounter = this.comboCounter;
                     cardB.comboCounter = this.comboCounter;
 
+                    // Add the combo pair to the comboCards array
                     this.comboCards.push({first: cardA, second:cardB});
+
+                    // add to the combo score for this match
+                    this.comboScore += this.getComboScore(this.comboCounter);
                     break;
                 }
             }
@@ -647,8 +654,40 @@ export default class GameLogic {
         return scores[scoresIndex];
     }
 
-    getReallyGoodComboScore() {
-        return this.level.numCards * 2.0;
+    getNumStarsFromComboScore() {
+        let numMatches = this.level.numCards / 2;
+        if (this.comboScore < numMatches * 1.25) {
+            return 1;
+        }
+        else if (this.comboScore < numMatches * 1.5) {
+            return 2;
+        }
+        else if (this.comboScore < numMatches * 1.75) {
+            return 3;
+        }
+        else if (this.comboScore < numMatches * 2.0) {
+            return 4;
+        }
+        else {
+            return 5;
+        }
+    }
+
+    getNumStarsFromTimeRemaining() {
+        let timeLeftPercent = this.timeLeftAtLevelWin / this.level.timeToComplete;
+        if (timeLeftPercent < 0.2) {
+            return 0;
+        }
+        else if (timeLeftPercent < 0.4) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+
+    getNumStarsFromPerformance() {
+        return Math.min(5, this.getNumStarsFromComboScore() + this.getNumStarsFromTimeRemaining());
     }
 
     // These two functions are just for debugging and figuring out which Emojis are used.
