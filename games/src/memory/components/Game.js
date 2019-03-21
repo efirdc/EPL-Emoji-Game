@@ -7,6 +7,7 @@ import CardFlipCounter from "./CardFlipCounter.js";
 import StarCounter from "./StarCounter.js";
 import InnerFrame from "./InnerFrame.js";
 import BorderCells from "./BorderCells.js";
+import ScoreParticle from "./ScoreParticle.js";
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js";
 import GameLogic, {GamePhase} from '../controllers/GameLogic.js';

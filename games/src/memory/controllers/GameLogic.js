@@ -562,7 +562,9 @@ export default class GameLogic {
                     cardB.comboCounter = this.comboCounter;
 
                     // Add the combo pair to the comboCards array
-                    this.comboCards.push({first: cardA, second:cardB});
+                    let matchPair = {first: cardA, second:cardB};
+                    this.comboCards.push(matchPair);
+                    this.fireMatchEvent(matchPair);
 
                     // add to the combo score for this match
                     this.comboScore += this.getComboScore(this.comboCounter);
@@ -688,6 +690,15 @@ export default class GameLogic {
 
     getNumStarsFromPerformance() {
         return Math.min(5, this.getNumStarsFromComboScore() + this.getNumStarsFromTimeRemaining());
+    }
+
+    fireMatchEvent(matchPair) {
+        let matchEvent = new CustomEvent("matchEvent", {
+            detail: {
+                matchPair: matchPair,
+            }
+        });
+        document.dispatchEvent(matchEvent);
     }
 
     // These two functions are just for debugging and figuring out which Emojis are used.
