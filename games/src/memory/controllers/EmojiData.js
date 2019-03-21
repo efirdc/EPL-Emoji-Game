@@ -89,7 +89,7 @@ export default
     '🤢': 'someFileName.mp3',
   },
 
-  specialsSounds: [
+  specialsSounds: {
     '⏱': 'someFileName.mp3',
     '🧞‍': 'someFileName.mp3',
     '🧙‍': 'someFileName.mp3',
@@ -97,5 +97,5 @@ export default
     '⚡': 'someFileName.mp3',
     '💥': 'someFileName.mp3',
     '😈': 'someFileName.mp3',
-  ],
+  },
 }
