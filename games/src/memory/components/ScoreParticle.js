@@ -35,8 +35,8 @@ export default class ScoreParticle extends React.PureComponent {
                 translate(${-size * 0.5 + x}vh, ${-size * 0.5 + y}vh)
             `,
             borderRadius: "50%",
-            backgroundColor: "#22d900",
-            borderColor: "#126200",
+            backgroundColor: this.props.special ? "#ff4786" : "#22d900",
+            borderColor: this.props.special ? "#a21a41" : "#126200",
             borderStyle: "solid",
             borderSize: size * 0.2 + 'vh',
             opacity: 0.65,

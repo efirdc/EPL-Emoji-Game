@@ -532,11 +532,13 @@ export default class GameLogic {
 
                     // Check if another matched pair has a combo bonus with this pair
                     let comboBonus = 0;
+                    let specialComboPairs = [];
                     for (let comboPair of this.comboCards) {
                         if (cardA.comboBonusWith(comboPair.first)) {
                             comboBonus += 2;
                             comboPair.first.setPhase(CardPhase.MATCHED_SPECIAL_OTHER);
                             comboPair.second.setPhase(CardPhase.MATCHED_SPECIAL_OTHER);
+                            specialComboPairs.push(comboPair);
                         }
                     }
 
@@ -557,7 +559,12 @@ export default class GameLogic {
                     // Add the combo pair to the comboCards array
                     let matchPair = {first: cardA, second:cardB};
                     this.comboCards.push(matchPair);
+
+                    // Fire events
                     this.fireMatchEvent(matchPair);
+                    for (let comboPair of specialComboPairs) {
+                        this.fireMatchSpecialOther(matchPair, comboPair);
+                    }
 
                     // add to the combo score for this match
                     this.comboScore += this.getComboScore(this.comboCounter, cardA.specialMatch);
@@ -690,6 +697,17 @@ export default class GameLogic {
         let matchEvent = new CustomEvent("match", {
             detail: {
                 matchPair: matchPair,
+                comboScore: this.getComboScore(matchPair.first.comboCounter, matchPair.first.specialMatch),
+            }
+        });
+        document.dispatchEvent(matchEvent);
+    }
+
+    // Fired when a special combo happens, so the other "combo'd" match pair can emit particles too.
+    fireMatchSpecialOther(matchPair, otherMatchPair) {
+        let matchEvent = new CustomEvent("matchspecialother", {
+            detail: {
+                matchPair: otherMatchPair,
                 comboScore: this.getComboScore(matchPair.first.comboCounter, matchPair.first.specialMatch),
             }
         });

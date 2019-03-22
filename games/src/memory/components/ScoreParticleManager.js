@@ -7,7 +7,7 @@ class ScoreParticleData {
 
     static nextId = 0;
 
-    constructor(spawnX, spawnY, targetX, targetY) {
+    constructor(spawnX, spawnY, targetX, targetY, special) {
         this.id = ScoreParticleData.nextId;
         ScoreParticleData.nextId += 1;
         this.spawnX = spawnX;
@@ -15,6 +15,7 @@ class ScoreParticleData {
         this.targetX = targetX;
         this.targetY = targetY;
         this.absorb = false;
+        this.special = special;
         this.timeAtSpawn = Date.now();
     }
 }
@@ -42,6 +43,7 @@ export default class ScoreParticleManager extends React.PureComponent {
         // Subscribe the the loop so that tick() gets called every frame.
         this.loopID = this.props.loop.subscribe(this.tick);
         document.addEventListener("match", this.handleMatch);
+        document.addEventListener("matchspecialother", this.handleMatch)
     }
 
     // Unsubscribe when component leaves the scene.
@@ -69,7 +71,11 @@ export default class ScoreParticleManager extends React.PureComponent {
         let spreadRadius = (this.maxSpread - this.minSpread) * Math.random() + this.minSpread;
         let spreadX = spreadRadius * Math.cos(randomAngle);
         let spreadY = spreadRadius * Math.sin(randomAngle);
-        let newScoreParticle = new ScoreParticleData(card.x, card.y, card.x + spreadX, card.y + spreadY);
+        let newScoreParticle = new ScoreParticleData(
+            card.x, card.y,
+            card.x + spreadX, card.y + spreadY,
+            card.specialMatch
+        );
         this.scoreParticleData.push(newScoreParticle);
     }
 
