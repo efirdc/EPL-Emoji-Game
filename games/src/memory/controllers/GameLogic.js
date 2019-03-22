@@ -473,6 +473,9 @@ export default class GameLogic {
         if (this.isGameWon()) {
             return false;
         }
+        if (this.comboCounter !== 0) {
+            return false;
+        }
         return this.timeLeft <= 0;
     }
 
