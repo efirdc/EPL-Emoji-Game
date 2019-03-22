@@ -161,11 +161,11 @@ export default class GameLogic {
         }
     }
 
-    setPhase(phase, dontSentEvent) {
+    setPhase(phase, dontSendEvent) {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
-        if (dontSentEvent) {
+        if (dontSendEvent) {
             return;
         }
 
