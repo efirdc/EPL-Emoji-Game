@@ -2,10 +2,32 @@ import React from 'react';
 import "./Fonts.css";
 import {getCssData, polygonCss} from "../controllers/Utilities.js";
 import Offset from "polygon-offset";
+import {Motion, spring, presets} from 'react-motion';
 
-export default class StarCounter extends React.PureComponent {
+export default class StarCounter extends React.Component {
 
-    circleStyle() {
+    constructor(props) {
+        super(props);
+        this.timeAtLastAbsorb = Date.now() - 1000;
+
+        this.timeToAbsorb = 60;
+
+        this.absorbEvent = this.absorbEvent.bind(this);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return true;
+    }
+
+    componentDidMount() {
+        document.addEventListener("particleabsorb", this.absorbEvent);
+    }
+
+    absorbEvent(event) {
+        this.timeAtLastAbsorb = Date.now()
+    }
+
+    circleStyle(scale) {
         let radius = 7.0;
         return {
             zIndex: 2,
@@ -13,7 +35,8 @@ export default class StarCounter extends React.PureComponent {
             width: (radius * 2) + "vh",
             height: (radius * 2) + "vh",
             transform: `
-                translate(${-radius}vh, ${-radius}vh)
+                translate(${-radius}vh, ${-radius}vh) 
+                scale(${scale})
             `,
             borderRadius: "50%",
             borderWidth: "0.5vh",
@@ -75,12 +98,25 @@ export default class StarCounter extends React.PureComponent {
         };
 
         let starStyles = this.getStarStyles();
+        let timeSinceLastAbsorb = Date.now() - this.timeAtLastAbsorb;
+        let scale = 1.0;
+        if (timeSinceLastAbsorb < this.timeToAbsorb) {
+            scale = 1.2;
+        }
 
         return (
             <div>
                 <div style={starStyles.border}/>
                 <div style={starStyles.fill} className={"radialGradient4"}/>
-                <div style={this.circleStyle()} className={"radialGradient3"}/>
+                <Motion defaultStyle={{scale: 1.0}} style={{scale: spring(scale, presets.stiff)}}>
+                    {interpolatingStyle => {
+
+                        return (
+                            <div style={this.circleStyle(interpolatingStyle.scale)} className={"radialGradient3"}/>
+                        )
+                    }}
+
+                </Motion>
                 <h1
                     className={"mainFontStyle"}
                     style={numberStyle}

@@ -560,7 +560,7 @@ export default class GameLogic {
                     this.fireMatchEvent(matchPair);
 
                     // add to the combo score for this match
-                    this.comboScore += this.getComboScore(this.comboCounter);
+                    this.comboScore += this.getComboScore(this.comboCounter, cardA.specialMatch);
                     break;
                 }
             }
@@ -640,10 +640,14 @@ export default class GameLogic {
         return Date.now() - card.timeAtSetPhase > this.timeToDelete;
     }
 
-    getComboScore(combo) {
+    getComboScore(combo, specialCombo) {
         let scores = [1.0, 1.5, 1.5, 1.75, 1.75, 1.75, 2.0, 2.0, 2.0, 2.25];
         let scoresIndex = Math.min(combo - 1, scores.length - 1);
-        return scores[scoresIndex];
+        let multiplier = 1.0;
+        if (specialCombo) {
+            multiplier = 2.0;
+        }
+        return scores[scoresIndex] * multiplier;
     }
 
     getNumStarsFromComboScore() {
@@ -686,6 +690,7 @@ export default class GameLogic {
         let matchEvent = new CustomEvent("match", {
             detail: {
                 matchPair: matchPair,
+                comboScore: this.getComboScore(matchPair.first.comboCounter, matchPair.first.specialMatch),
             }
         });
         document.dispatchEvent(matchEvent);
