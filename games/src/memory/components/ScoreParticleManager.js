@@ -30,7 +30,7 @@ export default class ScoreParticleManager extends React.PureComponent {
         this.timeBeforeAbsorb = 1500;
         this.minSpread = 2;
         this.maxSpread = 5;
-        this.maxSpawnDelay = 300;
+        this.spawnInterval = 150;
 
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.tick = this.tick.bind(this);
@@ -56,12 +56,12 @@ export default class ScoreParticleManager extends React.PureComponent {
         let comboScore = event.detail.comboScore;
         let numParticles = comboScore / 0.25;
         this.addParticles(matchPair.first, numParticles * 0.5);
-        this.addParticles(matchPair.second, numParticles * 0.5);
+        setTimeout( () => this.addParticles(matchPair.second, numParticles * 0.5), this.spawnInterval * 0.5);
     }
 
     addParticles(card, numParticles) {
         for (let i = 0; i < numParticles; i++) {
-            let spawnDelay = this.maxSpawnDelay * Math.random();
+            let spawnDelay = i * this.spawnInterval;
             setTimeout(() => (this.addParticle(card)), spawnDelay);
         }
     }
