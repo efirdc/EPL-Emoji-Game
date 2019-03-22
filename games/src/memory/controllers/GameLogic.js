@@ -73,6 +73,7 @@ class Card {
             case CardPhase.FACE_UP:
                 this.faceUp = true;
                 this.flipRejected = false;
+                document.dispatchEvent(new CustomEvent("faceUp"));
                 break;
             case CardPhase.MATCHED:
                 this.matched = true;
@@ -160,9 +161,28 @@ export default class GameLogic {
         }
     }
 
-    setPhase(phase) {
+    setPhase(phase, dontSentEvent) {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
+
+        if (dontSentEvent) {
+            return;
+        }
+
+        switch (phase) {
+            case GamePhase.PLAY:
+                document.dispatchEvent(new CustomEvent("levelplay"));
+                break;
+            case GamePhase.LEVEL_LOAD:
+                document.dispatchEvent(new CustomEvent("levelload"));
+                break;
+            case GamePhase.LEVEL_LOSE:
+                document.dispatchEvent(new CustomEvent("levellose"));
+                break;
+            case GamePhase.LEVEL_WIN:
+                document.dispatchEvent(new CustomEvent("levelwin"));
+                break;
+        }
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
@@ -342,27 +362,16 @@ export default class GameLogic {
 
     updateGame() {
 
-        // Return object that stores gameEvents
-        let gameEvents = {
-            gameWon: false,
-            gameLost: false,
-            playStart: false,
-            loadStart: false,
-        };
-
-        // Receives the cardEvents from updateCards(). Is merged with gameEvents when this function returns.
-        let cardEvents;
-
         // Dirty if statement for handling cheats
         if (this.phase === GamePhase.PLAY || this.phase === GamePhase.LEVEL_WIN || this.phase === GamePhase.LEVEL_LOAD) {
             if (this.winCheat) {
                 this.winCheat = false;
                 this.setLevel(this.numStars + 5);
-                this.setPhase(GamePhase.LEVEL_LOAD);
+                this.setPhase(GamePhase.LEVEL_LOAD, true);
             }
             else if (this.loseCheat) {
                 this.loseCheat = false;
-                this.setPhase(GamePhase.LEVEL_LOSE);
+                this.setPhase(GamePhase.LEVEL_LOSE, true);
             }
         }
 
@@ -370,7 +379,6 @@ export default class GameLogic {
         // This is really just an awful way of triggering the loadStart event.
         if (this.phase === GamePhase.GAME_INIT) {
             this.setPhase(GamePhase.LEVEL_LOAD);
-            gameEvents.loadStart = true;
         }
 
         // Level loading phase
@@ -391,7 +399,6 @@ export default class GameLogic {
             // When all cards are spawned in, move to play phase.
             if (this.cards.length === this.level.numCards) {
                 this.setPhase(GamePhase.PLAY);
-                gameEvents.playStart = true;
 
                 // Initialize cards to FACE_DOWN state.
                 for (let card of this.cards) {
@@ -402,15 +409,13 @@ export default class GameLogic {
 
         // Main PLAY phase. Updates the cards and checks if the game is won/lost.
         else if (this.phase === GamePhase.PLAY) {
-            cardEvents = this.updateCards();
+            this.updateCards();
             if (this.isGameWon()) {
                 this.timeLeftAtLevelWin = this.timeLeft;
                 this.setPhase(GamePhase.LEVEL_WIN);
-                gameEvents.gameWon = true;
             }
             else if (this.isGameLost()) {
                 this.setPhase(GamePhase.LEVEL_LOSE);
-                gameEvents.gameLost = true;
             }
         }
 
@@ -418,7 +423,7 @@ export default class GameLogic {
         else if (this.phase === GamePhase.LEVEL_LOSE) {
 
             // Doesnt hurt to let the user interact with cards (removing this might cause a bug actually)
-            cardEvents = this.updateCards();
+            this.updateCards();
 
             // Time since the lose event determines how many cards should be exiting
             let timeSinceLose = Date.now() - this.timeAtSetPhase;
@@ -439,22 +444,18 @@ export default class GameLogic {
             if (!this.cards.length) {
                 this.setLevel(0);
                 this.setPhase(GamePhase.LEVEL_LOAD);
-                gameEvents.loadStart = true;
             }
         }
 
         // Handle game win transition.
         else if (this.phase === GamePhase.LEVEL_WIN) {
-            let cardEvents = this.updateCards();
+            this.updateCards();
             let timeSinceWin = Date.now() - this.timeAtSetPhase;
             if (timeSinceWin > this.timeToTransitionToLoad) {
                 this.setLevel(this.numStars + this.getNumStarsFromPerformance());
                 this.setPhase(GamePhase.LEVEL_LOAD);
-                gameEvents.loadStart = true;
             }
         }
-
-        return {...gameEvents, ...cardEvents};
     }
 
     isGameWon() {
@@ -476,13 +477,6 @@ export default class GameLogic {
     }
 
     updateCards() {
-
-        // this object is returned by this function, and stores which events have happened this update
-        let eventHappened = {
-            faceUp: false,
-            match: false,
-            specialMatch: false,
-        };
 
         // Clear the combo array if time runs out to make the next match
         if (this.comboCards.length !== 0) {
@@ -532,7 +526,6 @@ export default class GameLogic {
                     // Update important things
                     this.comboCounter += 1;
                     this.concurrentFlips -= 2;
-                    eventHappened.match = true;
 
                     // Remove cardB from matchableCards so it isnt tested anymore
                     matchableCards = matchableCards.splice(i, 1);
@@ -598,7 +591,7 @@ export default class GameLogic {
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
                     card.setPhase(CardPhase.FACE_UP);
                     this.concurrentFlips += 1;
-                    eventHappened.faceUp = true;
+
                 }
             }
 
@@ -618,7 +611,6 @@ export default class GameLogic {
                 // Flip the card up if there is available flips
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
                     card.setPhase(CardPhase.FACE_UP);
-                    eventHappened.faceUp = true;
                     this.concurrentFlips += 1;
                 }
 
@@ -631,8 +623,6 @@ export default class GameLogic {
 
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
-
-        return eventHappened;
     }
 
     // In order for a card to be matched it has to be face up for a certain amount of time
@@ -693,7 +683,7 @@ export default class GameLogic {
     }
 
     fireMatchEvent(matchPair) {
-        let matchEvent = new CustomEvent("matchEvent", {
+        let matchEvent = new CustomEvent("match", {
             detail: {
                 matchPair: matchPair,
             }

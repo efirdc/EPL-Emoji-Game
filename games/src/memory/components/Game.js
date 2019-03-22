@@ -12,7 +12,8 @@ import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js";
 import GameLogic, {GamePhase} from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
-import "./Patterns.css"
+import AudioManager from "../controllers/AudioManager.js";
+import "./Patterns.css";
 
 import Sounds from '../controllers/Sounds.js';
 
@@ -22,6 +23,7 @@ export default class Game extends React.Component {
         super(props);
 
         this.loop = new GameLoop();
+        this.audioManager = new AudioManager();
 
         this.gameLogic = new GameLogic();
 
@@ -34,30 +36,7 @@ export default class Game extends React.Component {
     }
 
     tick(deltaTime) {
-
-        let eventHappened = this.gameLogic.updateGame();
-        if (eventHappened.match) {
-            let i = Math.min(Math.floor((this.gameLogic.comboCounter-1) / 3), Sounds.matchSounds.length - 1);
-            Sounds.matchSounds[i].play();
-        }
-        if (eventHappened.faceUp) {
-            let i = Math.floor(Math.random() * (Sounds.flipSounds.length));
-            Sounds.flipSounds[i].play();
-        }
-        if (eventHappened.gameWon) {
-            setTimeout(() => (Sounds.winSound.play()), 500);
-        }
-        if (eventHappened.gameLost) {
-            Sounds.loseSound.play();
-
-        }
-        if (eventHappened.playStart) {
-
-        }
-        if (eventHappened.loadStart) {
-            Sounds.loadSound.play()
-        }
-
+        this.gameLogic.updateGame();
         this.forceUpdate();
     }
 
