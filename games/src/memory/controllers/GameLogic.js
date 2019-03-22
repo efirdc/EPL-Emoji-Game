@@ -131,9 +131,9 @@ export default class GameLogic {
         this.timeLeftAtLevelWin = 0;
 
         // Timing stuff
-        this.timeToMatch = 500;
-        this.timeToCombo = 1500;
-        this.timeBetweenCombos = 1000;
+        this.timeToMatch = 250;
+        this.timeToCombo = 2250;
+        this.timeBetweenCombos = 750;
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 100;
         this.timeToTransitionToLoad = 4000;
