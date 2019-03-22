@@ -1,20 +1,25 @@
 import Sounds from '../controllers/Sounds.js';
+import emojiData from './EmojiData.js';
 
 export default class AudioManager {
     constructor() {
+        this.handleEvents = this.handleEvents.bind(this);
+
         document.addEventListener("match", this.handleEvents);
+        document.addEventListener("matchspecialother", this.handleEvents);
         document.addEventListener("faceUp", this.handleEvents);
         document.addEventListener("levelwin", this.handleEvents);
         document.addEventListener("levellose", this.handleEvents);
         document.addEventListener("levelstart", this.handleEvents);
         document.addEventListener("levelload", this.handleEvents);
-        this.handleEvents = this.handleEvents.bind(this);
+        document.addEventListener("particleabsorb", this.handleEvents);
     }
 
     handleEvents(event) {
         switch (event.type) {
             case "match":
-                let comboCounter = event.detail.matchPair.first.comboCounter;
+                let card = event.detail.matchPair.first;
+                let comboCounter = card.comboCounter;
                 let i = Math.min(Math.floor((comboCounter - 1) / 3), Sounds.matchSounds.length - 1);
                 Sounds.matchSounds[i].play();
                 break;
@@ -32,6 +37,53 @@ export default class AudioManager {
                 break;
             case "levelload":
                 Sounds.loadSound.play();
+                break;
+            case "particleabsorb":
+                break;
+        }
+
+        if (event.type === 'match' || event.type === 'matchspecialother') {
+            let card = event.detail.matchPair.first;
+            if (card.specialMatch && emojiData.triggersComboSound.includes(card.emoji)) {
+                this.specialComboSound(card.emoji);
+            }
+        }
+    }
+
+    specialComboSound(emoji) {
+        switch (emoji) {
+            case '🧟': // zombie (braaaaaains)
+                break;
+            case '🧛': // vampire (dracula noise?)
+                break;
+            case '🤑': // money (cha-ching)
+                break;
+            case '👶': // baby (laughing)
+                console.log('babycombo');
+                break;
+            case '🤵': // wedding (cartoony wedding march clip)
+                break;
+            case '👩‍🍳': // chef (sizzling, chopping veggies, pots and pans, have an array and alternate)
+                break;
+            case '👮': // police (not sure)
+                break;
+            case '🛸': // alien (generic spooky alien noise)
+                break;
+            case '👨‍🚒': // fireman (firetruck horn)
+                break;
+            case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
+                break;
+            case '👨‍🚀': // astronaut (spaceship launch noise)
+                break;
+            case '🎷': // saxophone (duh)
+                break;
+            case '🎸': // guitar (duh)
+                break;
+            case '🎺': // trumpet (duh)
+                break;
+            case '🎻': // violin (duh)
+                break;
+            case '🥁': // snare (duh)
                 break;
         }
     }
