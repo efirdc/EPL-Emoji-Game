@@ -4,6 +4,7 @@ import emojiData from '../controllers/EmojiData.js';
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
 import * as colorConvert from "color-convert";
+import "../fonts/Segoe UI.ttf";
 
 export default class Card extends React.Component {
 
@@ -282,6 +283,7 @@ export default class Card extends React.Component {
             zIndex: '4',
             isolation: 'isolate',
             transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
+            fontFamily: "'Segoe UI'",
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
