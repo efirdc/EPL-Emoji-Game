@@ -57,9 +57,9 @@ export default class AudioManager {
             case '🧛': // vampire (dracula noise?)
                 break;
             case '🤑': // money (cha-ching)
+                Sounds.comboBonusSounds.chaching.play();
                 break;
             case '👶': // baby (laughing)
-                console.log('babycombo');
                 break;
             case '🤵': // wedding (cartoony wedding march clip)
                 break;

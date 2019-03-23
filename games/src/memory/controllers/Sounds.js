@@ -15,6 +15,8 @@ import winSoundFile from "../sounds/game_over.ogg";
 import loadSoundFile from "../sounds/start_game.ogg";
 import loseSoundFile from '../sounds/game_over_booch.ogg';
 
+import chachingSoundFile from '../sounds/chaching.ogg';
+
 import {Howl} from "howler";
 
 export default {
@@ -37,4 +39,8 @@ export default {
     winSound: new Howl({src: [winSoundFile]}),
     loadSound: new Howl({src: [loadSoundFile]}),
     loseSound: new Howl({src: [loseSoundFile]}),
+
+    comboBonusSounds: {
+        chaching: new Howl({src: [chachingSoundFile]}),
+    }
 }
