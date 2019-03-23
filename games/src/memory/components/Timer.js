@@ -24,7 +24,7 @@ export default function Timer(props) {
     return (
         <div style={containerStyle}>
             <h1
-                className={"mainFontStyle"}
+                className={"hullFont"}
                 style={{
                     fontWeight: "200",
                     fontSize: "7vh",

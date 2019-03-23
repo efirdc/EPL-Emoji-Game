@@ -1,7 +1,15 @@
-.mainFontStyle {
+.starFont {
     font-family: Trebuchet MS, sans-serif;
     -webkit-text-stroke-width: 0.0vh;
     -webkit-text-stroke-color: #000000;
-    color: #0e091d;
-    text-shadow: 0 0 0.2vh #000000;
+    color: #462e15;
+    text-shadow: 0 0 0.3vh #000000;
+}
+
+.hullFont {
+    font-family: Trebuchet MS, sans-serif;
+    -webkit-text-stroke-width: 0.0vh;
+    -webkit-text-stroke-color: #000000;
+    color: #1a1a35;
+    text-shadow: 0 0 0.3vh #000000;
 }

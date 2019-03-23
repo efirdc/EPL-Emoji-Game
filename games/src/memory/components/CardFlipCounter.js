@@ -18,7 +18,7 @@ export default function CardFlipCounter(props) {
     return (
         <div style={counterStyle}>
             <h1
-                className={"mainFontStyle"}
+                className={"hullFont"}
                 style={{
                     fontSize: "7vh",
                 }}

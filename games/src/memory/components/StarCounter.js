@@ -110,7 +110,6 @@ export default class StarCounter extends React.Component {
                 <div style={starStyles.fill} className={"radialGradient4"}/>
                 <Motion defaultStyle={{scale: 1.0}} style={{scale: spring(scale, presets.stiff)}}>
                     {interpolatingStyle => {
-
                         return (
                             <div style={this.circleStyle(interpolatingStyle.scale)} className={"radialGradient3"}/>
                         )
@@ -118,7 +117,7 @@ export default class StarCounter extends React.Component {
 
                 </Motion>
                 <h1
-                    className={"mainFontStyle"}
+                    className={"starFont"}
                     style={numberStyle}
                 >
                     {this.props.numStars}
