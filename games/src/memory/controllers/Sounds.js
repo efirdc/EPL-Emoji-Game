@@ -15,6 +15,12 @@ import winSoundFile from "../sounds/game_over.ogg";
 import loadSoundFile from "../sounds/start_game.ogg";
 import loseSoundFile from '../sounds/game_over_booch.ogg';
 
+import starSoundFile1 from '../sounds/star1.mp3';
+import starSoundFile2 from '../sounds/star1.mp3';
+import starSoundFile3 from '../sounds/star1.mp3';
+import starSoundFile4 from '../sounds/star1.mp3';
+import starSoundFile5 from '../sounds/star1.mp3';
+
 import chachingSoundFile from '../sounds/chaching.ogg';
 
 import {Howl} from "howler";
@@ -42,5 +48,13 @@ export default {
 
     comboBonusSounds: {
         chaching: new Howl({src: [chachingSoundFile]}),
-    }
+    },
+
+    starSounds: [
+        new Howl({src: starSoundFile1}),
+        new Howl({src: starSoundFile2}),
+        new Howl({src: starSoundFile3}),
+        new Howl({src: starSoundFile4}),
+        new Howl({src: starSoundFile5}),
+    ]
 }
