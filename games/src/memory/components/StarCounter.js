@@ -27,6 +27,16 @@ export default class StarCounter extends React.Component {
         this.timeAtLastAbsorb = Date.now()
     }
 
+    containerStyle() {
+        return {
+            zIndex: 2,
+            position: 'absolute',
+            transform: `
+                translate(0vh, 1vh) 
+            `
+        }
+    }
+
     circleStyle(scale) {
         let radius = 7.0;
         return {
@@ -105,7 +115,7 @@ export default class StarCounter extends React.Component {
         }
 
         return (
-            <div>
+            <div style={this.containerStyle()}>
                 <div style={starStyles.border}/>
                 <div style={starStyles.fill} className={"radialGradient4"}/>
                 <Motion defaultStyle={{scale: 1.0}} style={{scale: spring(scale, presets.stiff)}}>
