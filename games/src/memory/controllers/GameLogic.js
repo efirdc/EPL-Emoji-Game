@@ -222,17 +222,17 @@ export default class GameLogic {
                 maxConcurrentFlips: 8, timeToCompleteLevel: 90},
 
             // Reduce by a bit again for the third blob, but not as much.
-            {numStars: 40, numBlobs: 3, numCardsStart: 54, numCardsEnd: 90,
+            {numStars: 40, numBlobs: 3, numCardsStart: 54, numCardsEnd: 80,
                 maxConcurrentFlips: 10, timeToCompleteLevel: 120},
 
             // Should get hard to manage here for 2 players.
             // Only reduce cards by a little bit
-            {numStars: 60, numBlobs: 4, numCardsStart: 86, numCardsEnd: 120,
+            {numStars: 60, numBlobs: 4, numCardsStart: 80, numCardsEnd: 100,
                 maxConcurrentFlips: 12, timeToCompleteLevel: 150},
 
             // If they get this far they should be pretty good, so no more going easy
             // Keep increasing cards, and dont increase concurrent flips this time
-            {numStars: 80, numBlobs: 5, numCardsStart: 122, numCardsEnd: 150,
+            {numStars: 80, numBlobs: 5, numCardsStart: 102, numCardsEnd: 120,
                 maxConcurrentFlips: 12, timeToCompleteLevel: 150},
 
             // Once we pass this point, go into "endurance mode"
