@@ -151,7 +151,12 @@ export default class Game extends React.Component {
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
-                    <StarCounter x={0} y={0} numStars={this.gameLogic.numStars}/>
+                    <StarCounter
+                        x={0} y={0}
+                        numStars={this.gameLogic.numStars}
+                        nthStarThisLevel={this.gameLogic.nthStarThisLevel}
+                        timeAtAddStar={this.gameLogic.timeAtAddStar}
+                    />
                     <ScoreParticleManager loop={this.loop} timer1Pos={timer1Pos} timer2Pos={timer2Pos}/>
                 </div>
             </div>

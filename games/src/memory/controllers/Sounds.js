@@ -16,10 +16,12 @@ import loadSoundFile from "../sounds/start_game.ogg";
 import loseSoundFile from '../sounds/game_over_booch.ogg';
 
 import starSoundFile1 from '../sounds/star1.mp3';
-import starSoundFile2 from '../sounds/star1.mp3';
-import starSoundFile3 from '../sounds/star1.mp3';
-import starSoundFile4 from '../sounds/star1.mp3';
-import starSoundFile5 from '../sounds/star1.mp3';
+import starSoundFile2 from '../sounds/star2.mp3';
+import starSoundFile3 from '../sounds/star3.mp3';
+import starSoundFile4 from '../sounds/star4.mp3';
+import starSoundFile5 from '../sounds/star5.mp3';
+
+import absorbSoundFile from '../sounds/getmoney.ogg'
 
 import chachingSoundFile from '../sounds/chaching.ogg';
 
@@ -56,5 +58,7 @@ export default {
         new Howl({src: starSoundFile3}),
         new Howl({src: starSoundFile4}),
         new Howl({src: starSoundFile5}),
-    ]
+    ],
+
+    absorbSound: new Howl({src: absorbSoundFile}),
 }

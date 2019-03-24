@@ -14,6 +14,7 @@ function shuffle(a) {
 
 class Level {
     constructor () {
+        this.numStars = 0;
         this.numCards = 0;
         this.maxConcurrentFlips = 0;
         this.timeToComplete = 0;
@@ -110,8 +111,9 @@ export const GamePhase = {
     LEVEL_LOSE: 3,
     LEVEL_WIN_START: 4,
     LEVEL_WIN_DRAIN_TIMER: 5,
-    LEVEL_WIN_ADD_STARS: 6,
-    LEVEL_WIN_END: 7,
+    LEVEL_WIN_DRAIN_END: 6,
+    LEVEL_WIN_ADD_STARS: 7,
+    LEVEL_WIN_END: 8,
 };
 
 export default class GameLogic {
@@ -133,6 +135,9 @@ export default class GameLogic {
 
         this.timeLeftAtLevelWin = 0;
 
+        this.nthStarThisLevel = 0;
+        this.timeAtAddStar = Date.now();
+
         // Timing stuff
         this.timeToMatch = 250;
         this.timeToCombo = 2250;
@@ -140,15 +145,18 @@ export default class GameLogic {
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 100;
         this.timeToTransitionToDrainTimer = 3000;
+        this.timeToTransitionToAddStars = 2000;
         this.timeToTransitionToLoad = 2000;
         this.timerDrainMultiplier = 10;
+        this.timeToAddStar = 1500;
 
-        this.setLevel(this.numStars);
+        this.initLevel();
 
         this.flipCheat = false;
         this.winCheat = false;
         this.loseCheat = false;
         this.controlCheats = this.controlCheats.bind(this);
+        this.addStar = this.addStar.bind(this);
         document.addEventListener("keypress", this.controlCheats);
     }
 
@@ -195,13 +203,19 @@ export default class GameLogic {
                     }
                 }));
                 break;
+            case GamePhase.LEVEL_WIN_ADD_STARS:
+                let numStarsToAdd = this.getNumStarsFromPerformance();
+                for (let i = 0; i < numStarsToAdd; i++) {
+                    setTimeout(() => (this.addStar(i + 1)), (i + 1) * this.timeToAddStar);
+                }
+                break;
         }
     }
 
     // Gets the time left in a level. This is used to determine the loss condition.
     get timeLeft () {
 
-        if (this.numStars === 0) {
+        if (this.level.numStars === 0) {
             return Infinity;
         }
 
@@ -225,6 +239,17 @@ export default class GameLogic {
             default:
                 return 0;
         }
+    }
+
+    addStar(nthStarThisLevel) {
+        this.nthStarThisLevel = nthStarThisLevel;
+        this.timeAtAddStar = Date.now();
+        this.numStars += 1;
+        document.dispatchEvent(new CustomEvent("addstar", {
+            detail: {
+                nthStarThisLevel: nthStarThisLevel
+            }
+        }));
     }
 
     getLevel(numStars) {
@@ -266,6 +291,7 @@ export default class GameLogic {
             starBracket = currStarBracket;
         }
 
+        level.numStars = numStars;
         if (starBracket.enduranceMode) {
             // not yet defined
             return level;
@@ -311,17 +337,16 @@ export default class GameLogic {
     }
 
     // Sets the current level for the memory game
-    setLevel(numStars) {
-
-        this.numStars = numStars;
+    initLevel() {
 
         // Get the level settings
-        this.level = this.getLevel(numStars);
+        this.level = this.getLevel(this.numStars);
 
         // Initialize level state data
         this.concurrentFlips = 0;
         this.comboCounter = 0;
         this.comboScore = 0;
+        this.nthStarThisLevel = 0;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
@@ -384,7 +409,8 @@ export default class GameLogic {
         if (this.phase === GamePhase.PLAY || this.phase === GamePhase.LEVEL_WIN || this.phase === GamePhase.LEVEL_LOAD) {
             if (this.winCheat) {
                 this.winCheat = false;
-                this.setLevel(this.numStars + 5);
+                this.numStars += 5;
+                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOAD, true);
             }
             else if (this.loseCheat) {
@@ -460,7 +486,8 @@ export default class GameLogic {
 
             // Once all cards have exited, move to LEVEL_LOAD phase.
             if (!this.cards.length) {
-                this.setLevel(0);
+                this.numStars = 0;
+                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOAD);
             }
         }
@@ -480,21 +507,31 @@ export default class GameLogic {
         else if (this.phase === GamePhase.LEVEL_WIN_DRAIN_TIMER) {
             this.updateCards();
             if (this.timeLeft <= 0) {
+                this.setPhase(GamePhase.LEVEL_WIN_DRAIN_END);
+            }
+        }
+
+        else if (this.phase === GamePhase.LEVEL_WIN_DRAIN_END) {
+            let timeSinceTransition = Date.now() - this.timeAtSetPhase;
+            if (timeSinceTransition > this.timeToTransitionToAddStars) {
                 this.setPhase(GamePhase.LEVEL_WIN_ADD_STARS);
             }
         }
 
         else if (this.phase === GamePhase.LEVEL_WIN_ADD_STARS) {
             this.updateCards();
-            this.setPhase(GamePhase.LEVEL_WIN_END);
+            let timeSinceTransition = Date.now() - this.timeAtSetPhase;
+            let timeToTransition = this.timeToAddStar * (this.getNumStarsFromPerformance());
+            if (timeSinceTransition > timeToTransition) {
+                this.setPhase(GamePhase.LEVEL_WIN_END);
+            }
         }
 
-        // Handle game win transition.
         else if (this.phase === GamePhase.LEVEL_WIN_END) {
             this.updateCards();
             let timeSinceTransition = Date.now() - this.timeAtSetPhase;
             if (timeSinceTransition > this.timeToTransitionToLoad) {
-                this.setLevel(this.numStars + this.getNumStarsFromPerformance());
+                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOAD);
             }
         }

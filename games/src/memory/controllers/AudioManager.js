@@ -5,6 +5,8 @@ export default class AudioManager {
     constructor() {
         this.handleEvents = this.handleEvents.bind(this);
 
+        Sounds.absorbSound.volume(0.3);
+
         document.addEventListener("match", this.handleEvents);
         document.addEventListener("matchspecialother", this.handleEvents);
         document.addEventListener("faceUp", this.handleEvents);
@@ -13,6 +15,7 @@ export default class AudioManager {
         document.addEventListener("levelstart", this.handleEvents);
         document.addEventListener("levelload", this.handleEvents);
         document.addEventListener("particleabsorb", this.handleEvents);
+        document.addEventListener("addstar", this.handleEvents);
     }
 
     handleEvents(event) {
@@ -39,6 +42,10 @@ export default class AudioManager {
                 Sounds.loadSound.play();
                 break;
             case "particleabsorb":
+                Sounds.absorbSound.play();
+                break;
+            case "addstar":
+                Sounds.starSounds[event.detail.nthStarThisLevel - 1].play();
                 break;
         }
 

@@ -10,8 +10,6 @@ export default class StarCounter extends React.Component {
         super(props);
         this.timeAtLastAbsorb = Date.now() - 1000;
 
-        this.timeToAbsorb = 60;
-
         this.absorbEvent = this.absorbEvent.bind(this);
     }
 
@@ -24,15 +22,17 @@ export default class StarCounter extends React.Component {
     }
 
     absorbEvent(event) {
-        this.timeAtLastAbsorb = Date.now()
+        this.timeAtLastAbsorb = Date.now();
     }
 
-    containerStyle() {
+    containerStyle(scale, rotation) {
         return {
             zIndex: 2,
             position: 'absolute',
             transform: `
                 translate(0vh, 1vh) 
+                scale(${scale}) 
+                rotate(${rotation}deg)
             `
         }
     }
@@ -98,6 +98,67 @@ export default class StarCounter extends React.Component {
         return {fill, border};
     };
 
+    getInitialValues() {
+        return {
+            containerScale: 1.0,
+            containerRotation: 0,
+            circleScale: 1.0,
+        }
+    }
+
+    getTargetValues() {
+
+        let values = {
+            containerScale: 1.0,
+            containerRotation: 0,
+            circleScale: 1.0,
+        };
+
+        let timeSinceAddStar = Date.now() - this.props.timeAtAddStar;
+        let timeSinceLastAbsorb = Date.now() - this.timeAtLastAbsorb;
+
+        if (timeSinceLastAbsorb < 30) {
+            values.circleScale = 1.1;
+        }
+
+        if (this.props.nthStarThisLevel === 1 && timeSinceAddStar < 300) {
+            values.containerScale = 1.3;
+        }
+        else if (this.props.nthStarThisLevel === 2 && timeSinceAddStar < 300) {
+            values.containerScale = 1.60;
+        }
+        else if (this.props.nthStarThisLevel === 3 && timeSinceAddStar < 300) {
+            values.containerScale = 2.00;
+            if (timeSinceAddStar < 150) {
+                values.containerRotation = -50;
+            } else {
+                values.containerRotation = 50;
+            }
+        }
+        else if (this.props.nthStarThisLevel === 4 && timeSinceAddStar < 300) {
+            values.containerScale = 3.00;
+            if (timeSinceAddStar < 150) {
+                values.containerRotation = -90;
+            } else {
+                values.containerRotation = 90;
+            }
+        }
+        else if (this.props.nthStarThisLevel === 5 && timeSinceAddStar < 300) {
+            values.containerScale = 3.25;
+            if (timeSinceAddStar < 150) {
+                values.containerRotation = -160;
+            } else {
+                values.containerRotation = 160;
+            }
+        }
+
+        values.circleScale = spring(values.circleScale, {stiffness: 100, damping: 2});
+        values.containerScale = spring(values.containerScale, presets.wobbly);
+        values.containerRotation = spring(values.containerRotation, {stiffness: 60, damping: 2});
+
+        return values;
+    }
+
     render() {
 
         let numberStyle = {
@@ -108,31 +169,25 @@ export default class StarCounter extends React.Component {
         };
 
         let starStyles = this.getStarStyles();
-        let timeSinceLastAbsorb = Date.now() - this.timeAtLastAbsorb;
-        let scale = 1.0;
-        if (timeSinceLastAbsorb < this.timeToAbsorb) {
-            scale = 1.2;
-        }
 
         return (
-            <div style={this.containerStyle()}>
-                <div style={starStyles.border}/>
-                <div style={starStyles.fill} className={"radialGradient4"}/>
-                <Motion defaultStyle={{scale: 1.0}} style={{scale: spring(scale, presets.stiff)}}>
-                    {interpolatingStyle => {
-                        return (
-                            <div style={this.circleStyle(interpolatingStyle.scale)} className={"radialGradient3"}/>
-                        )
-                    }}
-
-                </Motion>
-                <h1
-                    className={"starFont"}
-                    style={numberStyle}
-                >
-                    {this.props.numStars}
-                </h1>
-            </div>
+            <Motion defaultStyle={this.getInitialValues()} style={this.getTargetValues()}>
+                {interpolatingStyle => {
+                return (
+                    <div style={this.containerStyle(interpolatingStyle.containerScale, interpolatingStyle.containerRotation)}>
+                        <div style={starStyles.border}/>
+                        <div style={starStyles.fill} className={"radialGradient4"}/>
+                        <div style={this.circleStyle(interpolatingStyle.circleScale)} className={"radialGradient3"}/>
+                        <h1
+                            className={"starFont"}
+                            style={numberStyle}
+                        >
+                            {this.props.numStars}
+                        </h1>
+                    </div>
+                )
+                }}
+            </Motion>
         );
     }
 
