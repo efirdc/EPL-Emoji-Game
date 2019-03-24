@@ -16,6 +16,7 @@ export default class AudioManager {
         document.addEventListener("levelload", this.handleEvents);
         document.addEventListener("particleabsorb", this.handleEvents);
         document.addEventListener("addstar", this.handleEvents);
+        document.addEventListener("afraid", this.handleEvents);
     }
 
     handleEvents(event) {
@@ -46,6 +47,9 @@ export default class AudioManager {
                 break;
             case "addstar":
                 Sounds.starSounds[event.detail.nthStarThisLevel - 1].play();
+                break;
+            case "afraid":
+                this.afraidSound(event.detail.card.emoji);
                 break;
         }
 
@@ -91,6 +95,30 @@ export default class AudioManager {
             case '🎻': // violin (duh)
                 break;
             case '🥁': // snare (duh)
+                break;
+        }
+    }
+
+    afraidSound(emoji) {
+        switch (emoji) {
+            case '😺': // cat (scared cat sound)
+                Sounds.afraidOfSounds.catMeow.play();
+                break;
+            case '🐶': // dog (dog whimper noise)
+                break;
+            case '🐷': // pig (pig squeal)
+                break;
+            case '🥶': // frozen guy (cold person shivering? this one is kind of dumb so will replace maybe)
+                break;
+            case '⛄': // snowman is afraid of fire (no clue)
+                break;
+            case '🐵': // monkey (scared monkey noise i guess)
+                break;
+            case '😱': // shocked emoji (willhelm scream!)
+                break;
+            case '🤓': // nerd (nerd sounds)
+                break;
+            case '🤢': // sick guy (cartoony puke noise)
                 break;
         }
     }

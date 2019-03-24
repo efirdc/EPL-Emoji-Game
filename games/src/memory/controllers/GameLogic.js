@@ -28,7 +28,8 @@ export const CardPhase = {
     FACE_UP: 2,
     FLIP_REJECTED: 30,
     AFRAID: 31,
-    COMBO_BREAKER: 32,
+    COMBO_BREAKER_AFRAID: 32,
+    COMBO_BREAKER: 33,
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
     MATCHED_SPECIAL_OTHER: 42,
@@ -61,7 +62,18 @@ class Card {
             case CardPhase.FACE_UP:
                 document.dispatchEvent(new CustomEvent("faceUp"));
                 break;
+            case CardPhase.AFRAID:
+            case CardPhase.COMBO_BREAKER_AFRAID:
+                document.dispatchEvent(new CustomEvent(
+                    "afraid",
+                    {detail: {card: this}}
+                ));
+                break;
         }
+    }
+
+    get timeSinceTransition () {
+        return Date.now() - this.timeAtSetPhase;
     }
 
     set exiting(newValue) {
@@ -74,25 +86,6 @@ class Card {
     get exiting() {
         return this._exiting;
     }
-
-    /* template for a getter
-    get nothing () {
-        switch (this.phase) {
-            case CardPhase.SPAWNING:
-            case CardPhase.FACE_DOWN:
-            case CardPhase.FLIP_REJECTED:
-            case CardPhase.FACE_UP:
-            case CardPhase.AFRAID:
-            case CardPhase.MATCHED:
-            case CardPhase.MATCHED_SPECIAL_THIS:
-            case CardPhase.MATCHED_SPECIAL_OTHER:
-            case CardPhase.COMBO_BREAKER:
-                return true;
-            default:
-                return false;
-        }
-    }
-    */
 
     get faceUp () {
         switch (this.phase) {
@@ -111,6 +104,7 @@ class Card {
         switch (this.phase) {
             case CardPhase.FLIP_REJECTED:
             case CardPhase.AFRAID:
+            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -123,6 +117,7 @@ class Card {
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
             case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -152,6 +147,7 @@ class Card {
     get comboBreaker () {
         switch (this.phase) {
             case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -161,14 +157,11 @@ class Card {
     get isAfraid () {
         switch (this.phase) {
             case CardPhase.AFRAID:
+            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
         }
-    }
-
-    get timeSinceTransition () {
-        return Date.now() - this.timeAtSetPhase;
     }
 
     comboBonusWith(otherCard) {
@@ -810,14 +803,19 @@ export default class GameLogic {
         }
 
         let shouldBeAfraidCards = this.cards.filter((card) => (this.shouldBeAfraid(card)));
+        let comboBroken = false;
         for (let card of shouldBeAfraidCards) {
             if (card.phase === CardPhase.FACE_UP) {
                 card.setPhase(CardPhase.AFRAID);
                 this.concurrentFlips -= 1;
             }
             else if (card.matched) {
-                this.comboEnd(true);
+                card.setPhase(CardPhase.COMBO_BREAKER_AFRAID);
+                comboBroken = true;
             }
+        }
+        if (comboBroken) {
+            this.comboEnd(true);
         }
 
         // Make cards stop being afraid

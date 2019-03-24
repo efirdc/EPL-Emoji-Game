@@ -25,6 +25,8 @@ import absorbSoundFile from '../sounds/getmoney.ogg'
 
 import chachingSoundFile from '../sounds/chaching.ogg';
 
+import catMeowSoundFile from '../sounds/catnoise.mp3';
+
 import {Howl} from "howler";
 
 export default {
@@ -50,6 +52,10 @@ export default {
 
     comboBonusSounds: {
         chaching: new Howl({src: [chachingSoundFile]}),
+    },
+
+    afraidOfSounds : {
+        catMeow: new Howl({src: [catMeowSoundFile]}),
     },
 
     starSounds: [
