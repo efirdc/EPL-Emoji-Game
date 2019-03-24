@@ -114,7 +114,6 @@ export default class Game extends React.Component {
         let innerCells = hexBoard.adjacentInnerCells;
         let outerCells = hexBoard.outerCells;
 
-
         let timer1Pos = {x: -26, y: -6.5};
         let timer2Pos = {x: 26, y: 6.5};
 
@@ -125,6 +124,7 @@ export default class Game extends React.Component {
                         {cards.map((card) => (
                             <Card
                                 {...card}
+                                card={card}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2}
                                 onCardTouchStart={this.onCardTouchStart}

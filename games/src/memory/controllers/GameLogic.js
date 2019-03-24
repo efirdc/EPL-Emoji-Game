@@ -27,21 +27,23 @@ export const CardPhase = {
     FACE_DOWN: 1,
     FACE_UP: 2,
     FLIP_REJECTED: 30,
+    AFRAID: 31,
+    COMBO_BREAKER: 32,
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
     MATCHED_SPECIAL_OTHER: 42,
-    EXITING:60,
 };
 
 class Card {
-    constructor (emoji, cardKey) {
+    constructor(emoji, cardKey) {
 
         this.emoji = emoji;
         this.cardKey = cardKey;
         this.touched = false;
-
-        this.specialMatch = false;
         this.comboCounter = 1;
+        this._exiting = false;
+        this.timeAtStartExit = 0;
+        this.timeAtLastScaryCard = 0;
 
         this.x = 0;
         this.y = 0;
@@ -55,40 +57,118 @@ class Card {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
-        switch(phase) {
-            case CardPhase.SPAWNING:
-                this.faceUp = false;
-                this.flipRejected = false;
-                this.matched = false;
-                this.specialMatch = false;
-                this.exiting = false;
-                break;
-            case CardPhase.FACE_DOWN:
-                this.faceUp = false;
-                this.flipRejected = false;
-                break;
-            case CardPhase.FLIP_REJECTED:
-                this.faceUp = false;
-                this.flipRejected = true;
-                break;
+        switch (phase) {
             case CardPhase.FACE_UP:
-                this.faceUp = true;
-                this.flipRejected = false;
                 document.dispatchEvent(new CustomEvent("faceUp"));
                 break;
+        }
+    }
+
+    set exiting(newValue) {
+        if (newValue === true) {
+            this.timeAtStartExit = Date.now();
+        }
+        this._exiting = newValue;
+    }
+
+    get exiting() {
+        return this._exiting;
+    }
+
+    /* template for a getter
+    get nothing () {
+        switch (this.phase) {
+            case CardPhase.SPAWNING:
+            case CardPhase.FACE_DOWN:
+            case CardPhase.FLIP_REJECTED:
+            case CardPhase.FACE_UP:
+            case CardPhase.AFRAID:
             case CardPhase.MATCHED:
-                this.matched = true;
-                this.specialMatch = false;
-                break;
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
-                this.matched = true;
-                this.specialMatch = true;
-                break;
-            case CardPhase.EXITING:
-                this.exiting = true;
-                break;
+            case CardPhase.COMBO_BREAKER:
+                return true;
+            default:
+                return false;
         }
+    }
+    */
+
+    get faceUp () {
+        switch (this.phase) {
+            case CardPhase.FACE_UP:
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+            case CardPhase.COMBO_BREAKER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get flipRejected () {
+        switch (this.phase) {
+            case CardPhase.FLIP_REJECTED:
+            case CardPhase.AFRAID:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get matched () {
+        switch (this.phase) {
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+            case CardPhase.COMBO_BREAKER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get specialMatch () {
+        switch (this.phase) {
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get showComboIndicator () {
+        switch (this.phase) {
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get comboBreaker () {
+        switch (this.phase) {
+            case CardPhase.COMBO_BREAKER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get isAfraid () {
+        switch (this.phase) {
+            case CardPhase.AFRAID:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get timeSinceTransition () {
+        return Date.now() - this.timeAtSetPhase;
     }
 
     comboBonusWith(otherCard) {
@@ -96,11 +176,22 @@ class Card {
         let otherCombos = false;
         if (emojiData.comboBonusWith[this.emoji]) {
             thisCombos = emojiData.comboBonusWith[this.emoji].includes(otherCard.emoji);
-        }
-        else if (emojiData.comboBonusWith[otherCard.emoji]) {
+        } else if (emojiData.comboBonusWith[otherCard.emoji]) {
             otherCombos = emojiData.comboBonusWith[otherCard.emoji].includes(this.emoji);
         }
         return thisCombos || otherCombos;
+    }
+
+    isAfraidOf(otherCards) {
+        for (let otherCard of otherCards) {
+            if (emojiData.afraidOf[this.emoji]) {
+                if (emojiData.afraidOf[this.emoji].includes(otherCard.emoji)) {
+                    this.timeAtLastScaryCard = Date.now();
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 
@@ -140,8 +231,11 @@ export default class GameLogic {
 
         // Timing stuff
         this.timeToMatch = 250;
+        this.timeToBeAfraid = 200;
+        this.timeToStayAfraid = 3500;
         this.timeToCombo = 2250;
         this.timeBetweenCombos = 750;
+        this.timeToLingerAfterComboBreaker = 1500;
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 100;
         this.timeToTransitionToDrainTimer = 3000;
@@ -477,11 +571,9 @@ export default class GameLogic {
             // So the rate that cards exit the scene actually increases during the transition
             // but that is actually kind of a nice effect so lets keep it
             for (let i = 0; i < Math.min(numCardsShouldExit, this.cards.length); i++) {
-                let card = this.cards[i];
-                if (card.phase === CardPhase.EXITING) {
-                    continue;
+                if (!this.cards[i].exiting) {
+                    this.cards[i].exiting = true;
                 }
-                card.setPhase(CardPhase.EXITING);
             }
 
             // Once all cards have exited, move to LEVEL_LOAD phase.
@@ -558,6 +650,23 @@ export default class GameLogic {
         return this.timeLeft <= 0;
     }
 
+    comboEnd(breaker) {
+        // the cards should start exiting
+        for (let comboPair of this.comboCards) {
+            if (breaker) {
+                comboPair.first.setPhase(CardPhase.COMBO_BREAKER);
+                comboPair.second.setPhase(CardPhase.COMBO_BREAKER);
+            } else {
+                comboPair.first.exiting = true;
+                comboPair.second.exiting = true;
+            }
+        }
+
+        // Clear the comboCards
+        this.comboCards = [];
+        this.comboCounter = 0;
+    }
+
     updateCards() {
 
         // Clear the combo array if time runs out to make the next match
@@ -567,18 +676,9 @@ export default class GameLogic {
             let lastMatchPair = this.comboCards[this.comboCards.length - 1];
             let timeSinceLastMatch = Date.now() - lastMatchPair.first.timeAtSetPhase;
 
-            // When time runs out,
+            // When time runs out, break the combo
             if (timeSinceLastMatch > this.timeToCombo) {
-
-                // the cards should start MATCHED_EXITING
-                for (let comboPair of this.comboCards) {
-                    comboPair.first.setPhase(CardPhase.EXITING);
-                    comboPair.second.setPhase(CardPhase.EXITING);
-                }
-
-                // Clear the comboCards
-                this.comboCards = [];
-                this.comboCounter = 0;
+                this.comboEnd(false);
             }
         }
 
@@ -680,7 +780,6 @@ export default class GameLogic {
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
                     card.setPhase(CardPhase.FACE_UP);
                     this.concurrentFlips += 1;
-
                 }
             }
 
@@ -710,6 +809,35 @@ export default class GameLogic {
             }
         }
 
+        let shouldBeAfraidCards = this.cards.filter((card) => (this.shouldBeAfraid(card)));
+        for (let card of shouldBeAfraidCards) {
+            if (card.phase === CardPhase.FACE_UP) {
+                card.setPhase(CardPhase.AFRAID);
+                this.concurrentFlips -= 1;
+            }
+            else if (card.matched) {
+                this.comboEnd(true);
+            }
+        }
+
+        // Make cards stop being afraid
+        let afraidCards = this.cards.filter((card) => (card.phase === CardPhase.AFRAID));
+        let cardsThatCanBeScary = this.cards.filter((card) => this.canBeScary(card));
+        for (let card of afraidCards) {
+            let timeSinceLastScaryCard = Date.now() - card.timeAtLastScaryCard;
+            if (timeSinceLastScaryCard > this.timeToStayAfraid && !card.isAfraidOf(cardsThatCanBeScary)) {
+                card.setPhase(CardPhase.FACE_DOWN);
+            }
+        }
+
+        // Handle comboBroken cards
+        let comboBrokenCards = this.cards.filter((card) => (card.comboBreaker));
+        for (let card of comboBrokenCards) {
+            if (card.timeSinceTransition > this.timeToLingerAfterComboBreaker) {
+                card.exiting = true;
+            }
+        }
+
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
     }
@@ -726,8 +854,30 @@ export default class GameLogic {
         if (!card.exiting) {
             return false;
         }
-        return Date.now() - card.timeAtSetPhase > this.timeToDelete;
+
+        return Date.now() - card.timeAtStartExit > this.timeToDelete;
     }
+
+    shouldBeAfraid(card) {
+
+        // faceDown or exiting cards should not become afraid
+        if (!card.faceUp || card.exiting) {
+            return false;
+        }
+
+        // If the card was just very recently flipped up it should not become afraid yet.
+        if (card.phase === CardPhase.FACE_UP && card.timeSinceTransition < this.timeToBeAfraid) {
+            return false;
+        }
+
+        let cardsThatCanBeScary = this.cards.filter((card) => this.canBeScary(card));
+        return card.isAfraidOf(cardsThatCanBeScary);
+    }
+
+    canBeScary(card) {
+        return card.faceUp && !card.exiting;
+    }
+
 
     getComboScore(combo, specialCombo) {
         let scores = [1.0, 1.5, 1.5, 1.75, 1.75, 1.75, 2.0, 2.0, 2.0, 2.25];

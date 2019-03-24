@@ -2,7 +2,6 @@ import React from 'react';
 import ScoreParticle from "./ScoreParticle.js";
 import Card from "./Game";
 
-
 class ScoreParticleData {
 
     static nextId = 0;
