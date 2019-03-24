@@ -225,7 +225,7 @@ export default class GameLogic {
         // Timing stuff
         this.timeToMatch = 250;
         this.timeToBeAfraid = 200;
-        this.timeToStayAfraid = 3500;
+        this.timeToStayAfraid = 2000;
         this.timeToCombo = 2250;
         this.timeBetweenCombos = 750;
         this.timeToLingerAfterComboBreaker = 1500;
@@ -823,7 +823,8 @@ export default class GameLogic {
         let cardsThatCanBeScary = this.cards.filter((card) => this.canBeScary(card));
         for (let card of afraidCards) {
             let timeSinceLastScaryCard = Date.now() - card.timeAtLastScaryCard;
-            if (timeSinceLastScaryCard > this.timeToStayAfraid && !card.isAfraidOf(cardsThatCanBeScary)) {
+            let stillScary = card.isAfraidOf(cardsThatCanBeScary);
+            if (timeSinceLastScaryCard > this.timeToStayAfraid && !stillScary) {
                 card.setPhase(CardPhase.FACE_DOWN);
             }
         }
