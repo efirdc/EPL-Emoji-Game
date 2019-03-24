@@ -114,6 +114,10 @@ export default class Game extends React.Component {
         let innerCells = hexBoard.adjacentInnerCells;
         let outerCells = hexBoard.outerCells;
 
+
+        let timer1Pos = {x: -26, y: -6.5};
+        let timer2Pos = {x: 26, y: 6.5};
+
         return (
             <div className={"radialGradient1"} style={bodyStyle} ref={this.bodyRef}>
                 <div style={boardStyle}>
@@ -135,8 +139,8 @@ export default class Game extends React.Component {
                         clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
                         gameLogic={gameLogic}
                     />
-                    <Timer x={-26} y={-6.5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={26} y={6.5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={timer1Pos.x} y={timer1Pos.y} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer x={timer2Pos.x} y={timer2Pos.y} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
                         x={-26} y={5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
@@ -148,7 +152,7 @@ export default class Game extends React.Component {
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                     <StarCounter x={0} y={0} numStars={this.gameLogic.numStars}/>
-                    <ScoreParticleManager loop={this.loop}/>
+                    <ScoreParticleManager loop={this.loop} timer1Pos={timer1Pos} timer2Pos={timer2Pos}/>
                 </div>
             </div>
         )

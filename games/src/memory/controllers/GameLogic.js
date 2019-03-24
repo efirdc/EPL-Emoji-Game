@@ -108,7 +108,10 @@ export const GamePhase = {
     PLAY: 1,
     LEVEL_LOAD: 2,
     LEVEL_LOSE: 3,
-    LEVEL_WIN: 4,
+    LEVEL_WIN_START: 4,
+    LEVEL_WIN_DRAIN_TIMER: 5,
+    LEVEL_WIN_ADD_STARS: 6,
+    LEVEL_WIN_END: 7,
 };
 
 export default class GameLogic {
@@ -136,7 +139,9 @@ export default class GameLogic {
         this.timeBetweenCombos = 750;
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 100;
-        this.timeToTransitionToLoad = 4000;
+        this.timeToTransitionToDrainTimer = 3000;
+        this.timeToTransitionToLoad = 2000;
+        this.timerDrainMultiplier = 10;
 
         this.setLevel(this.numStars);
 
@@ -179,8 +184,16 @@ export default class GameLogic {
             case GamePhase.LEVEL_LOSE:
                 document.dispatchEvent(new CustomEvent("levellose"));
                 break;
-            case GamePhase.LEVEL_WIN:
+            case GamePhase.LEVEL_WIN_START:
                 document.dispatchEvent(new CustomEvent("levelwin"));
+                break;
+            case GamePhase.LEVEL_WIN_DRAIN_TIMER:
+                let drainTime = this.timeLeftAtLevelWin / this.timerDrainMultiplier;
+                document.dispatchEvent(new CustomEvent("timerdrain", {
+                    detail: {
+                        drainTime: drainTime
+                    }
+                }));
                 break;
         }
     }
@@ -201,11 +214,16 @@ export default class GameLogic {
                 let timeElapsed = (Date.now() - this.timeAtSetPhase) / 1000;
                 return this.level.timeToComplete - timeElapsed;
 
-            case GamePhase.LEVEL_LOSE:
-                return 0;
-
-            case GamePhase.LEVEL_WIN:
+            case GamePhase.LEVEL_WIN_START:
                 return this.timeLeftAtLevelWin;
+
+            case GamePhase.LEVEL_WIN_DRAIN_TIMER:
+                let timeSinceDrainStart = Date.now() - this.timeAtSetPhase;
+                let drainAmount = (timeSinceDrainStart * this.timerDrainMultiplier) / 1000;
+                return this.timeLeftAtLevelWin - drainAmount;
+
+            default:
+                return 0;
         }
     }
 
@@ -412,7 +430,7 @@ export default class GameLogic {
             this.updateCards();
             if (this.isGameWon()) {
                 this.timeLeftAtLevelWin = this.timeLeft;
-                this.setPhase(GamePhase.LEVEL_WIN);
+                this.setPhase(GamePhase.LEVEL_WIN_START);
             }
             else if (this.isGameLost()) {
                 this.setPhase(GamePhase.LEVEL_LOSE);
@@ -447,11 +465,35 @@ export default class GameLogic {
             }
         }
 
-        // Handle game win transition.
-        else if (this.phase === GamePhase.LEVEL_WIN) {
+        else if (this.phase === GamePhase.LEVEL_WIN_START) {
             this.updateCards();
             let timeSinceWin = Date.now() - this.timeAtSetPhase;
-            if (timeSinceWin > this.timeToTransitionToLoad) {
+            if (timeSinceWin > this.timeToTransitionToDrainTimer) {
+                if (this.numStars !== 0) {
+                    this.setPhase(GamePhase.LEVEL_WIN_DRAIN_TIMER)
+                } else {
+                    this.setPhase(GamePhase.LEVEL_WIN_ADD_STARS)
+                }
+            }
+        }
+
+        else if (this.phase === GamePhase.LEVEL_WIN_DRAIN_TIMER) {
+            this.updateCards();
+            if (this.timeLeft <= 0) {
+                this.setPhase(GamePhase.LEVEL_WIN_ADD_STARS);
+            }
+        }
+
+        else if (this.phase === GamePhase.LEVEL_WIN_ADD_STARS) {
+            this.updateCards();
+            this.setPhase(GamePhase.LEVEL_WIN_END);
+        }
+
+        // Handle game win transition.
+        else if (this.phase === GamePhase.LEVEL_WIN_END) {
+            this.updateCards();
+            let timeSinceTransition = Date.now() - this.timeAtSetPhase;
+            if (timeSinceTransition > this.timeToTransitionToLoad) {
                 this.setLevel(this.numStars + this.getNumStarsFromPerformance());
                 this.setPhase(GamePhase.LEVEL_LOAD);
             }
