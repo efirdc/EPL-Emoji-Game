@@ -75,7 +75,6 @@ export default class ScoreParticleManager extends React.PureComponent {
         let drainTime = event.detail.drainTime;
 
         let numParticles = (parseFloat(drainTime) * 1000) / this.timerSpawnInterval;
-        console.log(drainTime, numParticles);
         for (let i = 0; i < numParticles; i++) {
             setTimeout(
         () => (this.addParticleTimer(this.props.timer1Pos)),
