@@ -7,6 +7,7 @@ export default class ScoreParticle extends React.PureComponent {
         return {
             x: this.props.spawnX,
             y: this.props.spawnY,
+            scale: 0.0,
         }
     }
 
@@ -21,10 +22,11 @@ export default class ScoreParticle extends React.PureComponent {
         return {
             x: spring(this.props.targetX, springParams),
             y: spring(this.props.targetY, springParams),
+            scale: spring(1.0, presets.wobbly),
         }
     }
 
-    getStyle(x, y) {
+    getStyle(x, y, scale) {
         let size = 1.5;
         return {
             zIndex: 1000,
@@ -32,7 +34,8 @@ export default class ScoreParticle extends React.PureComponent {
             width: size + 'vh',
             height: size + 'vh',
             transform: `
-                translate(${-size * 0.5 + x}vh, ${-size * 0.5 + y}vh)
+                translate(${-size * 0.5 + x}vh, ${-size * 0.5 + y}vh) 
+                scale(${scale}) 
             `,
             borderRadius: "50%",
             backgroundColor: this.props.special ? "#ff4786" : "#22d900",
@@ -54,7 +57,9 @@ export default class ScoreParticle extends React.PureComponent {
                         this.props.deleteParticle(this.props.id);
                     }
                     return (
-                        <div style={this.getStyle(interpolatedValues.x, interpolatedValues.y)}/>
+                        <div
+                            style={this.getStyle(interpolatedValues.x, interpolatedValues.y, interpolatedValues.scale)}
+                        />
                     )
                 }}
             </Motion>
