@@ -242,6 +242,7 @@ export default class GameLogic {
         this.flipCheat = false;
         this.winCheat = false;
         this.loseCheat = false;
+        this.flipEverythingCheat = false;
         this.controlCheats = this.controlCheats.bind(this);
         this.addStar = this.addStar.bind(this);
         document.addEventListener("keypress", this.controlCheats);
@@ -258,6 +259,9 @@ export default class GameLogic {
         }
         else if (keyEvent.charCode === 51) {
             this.loseCheat = true;
+        }
+        else if (keyEvent.charCode === 52) {
+            this.flipEverythingCheat = ! this.flipEverythingCheat;
         }
     }
 
@@ -517,6 +521,7 @@ export default class GameLogic {
 
             // Disable the flipCheat
             this.flipCheat = false;
+            this.flipEverythingCheat = false;
 
             // The time since load start determines how many cards should be spawned in
             let timeSinceLoadStart = Date.now() - this.timeAtSetPhase;
@@ -753,7 +758,7 @@ export default class GameLogic {
         for (let card of faceUpCards) {
 
             // If the card isn't touched, release it.
-            if (!card.touched) {
+            if (!card.touched && !this.flipEverythingCheat) {
                 this.concurrentFlips -= 1;
                 card.setPhase(CardPhase.FACE_DOWN);
             }
@@ -767,7 +772,7 @@ export default class GameLogic {
         for (let card of flipRejectedCards) {
 
             // If the card is touched,
-            if (card.touched) {
+            if (card.touched || this.flipEverythingCheat) {
 
                 // Flip it if concurrentFlips are not in use.
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
@@ -784,10 +789,11 @@ export default class GameLogic {
 
         // Process cards that are FACE_DOWN
         let faceDownCards = this.cards.filter((card) => card.phase === CardPhase.FACE_DOWN);
+        shuffle(faceDownCards);
         for (let card of faceDownCards) {
 
             // If the card is touched,
-            if (card.touched) {
+            if (card.touched || this.flipEverythingCheat) {
 
                 // Flip the card up if there is available flips
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
