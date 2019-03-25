@@ -85,6 +85,7 @@ export default class AudioManager {
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
+                Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
                 break;
@@ -113,6 +114,7 @@ export default class AudioManager {
             case '⛄': // snowman is afraid of fire (no clue)
                 break;
             case '🐵': // monkey (scared monkey noise i guess)
+                Sounds.afraidOfSounds.monkeyScreech.play();
                 break;
             case '😱': // shocked emoji (willhelm scream!)
                 break;

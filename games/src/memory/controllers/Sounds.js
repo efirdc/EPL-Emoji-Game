@@ -27,6 +27,10 @@ import chachingSoundFile from '../sounds/chaching.ogg';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
 
+import monkeyScreechSoundFile from '../sounds/monkeynoise.ogg';
+
+import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+
 import {Howl} from "howler";
 
 export default {
@@ -52,10 +56,12 @@ export default {
 
     comboBonusSounds: {
         chaching: new Howl({src: [chachingSoundFile]}),
+        rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
     },
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
+        monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
     },
 
     starSounds: [
