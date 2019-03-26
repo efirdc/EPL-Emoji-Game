@@ -40,7 +40,7 @@ export default class CardFlipDot extends React.Component {
                         borderWidth: "0.25vh",
                         borderColor: this.props.wizardDot ? "#0a1211" : "#090912",
                         borderStyle: "solid",
-                        backgroundColor: this.props.wizardDot ? "#39ff8f" : "#42afda",
+                        backgroundColor: this.props.wizardDot ? "#7bd6ff" : "#5ef997",
                     }}
                 />
             </div>

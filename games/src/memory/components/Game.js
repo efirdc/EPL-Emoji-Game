@@ -144,12 +144,14 @@ export default class Game extends React.Component {
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                         wizardMatched={this.gameLogic.wizardMatched}
+                        timeAtWizardMatched={this.gameLogic.timeAtWizardMatched}
                     />
                     <CardFlipCounter
                         x={26} y={-5.5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                         wizardMatched={this.gameLogic.wizardMatched}
+                        timeAtWizardMatched={this.gameLogic.timeAtWizardMatched}
                     />
                     <StarCounter
                         x={0} y={0}

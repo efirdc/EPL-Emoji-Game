@@ -223,6 +223,7 @@ export default class GameLogic {
         this.timeAtAddStar = Date.now();
 
         this.wizardMatched = false;
+        this.timeAtWizardMatched = 0;
 
         // Timing stuff
         this.timeToMatch = 250;
@@ -753,6 +754,7 @@ export default class GameLogic {
                     // handle wizard match
                     if (cardA.emoji === '🧙‍') {
                         this.wizardMatched = true;
+                        this.timeAtWizardMatched = Date.now();
                         this.level.maxConcurrentFlips += 1;
                     }
                     break;

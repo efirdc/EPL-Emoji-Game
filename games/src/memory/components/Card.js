@@ -196,6 +196,15 @@ export default class Card extends React.Component {
             }
         }
 
+        // The wizard should also wobble when he is matched
+        if (this.card.matched && this.card.emoji === '🧙‍') {
+            if (this.card.timeSinceTransition < 100) {
+                values.rotation = -10;
+            } else if (this.card.timeSinceTransition < 200) {
+                values.rotation = 10;
+            }
+        }
+
         // exiting cards disappear
         if (this.card.exiting) {
             values.flipRotation = 0;
@@ -261,6 +270,9 @@ export default class Card extends React.Component {
         }
         else if (this.card.comboBreaker) {
             frontColor = "#ff3726";
+        }
+        else if (this.card.matched && this.card.emoji === '🧙‍') {
+            frontColor = "#7bd6ff";
         }
         else if (this.card.matched) {
             frontColor = "#5ef997";
