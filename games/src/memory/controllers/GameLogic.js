@@ -77,7 +77,7 @@ class Card {
     }
 
     set exiting(newValue) {
-        if (newValue === true) {
+        if (newValue === true && !this._exiting) {
             this.timeAtStartExit = Date.now();
         }
         this._exiting = newValue;
@@ -572,9 +572,7 @@ export default class GameLogic {
             // So the rate that cards exit the scene actually increases during the transition
             // but that is actually kind of a nice effect so lets keep it
             for (let i = 0; i < Math.min(numCardsShouldExit, this.cards.length); i++) {
-                if (!this.cards[i].exiting) {
-                    this.cards[i].exiting = true;
-                }
+                this.cards[i].exiting = true;
             }
 
             // Once all cards have exited, move to LEVEL_LOAD phase.
