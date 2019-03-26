@@ -76,6 +76,7 @@ export default class AudioManager {
             case '🤵': // wedding (cartoony wedding march clip)
                 break;
             case '👩‍🍳': // chef (sizzling, chopping veggies, pots and pans, have an array and alternate)
+                Sounds.comboBonusSounds.foodSizzling.play();
                 break;
             case '👮': // police (not sure)
                 break;

@@ -25,6 +25,7 @@ import absorbSoundFile from '../sounds/getmoney.ogg'
 
 import chachingSoundFile from '../sounds/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
+import foodSizzlingSoundFile from '../sounds/foodsizzling.mp3';
 import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 
@@ -56,7 +57,8 @@ export default {
 
     comboBonusSounds: {
         chaching: new Howl({src: [chachingSoundFile]}),
-        babyGiggle: new Howl({src: babyGiggleSoundFile}),
+        babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
+        foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
         fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
     },
