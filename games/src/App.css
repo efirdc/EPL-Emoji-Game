@@ -21,9 +21,4 @@ html, body, #root, #app, #app>div {
     height: 100% !important
 }
 
-@font-face {
-    font-family: 'Segoe UI';
-    src: url('/fonts/Segoe UI.ttf');
-}
-
 

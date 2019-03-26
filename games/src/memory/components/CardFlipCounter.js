@@ -74,41 +74,41 @@ export default class CardFlipCounter extends React.Component {
                     }}
                 >
                     {interpolatingStyle => {
-                            return (
-                                <div>
-                                    {dotPositions.map((dotPosition, i) => {
+                        return (
+                            <div>
+                                {dotPositions.map((dotPosition, i) => {
 
-                                        // Get the fill of the current dot
-                                        let fill = interpolatingStyle.numFlips - i;
+                                    // Get the fill of the current dot
+                                    let fill = interpolatingStyle.numFlips - i;
 
-                                        // Clamp the fill between 0 and 1
-                                        fill = Math.min(Math.max(fill, 0.0), 1.0);
+                                    // Clamp the fill between 0 and 1
+                                    fill = Math.min(Math.max(fill, 0.0), 1.0);
 
-                                        // This dot is the wizard dot
-                                        if (gameLogic.wizardMatched && (i===0)) {
-                                            let wizardFill = Math.max(fill * 1.5, interpolatingStyle.wizardDotScale);
-                                            return (
-                                                <CardFlipDot
-                                                    {...dotPosition}
-                                                    fill={wizardFill}
-                                                    wizardDot={true}
-                                                />
-                                            )
-                                        }
+                                    // This dot is the wizard dot
+                                    if (gameLogic.wizardMatched && (i===0)) {
+                                        let wizardFill = Math.max(fill * 1.5, interpolatingStyle.wizardDotScale);
+                                        return (
+                                            <CardFlipDot
+                                                {...dotPosition}
+                                                fill={wizardFill}
+                                                wizardDot={true}
+                                            />
+                                        )
+                                    }
 
-                                        // Not the wizard dot
-                                        else {
-                                            return (
-                                                <CardFlipDot
-                                                    {...dotPosition}
-                                                    fill={fill}
-                                                    wizardDot={false}
-                                                />
-                                            )
-                                        }
-                                    })}
-                                </div>
-                            )
+                                    // Not the wizard dot
+                                    else {
+                                        return (
+                                            <CardFlipDot
+                                                {...dotPosition}
+                                                fill={fill}
+                                                wizardDot={false}
+                                            />
+                                        )
+                                    }
+                                })}
+                            </div>
+                        )
                     }}
                 </Motion>
             </div>

@@ -8,18 +8,14 @@ export default class Timer extends React.Component {
     timerIndicatorTextStyle(scale, rotation) {
         let size = 3;
         return {
-            zIndex: '2',
+            zIndex: 3,
             position: 'absolute',
             transform: `
                 translate(-50%, -50%) 
                 rotate(${rotation}deg) 
                 scale(${scale})
             `,
-            fontFamily: "'Arial Black', Gadget, sans-serif",
             fontSize: size + "vh",
-            WebkitTextStrokeWidth: 0.2 + 'vh',
-            WebkitTextStrokeColor: "black",
-            lineHeight: size + "vh",
         }
     }
 
@@ -37,7 +33,6 @@ export default class Timer extends React.Component {
             `,
             zIndex: 2,
         };
-
         let numberStyle = {
             fontSize: "7vh",
             position: "absolute",
@@ -56,39 +51,46 @@ export default class Timer extends React.Component {
         }
 
         let timerIndicatorScale = 0.0;
-        let timeSinceTimerMatched = Date.now() - this.props.timeAtTimerMatched;
-        if (gameLogic.wizardMatched && timeSinceTimerMatched < 4000) {
+        let timeSinceTimerMatched = Date.now() - gameLogic.timeAtTimerMatched;
+        if (gameLogic.timerMatched && timeSinceTimerMatched < 4000) {
             timerIndicatorScale = 1.0;
         }
+        console.log(gameLogic.timerMatched, timeSinceTimerMatched);
 
         let timerIndicatorContainerStyle = {
-            zIndex: '2',
+            zIndex: 3,
             position: 'absolute',
             width: '0vh',
             height: '0vh',
-            transform: `translate(0vh, -8vh)`
+            transform: `translate(0vh, -5.5vh)`
         };
+
+        let timerIndicator = `+${gameLogic.level.timerAdds}`;
 
         return (
             <div style={containerStyle}>
-                <h1
+                <p
                     className={"hullFont"}
                     style={numberStyle}
                 >
                     {minutes + ":" + seconds}
-                </h1>
+                </p>
                 <Motion
-                    defaultStyle={{scale: 0.0}}
-                    style={{scale: spring(timerIndicatorScale, presets.stiff)}}
+                    defaultStyle={{
+                        scale: 0.0,
+                        rotation: -5
+                    }}
+                    style={{
+                        scale: spring(timerIndicatorScale, presets.stiff),
+                        rotation: spring(0, {stiffness: 25, damping: 0})
+                    }}
                 >
                     {interpolatingStyle => {
                         return (
                             <div style={timerIndicatorContainerStyle}>
-                                <h1
-                                    style={this.timerIndicatorTextStyle(interpolatingStyle.scale, 0.0)}
-                                >
-                                    {"⏱ + " + gameLogic.level.timerAdds}
-                                </h1>
+                                <span className={"hullFont"} style={this.timerIndicatorTextStyle(interpolatingStyle.scale, interpolatingStyle.rotation)}>
+                                    ⏱<nbr/>{timerIndicator}
+                                </span>
 
                             </div>
                         )

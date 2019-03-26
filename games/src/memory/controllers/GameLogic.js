@@ -453,6 +453,7 @@ export default class GameLogic {
         this.comboScore = 0;
         this.nthStarThisLevel = 0;
         this.wizardMatched = false;
+        this.timerMatched = false;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
