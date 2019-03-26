@@ -52,9 +52,9 @@ export default class CardFlipCounter extends React.Component {
         let timeSinceWizardMatched = Date.now() - this.props.timeAtWizardMatched;
         if (this.props.wizardMatched && timeSinceWizardMatched < 4000) {
             if (timeSinceWizardMatched % 400 < 200) {
-                wizardDotSize = 1.5;
+                wizardDotSize = 2.0;
             } else {
-                wizardDotSize = 1.0;
+                wizardDotSize = 1.5;
             }
         }
 
@@ -83,7 +83,7 @@ export default class CardFlipCounter extends React.Component {
 
                                     // This dot is the wizard dot
                                     if (this.props.wizardMatched && (i===0)) {
-                                        let wizardFill = Math.max(fill, interpolatingStyle.wizardDotScale);
+                                        let wizardFill = Math.max(fill * 1.5, interpolatingStyle.wizardDotScale);
                                         return (
                                             <CardFlipDot
                                                 {...dotPosition}
