@@ -193,11 +193,12 @@ export const GamePhase = {
     PLAY: 1,
     LEVEL_LOAD: 2,
     LEVEL_LOSE: 3,
-    LEVEL_WIN_START: 4,
-    LEVEL_WIN_DRAIN_TIMER: 5,
-    LEVEL_WIN_DRAIN_END: 6,
-    LEVEL_WIN_ADD_STARS: 7,
-    LEVEL_WIN_END: 8,
+    LEVEL_LOSE_END: 4,
+    LEVEL_WIN_START: 5,
+    LEVEL_WIN_DRAIN_TIMER: 6,
+    LEVEL_WIN_DRAIN_END: 7,
+    LEVEL_WIN_ADD_STARS: 8,
+    LEVEL_WIN_END:9,
 };
 
 export default class GameLogic {
@@ -236,7 +237,8 @@ export default class GameLogic {
         this.timeToSpawnCard = 50;
         this.timeToTransitionToDrainTimer = 3000;
         this.timeToTransitionToAddStars = 2000;
-        this.timeToTransitionToLoad = 2000;
+        this.timeToTransitionToLoad = 1000;
+        this.timeToWaitAfterLevelLose = 2000;
         this.timerDrainMultiplier = 10;
         this.timeToAddStar = 1250;
 
@@ -580,6 +582,13 @@ export default class GameLogic {
             if (!this.cards.length) {
                 this.numStars = 0;
                 this.initLevel();
+                this.setPhase(GamePhase.LEVEL_LOSE_END);
+            }
+        }
+
+        else if (this.phase === GamePhase.LEVEL_LOSE_END) {
+            let timeSinceTransition = Date.now() - this.timeAtSetPhase;
+            if (timeSinceTransition > this.timeToWaitAfterLevelLose) {
                 this.setPhase(GamePhase.LEVEL_LOAD);
             }
         }
