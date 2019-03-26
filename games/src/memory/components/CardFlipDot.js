@@ -18,8 +18,8 @@ export default class CardFlipDot extends React.Component {
                         width: (innerDotRadius * 2) + "vh",
                         height: (innerDotRadius * 2) + "vh",
                         transform: `
-                        translate(${-innerDotRadius}vh, ${-innerDotRadius}vh)
-                    `,
+                            translate(${-innerDotRadius}vh, ${-innerDotRadius}vh)
+                        `,
                         borderRadius: "50%",
                         borderWidth: "0.25vh",
                         borderColor: "#120f12",
@@ -27,6 +27,17 @@ export default class CardFlipDot extends React.Component {
                         backgroundColor: "#282528",
                     }}
                 />
+                <h1 style={{
+                    fontSize: "1vh",
+                    position: "absolute",
+                    transform: `
+                        translate(-50%, -50%)
+                        scale(${this.props.wizardDot ? this.props.fill : 0.0})
+                    `,
+                    zIndex: 2,
+                }}>
+                    {'🧙‍'}
+                </h1>
                 <div
                     style ={{
                         position: 'absolute',
@@ -43,6 +54,8 @@ export default class CardFlipDot extends React.Component {
                         backgroundColor: this.props.wizardDot ? "#7bd6ff" : "#5ef997",
                     }}
                 />
+
+
             </div>
         )
     }
