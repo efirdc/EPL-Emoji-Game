@@ -257,13 +257,13 @@ export default class GameLogic {
             this.flipCheat = !this.flipCheat;
         }
         else if (keyEvent.charCode === 50) {
-            this.winCheat = true;
+            this.flipEverythingCheat = ! this.flipEverythingCheat;
         }
         else if (keyEvent.charCode === 51) {
-            this.loseCheat = true;
+            this.winCheat = true;
         }
         else if (keyEvent.charCode === 52) {
-            this.flipEverythingCheat = ! this.flipEverythingCheat;
+            this.loseCheat = true;
         }
     }
 
