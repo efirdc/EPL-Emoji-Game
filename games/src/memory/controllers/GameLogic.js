@@ -228,17 +228,17 @@ export default class GameLogic {
         // Timing stuff
         this.timeToMatch = 250;
         this.timeToBeAfraid = 200;
-        this.timeToStayAfraid = 2000;
+        this.timeToStayAfraid = 1000;
         this.timeToCombo = 2250;
         this.timeBetweenCombos = 750;
         this.timeToLingerAfterComboBreaker = 1500;
         this.timeToDelete = 1000;
-        this.timeToSpawnCard = 100;
+        this.timeToSpawnCard = 50;
         this.timeToTransitionToDrainTimer = 3000;
         this.timeToTransitionToAddStars = 2000;
         this.timeToTransitionToLoad = 2000;
         this.timerDrainMultiplier = 10;
-        this.timeToAddStar = 1500;
+        this.timeToAddStar = 1250;
 
         this.initLevel();
 
