@@ -15,8 +15,6 @@ import GameLoop from '../controllers/GameLoop.js';
 import AudioManager from "../controllers/AudioManager.js";
 import "./Patterns.css";
 
-import Sounds from '../controllers/Sounds.js';
-
 export default class Game extends React.Component {
 
     constructor(props) {
