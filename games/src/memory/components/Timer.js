@@ -29,7 +29,7 @@ export default class Timer extends React.Component {
             minutes = Math.floor(time / 60).toString().padStart(2, '0');
             seconds = Math.floor(time - minutes * 60).toString().padStart(2, '0');
         }
-2
+
         return (
             <div style={containerStyle}>
                 <h1
