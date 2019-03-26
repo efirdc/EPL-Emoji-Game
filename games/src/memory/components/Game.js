@@ -137,27 +137,25 @@ export default class Game extends React.Component {
                         clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
                         gameLogic={gameLogic}
                     />
-                    <Timer x={timer1Pos.x} y={timer1Pos.y} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={timer2Pos.x} y={timer2Pos.y} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
+                    <Timer
+                        x={timer1Pos.x} y={timer1Pos.y} rotation={0}
+                        gameLogic={gameLogic}
+                    />
+                    <Timer
+                        x={timer2Pos.x} y={timer2Pos.y} rotation={-180}
+                        gameLogic={gameLogic}
+                    />
                     <CardFlipCounter
                         x={-26} y={5.5} rotation={0}
-                        numFlips={this.gameLogic.concurrentFlips}
-                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
-                        wizardMatched={this.gameLogic.wizardMatched}
-                        timeAtWizardMatched={this.gameLogic.timeAtWizardMatched}
+                        gameLogic={gameLogic}
                     />
                     <CardFlipCounter
                         x={26} y={-5.5} rotation={180}
-                        numFlips={this.gameLogic.concurrentFlips}
-                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
-                        wizardMatched={this.gameLogic.wizardMatched}
-                        timeAtWizardMatched={this.gameLogic.timeAtWizardMatched}
+                        gameLogic={gameLogic}
                     />
                     <StarCounter
                         x={0} y={0}
-                        numStars={this.gameLogic.numStars}
-                        nthStarThisLevel={this.gameLogic.nthStarThisLevel}
-                        timeAtAddStar={this.gameLogic.timeAtAddStar}
+                        gameLogic={gameLogic}
                     />
                     <ScoreParticleManager loop={this.loop} timer1Pos={timer1Pos} timer2Pos={timer2Pos}/>
                 </div>

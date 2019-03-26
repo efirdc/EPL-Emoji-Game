@@ -17,12 +17,15 @@ export default class CardFlipCounter extends React.Component {
     }
 
     render() {
-        let flipsLeft = this.props.maxFlips - this.props.numFlips;
+        let gameLogic = this.props.gameLogic;
+        let numFlips = gameLogic.concurrentFlips;
+        let maxFlips = gameLogic.level.maxConcurrentFlips;
+        let flipsLeft = maxFlips - numFlips;
 
         // If the wizard is matched, the number of dots in the circle is 1 less than the max
         // This is because the wizard dot is in the center of the circle and not the edge
-        let numRadialDots = this.props.maxFlips;
-        if (this.props.wizardMatched) {
+        let numRadialDots = maxFlips;
+        if (gameLogic.wizardMatched) {
             numRadialDots -= 1;
         }
 
@@ -42,7 +45,7 @@ export default class CardFlipCounter extends React.Component {
         }
 
         // If the wizard is matched, add the position of the wizard dot at the center.
-        if (this.props.wizardMatched) {
+        if (gameLogic.wizardMatched) {
             dotPositions.unshift({x: 0, y: 0});
         }
 
@@ -50,7 +53,7 @@ export default class CardFlipCounter extends React.Component {
         // for a bit after you match him.
         let wizardDotSize = 0.0;
         let timeSinceWizardMatched = Date.now() - this.props.timeAtWizardMatched;
-        if (this.props.wizardMatched && timeSinceWizardMatched < 4000) {
+        if (gameLogic.wizardMatched && timeSinceWizardMatched < 4000) {
             if (timeSinceWizardMatched % 400 < 200) {
                 wizardDotSize = 2.0;
             } else {
@@ -82,7 +85,7 @@ export default class CardFlipCounter extends React.Component {
                                     fill = Math.min(Math.max(fill, 0.0), 1.0);
 
                                     // This dot is the wizard dot
-                                    if (this.props.wizardMatched && (i===0)) {
+                                    if (gameLogic.wizardMatched && (i===0)) {
                                         let wizardFill = Math.max(fill * 1.5, interpolatingStyle.wizardDotScale);
                                         return (
                                             <CardFlipDot

@@ -108,26 +108,28 @@ export default class StarCounter extends React.Component {
 
     getTargetValues() {
 
+        let gameLogic = this.props.gameLogic;
+
         let values = {
             containerScale: 1.0,
             containerRotation: 0,
             circleScale: 1.0,
         };
 
-        let timeSinceAddStar = Date.now() - this.props.timeAtAddStar;
+        let timeSinceAddStar = Date.now() - gameLogic.timeAtAddStar;
         let timeSinceLastAbsorb = Date.now() - this.timeAtLastAbsorb;
 
         if (timeSinceLastAbsorb < 30) {
             values.circleScale = 1.1;
         }
 
-        if (this.props.nthStarThisLevel === 1 && timeSinceAddStar < 300) {
+        if (gameLogic.nthStarThisLevel === 1 && timeSinceAddStar < 300) {
             values.containerScale = 1.3;
         }
-        else if (this.props.nthStarThisLevel === 2 && timeSinceAddStar < 300) {
+        else if (gameLogic.nthStarThisLevel === 2 && timeSinceAddStar < 300) {
             values.containerScale = 1.60;
         }
-        else if (this.props.nthStarThisLevel === 3 && timeSinceAddStar < 300) {
+        else if (gameLogic.nthStarThisLevel === 3 && timeSinceAddStar < 300) {
             values.containerScale = 2.00;
             if (timeSinceAddStar < 150) {
                 values.containerRotation = -50;
@@ -135,7 +137,7 @@ export default class StarCounter extends React.Component {
                 values.containerRotation = 50;
             }
         }
-        else if (this.props.nthStarThisLevel === 4 && timeSinceAddStar < 300) {
+        else if (gameLogic.nthStarThisLevel === 4 && timeSinceAddStar < 300) {
             values.containerScale = 3.00;
             if (timeSinceAddStar < 150) {
                 values.containerRotation = -90;
@@ -143,7 +145,7 @@ export default class StarCounter extends React.Component {
                 values.containerRotation = 90;
             }
         }
-        else if (this.props.nthStarThisLevel === 5 && timeSinceAddStar < 300) {
+        else if (gameLogic.nthStarThisLevel === 5 && timeSinceAddStar < 300) {
             values.containerScale = 3.25;
             if (timeSinceAddStar < 150) {
                 values.containerRotation = -160;
@@ -160,6 +162,8 @@ export default class StarCounter extends React.Component {
     }
 
     render() {
+
+        let gameLogic = this.props.gameLogic;
 
         let numberStyle = {
             fontSize: "7vh",
@@ -182,7 +186,7 @@ export default class StarCounter extends React.Component {
                             className={"starFont"}
                             style={numberStyle}
                         >
-                            {this.props.numStars}
+                            {gameLogic.numStars}
                         </h1>
                     </div>
                 )

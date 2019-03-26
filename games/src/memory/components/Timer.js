@@ -4,6 +4,9 @@ import "./Fonts.css"
 export default class Timer extends React.Component {
 
     render() {
+
+        let gameLogic = this.props.gameLogic;
+
         let containerStyle = {
             display: "flex",
             justifyContent: "center",
@@ -19,14 +22,14 @@ export default class Timer extends React.Component {
         };
 
         let minutes, seconds;
-        if (this.props.time === Infinity) {
+        if (gameLogic.timeLeft === Infinity) {
             minutes = seconds = '\u2011\u2011'; // Unicode characters for '--' but without line breaks
         } else {
-            let time = Math.max(0, Math.ceil(this.props.time));
+            let time = Math.max(0, Math.ceil(gameLogic.timeLeft));
             minutes = Math.floor(time / 60).toString().padStart(2, '0');
             seconds = Math.floor(time - minutes * 60).toString().padStart(2, '0');
         }
-
+2
         return (
             <div style={containerStyle}>
                 <h1
