@@ -164,6 +164,10 @@ class Card {
         }
     }
 
+    get specialCard () {
+        return this.emoji === '⏱' || this.emoji === '🧙‍';
+    }
+
     comboBonusWith(otherCard) {
         let thisCombos = false;
         let otherCombos = false;
@@ -225,6 +229,9 @@ export default class GameLogic {
 
         this.wizardMatched = false;
         this.timeAtWizardMatched = 0;
+
+        this.timerMatched = false;
+        this.timeAtTimerMatched = 0;
 
         // Timing stuff
         this.timeToMatch = 250;
@@ -357,22 +364,23 @@ export default class GameLogic {
                 maxConcurrentFlips: 6, timeToCompleteLevel: 60},
 
             // Adding a blob for the first time, so reduce the number of cards by a bit at the start
+            // timer emoji must show up at this point
             {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
-                maxConcurrentFlips: 8, timeToCompleteLevel: 90},
+                maxConcurrentFlips: 8, timeToCompleteLevel: 60, timerAdds: 30},
 
             // Reduce by a bit again for the third blob, but not as much.
             {numStars: 40, numBlobs: 3, numCardsStart: 54, numCardsEnd: 80,
-                maxConcurrentFlips: 10, timeToCompleteLevel: 120},
+                maxConcurrentFlips: 10, timeToCompleteLevel: 75, timerAdds: 45},
 
             // Should get hard to manage here for 2 players.
             // Only reduce cards by a little bit
             {numStars: 60, numBlobs: 4, numCardsStart: 80, numCardsEnd: 100,
-                maxConcurrentFlips: 12, timeToCompleteLevel: 150},
+                maxConcurrentFlips: 12, timeToCompleteLevel: 90, timerAdds: 60},
 
             // If they get this far they should be pretty good, so no more going easy
             // Keep increasing cards, and dont increase concurrent flips this time
             {numStars: 80, numBlobs: 5, numCardsStart: 102, numCardsEnd: 120,
-                maxConcurrentFlips: 12, timeToCompleteLevel: 150},
+                maxConcurrentFlips: 12, timeToCompleteLevel: 90, timerAdds: 60},
 
             // Once we pass this point, go into "endurance mode"
             {numStars: 100, enduranceMode: true},
@@ -403,6 +411,7 @@ export default class GameLogic {
         );
         level.timeToComplete = starBracket.timeToCompleteLevel;
         level.maxConcurrentFlips = starBracket.maxConcurrentFlips;
+        level.timerAdds = starBracket.timerAdds;
         return level;
     }
 
@@ -765,6 +774,12 @@ export default class GameLogic {
                         this.wizardMatched = true;
                         this.timeAtWizardMatched = Date.now();
                         this.level.maxConcurrentFlips += 1;
+                    }
+
+                    if (cardA.emoji === '⏱') {
+                        this.timerMatched = true;
+                        this.timeAtTimerMatched = Date.now();
+                        this.level.timeToComplete += this.level.timerAdds;
                     }
                     break;
                 }
