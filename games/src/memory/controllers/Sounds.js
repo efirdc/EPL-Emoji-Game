@@ -24,12 +24,12 @@ import starSoundFile5 from '../sounds/star5.mp3';
 import absorbSoundFile from '../sounds/getmoney.ogg'
 
 import chachingSoundFile from '../sounds/chaching.ogg';
+import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
+import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
+import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
-
-import monkeyScreechSoundFile from '../sounds/monkeynoise.ogg';
-
-import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
 
 import {Howl} from "howler";
 
@@ -56,6 +56,8 @@ export default {
 
     comboBonusSounds: {
         chaching: new Howl({src: [chachingSoundFile]}),
+        babyGiggle: new Howl({src: babyGiggleSoundFile}),
+        fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
     },
 

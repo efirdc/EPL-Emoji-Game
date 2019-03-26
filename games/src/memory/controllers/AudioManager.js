@@ -71,6 +71,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.chaching.play();
                 break;
             case '👶': // baby (laughing)
+                Sounds.comboBonusSounds.babyGiggle.play();
                 break;
             case '🤵': // wedding (cartoony wedding march clip)
                 break;
@@ -81,6 +82,7 @@ export default class AudioManager {
             case '🛸': // alien (generic spooky alien noise)
                 break;
             case '👨‍🚒': // fireman (firetruck horn)
+                Sounds.comboBonusSounds.fireTruckHorn.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
                 break;
