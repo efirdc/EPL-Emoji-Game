@@ -63,14 +63,4 @@ export default
     '💥', // cards fly away on face up
     '😈', // Gets stuck up, does bad things until you match him
   ],
-
-  specialsSounds: {
-    '⏱': 'someFileName.mp3',
-    '🧞‍': 'someFileName.mp3',
-    '🧙‍': 'someFileName.mp3',
-    '🔥': 'someFileName.mp3',
-    '⚡': 'someFileName.mp3',
-    '💥': 'someFileName.mp3',
-    '😈': 'someFileName.mp3',
-  },
 }

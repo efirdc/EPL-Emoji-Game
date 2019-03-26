@@ -26,6 +26,9 @@ export default class AudioManager {
                 let comboCounter = card.comboCounter;
                 let i = Math.min(Math.floor((comboCounter - 1) / 3), Sounds.matchSounds.length - 1);
                 Sounds.matchSounds[i].play();
+                if (card.emoji === '🧙‍') {
+                    // play wizard sound here
+                }
                 break;
             case "faceUp":
                 let j = Math.floor(Math.random() * (Sounds.flipSounds.length));

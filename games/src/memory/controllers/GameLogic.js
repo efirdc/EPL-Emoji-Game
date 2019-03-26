@@ -222,6 +222,8 @@ export default class GameLogic {
         this.nthStarThisLevel = 0;
         this.timeAtAddStar = Date.now();
 
+        this.wizardMatched = false;
+
         // Timing stuff
         this.timeToMatch = 250;
         this.timeToBeAfraid = 200;
@@ -438,6 +440,7 @@ export default class GameLogic {
         this.comboCounter = 0;
         this.comboScore = 0;
         this.nthStarThisLevel = 0;
+        this.wizardMatched = false;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
@@ -748,6 +751,12 @@ export default class GameLogic {
 
                     // add to the combo score for this match
                     this.comboScore += this.getComboScore(this.comboCounter, cardA.specialMatch);
+
+                    // handle wizard match
+                    if (cardA.emoji === '🧙‍') {
+                        this.wizardMatched = true;
+                        this.level.maxConcurrentFlips += 1;
+                    }
                     break;
                 }
             }
