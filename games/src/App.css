@@ -20,6 +20,10 @@ html, body, #root, #app, #app>div {
     overflow: hidden;
     height: 100% !important
 }
-  
+
+@font-face {
+    font-family: 'Segoe UI';
+    src: url('/fonts');
+}
 
 
