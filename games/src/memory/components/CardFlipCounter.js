@@ -45,7 +45,7 @@ export default class CardFlipCounter extends React.Component {
                                     <CardFlipDot
                                         {...dotPosition}
                                         fill={Math.min(Math.max(interpolatingStyle.numFlips - i, 0.0), 1.0)}
-                                        wizardDot={this.props.wizardMatched && ((i + 1) === this.props.maxFlips)}
+                                        wizardDot={this.props.wizardMatched && (i === 0)}
                                     />
                                 ))}
                             </div>
