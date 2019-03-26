@@ -142,12 +142,12 @@ export default class Game extends React.Component {
                     <Timer x={timer1Pos.x} y={timer1Pos.y} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <Timer x={timer2Pos.x} y={timer2Pos.y} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
                     <CardFlipCounter
-                        x={-26} y={5} rotation={0}
+                        x={-26} y={5.5} rotation={0}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />
                     <CardFlipCounter
-                        x={26} y={-5} rotation={180}
+                        x={26} y={-5.5} rotation={180}
                         numFlips={this.gameLogic.concurrentFlips}
                         maxFlips={this.gameLogic.level.maxConcurrentFlips}
                     />

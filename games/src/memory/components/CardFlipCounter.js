@@ -1,6 +1,8 @@
 import React from 'react';
 import "./Fonts.css"
 import {Motion, spring, presets} from 'react-motion';
+import CardFlipDot from "./CardFlipDot.js";
+
 export default class CardFlipCounter extends React.Component {
 
     containerStyle() {
@@ -14,68 +16,42 @@ export default class CardFlipCounter extends React.Component {
         }
     }
 
-    mainCircleStyle() {
-        let radius = 4.5;
-        return {
-            zIndex: 2,
-            position: 'absolute',
-            width: (radius * 2) + "vh",
-            height: (radius * 2) + "vh",
-            borderRadius: "50%",
-            borderWidth: "0.5vh",
-            borderColor: "#16162f",
-            borderStyle: "solid",
-            backgroundColor: "#e5eae8",
-            transform: `
-                translate(${-radius}vh, ${-radius}vh) 
-            `
-        }
-    }
-
-    innerCircleStyle(fillPercent) {
-        let radius = 4.0;
-        return {
-            zIndex: 2,
-            width: (radius * 2) + "vh",
-            height: (radius * 2) + "vh",
-            position: 'absolute',
-            borderRadius: '50%',
-            backgroundColor: "#009cff",
-            transform: `
-                translate(${-radius}vh, ${-radius}vh) 
-                scale(${fillPercent})
-            `
-        }
-    }
-
     render() {
-        let numberStyle = {
-            fontSize: "7vh",
-            position: "absolute",
-            transform: "translate(-50%, -50%)",
-            zIndex: 2,
-        };
-
         let flipsLeft = this.props.maxFlips - this.props.numFlips;
-        let flipPercent = flipsLeft / this.props.maxFlips;
+
+        let dotSeparationAngle = 2 * Math.PI / this.props.maxFlips;
+        let dotInitialAngle = Math.PI * 0.5 + 0.5 * dotSeparationAngle;
+        let dotRadius = this.props.maxFlips * 0.5;
+
+        let dotPositions = [];
+        for (let i = 0; i < this.props.maxFlips; i++) {
+            let dotAngle = dotInitialAngle + i * dotSeparationAngle;
+            dotPositions.push({
+                x: dotRadius * Math.cos(dotAngle),
+                y: dotRadius * Math.sin(dotAngle),
+            })
+        }
 
         return (
-            <Motion
-                defaultStyle={{flipPercent}}
-                style={{flipPercent: spring(flipPercent, presets.wobbly)}}
-            >
-                {interpolatingStyle => {
-                return (
-                    <div style={this.containerStyle()}>
-                        <div style={this.mainCircleStyle()}/>
-                        <div style={this.innerCircleStyle(interpolatingStyle.flipPercent)}/>
-                        <h1 className={"hullFont"} style={numberStyle}>
-                            {this.props.maxFlips}
-                        </h1>
-                    </div>
-                )
-                }}
-            </Motion>
-        );
+            <div style={this.containerStyle()}>
+                <Motion
+                    defaultStyle={{numFlips: flipsLeft}}
+                    style={{numFlips: spring(flipsLeft, presets.stiff)}}
+                >
+                    {interpolatingStyle => {
+                        return (
+                            <div>
+                                {dotPositions.map((dotPosition, i) => (
+                                    <CardFlipDot
+                                        {...dotPosition}
+                                        fill={Math.min(Math.max(interpolatingStyle.numFlips - i, 0.0), 1.0)}
+                                    />
+                                ))}
+                            </div>
+                        )
+                    }}
+                </Motion>
+            </div>
+        )
     }
 }
