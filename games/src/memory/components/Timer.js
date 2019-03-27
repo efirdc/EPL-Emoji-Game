@@ -42,20 +42,23 @@ export default class Timer extends React.Component {
         };
 
         let minutes, seconds;
+        let timeSinceTimerMatched = Date.now() - gameLogic.timeAtTimerMatched;
         if (gameLogic.timeLeft === Infinity) {
             minutes = seconds = '\u2011\u2011'; // Unicode characters for '--' but without line breaks
         } else {
             let time = Math.max(0, Math.ceil(gameLogic.timeLeft));
+            if (gameLogic.timerMatched) {
+                let timeAdded = gameLogic.level.timerAdds;
+                time -= Math.max(timeAdded - timeSinceTimerMatched * 20 / 1000 , 0)
+            }
             minutes = Math.floor(time / 60).toString().padStart(2, '0');
             seconds = Math.floor(time - minutes * 60).toString().padStart(2, '0');
         }
 
         let timerIndicatorScale = 0.0;
-        let timeSinceTimerMatched = Date.now() - gameLogic.timeAtTimerMatched;
         if (gameLogic.timerMatched && timeSinceTimerMatched < 4000) {
             timerIndicatorScale = 1.0;
         }
-        console.log(gameLogic.timerMatched, timeSinceTimerMatched);
 
         let timerIndicatorContainerStyle = {
             zIndex: 3,
@@ -64,8 +67,6 @@ export default class Timer extends React.Component {
             height: '0vh',
             transform: `translate(0vh, -5.5vh)`
         };
-
-        let timerIndicator = `+${gameLogic.level.timerAdds}`;
 
         return (
             <div style={containerStyle}>
@@ -88,9 +89,9 @@ export default class Timer extends React.Component {
                     {interpolatingStyle => {
                         return (
                             <div style={timerIndicatorContainerStyle}>
-                                <span className={"hullFont"} style={this.timerIndicatorTextStyle(interpolatingStyle.scale, interpolatingStyle.rotation)}>
-                                    ⏱<nbr/>{timerIndicator}
-                                </span>
+                                <div className={"hullFont"} style={this.timerIndicatorTextStyle(interpolatingStyle.scale, interpolatingStyle.rotation)}>
+                                    ⏱<nbr/>{`+${gameLogic.level.timerAdds}`}
+                                </div>
 
                             </div>
                         )
