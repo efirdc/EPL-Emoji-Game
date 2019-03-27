@@ -29,6 +29,9 @@ export default class AudioManager {
                 if (card.emoji === '🧙‍') {
                     // play wizard sound here
                 }
+                else if (card.emoji === '⏱') {
+                    // play timer sound here
+                }
                 break;
             case "faceUp":
                 let j = Math.floor(Math.random() * (Sounds.flipSounds.length));
