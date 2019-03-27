@@ -10,11 +10,34 @@ export default class StarCounter extends React.Component {
         super(props);
         this.timeAtLastAbsorb = Date.now() - 1000;
 
-        this.absorbEvent = this.absorbEvent.bind(this);
-    }
+        let pointsInAStar = 10;
+        let starPoints = [];
+        for (let i = 0; i < pointsInAStar; i++) {
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return true;
+            let angle = (Math.PI / pointsInAStar) + (2 * Math.PI / pointsInAStar) * i;
+
+            let innerPoint = (i % 2) === 0;
+            let radius;
+            if (innerPoint) {
+                radius = 8.0;
+            } else {
+                radius = 14.0;
+            }
+
+            let x = radius * Math.cos(angle);
+            let y = radius * Math.sin(angle);
+            starPoints.push([x, y]);
+        }
+        starPoints.push(starPoints[0]);
+
+        let starFillPoints = new Offset().data(starPoints).margin(0.75)[0];
+        let starBorderPoints = new Offset().data(starPoints).margin(1.25)[0];
+
+        // Shift the star points from the [-1, 1] domain to the [0, 1] domain
+        this.fillCssData = getCssData(starFillPoints);
+        this.borderCssData = getCssData(starBorderPoints);
+
+        this.absorbEvent = this.absorbEvent.bind(this);
     }
 
     componentDidMount() {
@@ -57,40 +80,13 @@ export default class StarCounter extends React.Component {
 
     getStarStyles() {
 
-        let pointsInAStar = 10;
-        let starPoints = [];
-        for (let i = 0; i < pointsInAStar; i++) {
-
-            let angle = (Math.PI / pointsInAStar) + (2 * Math.PI / pointsInAStar) * i;
-
-            let innerPoint = (i % 2) === 0;
-            let radius;
-            if (innerPoint) {
-                radius = 8.0;
-            } else {
-                radius = 14.0;
-            }
-
-            let x = radius * Math.cos(angle);
-            let y = radius * Math.sin(angle);
-            starPoints.push([x, y]);
-        }
-        starPoints.push(starPoints[0]);
-
-        let starFillPoints = new Offset().data(starPoints).margin(0.75)[0];
-        let starBorderPoints = new Offset().data(starPoints).margin(1.25)[0];
-
-        // Shift the star points from the [-1, 1] domain to the [0, 1] domain
-        let fillCssData = getCssData(starFillPoints);
-        let borderCssData = getCssData(starBorderPoints);
-
         let fill = {
-            ...polygonCss(fillCssData),
+            ...polygonCss(this.fillCssData),
             zIndex: 2,
         };
 
         let border = {
-            ...polygonCss(borderCssData),
+            ...polygonCss(this.borderCssData),
             zIndex: 2,
             backgroundColor: "#ffbe00",
         };
