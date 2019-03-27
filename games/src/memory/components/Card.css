@@ -14,3 +14,7 @@
     backface-visibility: hidden;
     clip-path: polygon(50% 0%, 93.30125% 25%, 93.30125% 75%, 50% 100%, 6.69875% 75%, 6.69875% 25%);
 }
+
+.twemoji {
+    transform: translate(-50%, -50%) scale(0.5);
+}

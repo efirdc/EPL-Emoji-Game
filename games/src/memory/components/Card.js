@@ -1,5 +1,5 @@
 import React from 'react';
-import emojiData from '../controllers/EmojiData.js';
+import Twemoji from 'react-twemoji';
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
 import * as colorConvert from "color-convert";
@@ -309,6 +309,18 @@ export default class Card extends React.Component {
             lineHeight: this.props.size + "vh",
         };
 
+        const twemoji = {
+            zIndex: '4',
+            position: 'absolute',
+            isolation: 'isolate',
+            height: this.props.size * 0.5 + "vh",
+            width: this.props.size * 0.5 + "vh",
+            transformOrigin: 'center center',
+            transform: `
+                rotate(${emojiAngle}deg) 
+            `,
+        };
+
         let comboIndicatorRadius = 3.5;
         let comboIndicatorSize = 0.30 * this.props.size;
         let comboIndicatorAngle = emojiAngle - 35;
@@ -338,13 +350,15 @@ export default class Card extends React.Component {
             lineHeight: comboIndicatorSize + "vh",
         };
 
-        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, comboIndicator, comboIndicatorContainer};
+        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, twemoji, comboIndicator, comboIndicatorContainer};
     }
 
     render() {
 
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
+
+        let useTwemoji = true;
 
         return(
             <Motion defaultStyle={initialValues} style={targetValues}>
@@ -361,9 +375,17 @@ export default class Card extends React.Component {
 
                             <div className={"card"} style={styles.cardFront}>
                                 <div className={"card"} style={styles.cardFrontInner}>
-                                    <div style={styles.emoji}>
-                                        {this.card.emoji}
-                                    </div>
+                                    {useTwemoji ? (
+                                        <Twemoji options={{ className: 'twemoji', noWrapper: true}}>
+                                            <div style={styles.twemoji}>
+                                                {this.card.emoji.substring(0, 2)}
+                                            </div>
+                                        </Twemoji>
+                                    ) : (
+                                        <div style={styles.emoji}>
+                                            {this.card.emoji}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className={"card"} style={styles.cardBack}>
