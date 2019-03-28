@@ -284,11 +284,9 @@ export default class GameLogic {
 
         // 1 key
         if (keyEvent.charCode === 49) {
-            this.interactionThisLevel = true;
             this.flipCheat = !this.flipCheat;
         }
         else if (keyEvent.charCode === 50) {
-            this.interactionThisLevel = true;
             this.flipEverythingCheat = !this.flipEverythingCheat;
         }
         else if (keyEvent.charCode === 51) {
@@ -544,7 +542,6 @@ export default class GameLogic {
     }
 
     touchStart(cardKey) {
-        this.interactionThisLevel = true;
         let card = this.cards.find((card) => (card.cardKey === cardKey));
         if(!card) {
             console.log("WARNING: touchStart on cardKey" + cardKey + " that does not exist!");
@@ -556,7 +553,6 @@ export default class GameLogic {
         card.touched = true;
     }
     touchEnd(cardKey) {
-        this.interactionThisLevel = true;
         let card = this.cards.find((card) => (card.cardKey === cardKey));
         if(!card) {
             console.log("WARNING: touchEnd on cardKey" + cardKey + " that does not exist!");
@@ -615,6 +611,7 @@ export default class GameLogic {
         }
 
         else if (this.phase === GamePhase.PLAY_START) {
+            this.updateCards();
             let timeSincePlayStart = Date.now() - this.timeAtSetPhase;
             if (this.interactionThisLevel || timeSincePlayStart > this.timeToForceStartTimer) {
                 this.setPhase(GamePhase.PLAY);
@@ -754,6 +751,11 @@ export default class GameLogic {
 
     updateCards() {
 
+        let interactedCard = this.cards.find((card) => card.faceUp);
+        if (interactedCard) {
+            this.interactionThisLevel = true;
+        }
+
         // Clear the combo array if time runs out to make the next match
         if (this.comboCards.length !== 0) {
 
@@ -776,7 +778,7 @@ export default class GameLogic {
 
         // Process all cards that are matchable
         let matchableCards = this.cards.filter((card) => this.canMatch(card));
-
+        shuffle(matchableCards);
         // If the time between combos is over
         while (matchableCards.length && timeSinceLastMatch > this.timeBetweenCombos) {
 
