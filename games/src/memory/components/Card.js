@@ -161,12 +161,22 @@ export default class Card extends React.Component {
 
         values.rotation = 0.0;
 
-
-        if (this.card.isAfraid && this.card.timeSinceTransition % 5000 < 3000) {
+        let normalAfraidCard = this.card.isAfraid && !this.card.comboBreaker;
+        if (normalAfraidCard && this.card.timeSinceTransition % 5000 < 3000) {
             let shiverAngle = 2 * Math.PI * Math.random();
             let shiverRadius = 0.5;
             values.x += shiverRadius * Math.cos(shiverAngle);
             values.y += shiverRadius * Math.sin(shiverAngle);
+        }
+
+        // The afraid card that triggers a combo breaker should shrink and shake erratically.
+        let comboBreakerAfraidCard = this.card.isAfraid && this.card.comboBreaker;
+        if (comboBreakerAfraidCard) {
+            let shiverAngle = 2 * Math.PI * Math.random();
+            let shiverRadius = 1.0;
+            values.x += shiverRadius * Math.cos(shiverAngle);
+            values.y += shiverRadius * Math.sin(shiverAngle);
+            values.scale = 0.7;
         }
 
         // Matched cards should pop out

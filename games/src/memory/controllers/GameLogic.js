@@ -94,6 +94,7 @@ class Card {
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
             case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -104,7 +105,6 @@ class Card {
         switch (this.phase) {
             case CardPhase.FLIP_REJECTED:
             case CardPhase.AFRAID:
-            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -116,8 +116,6 @@ class Card {
             case CardPhase.MATCHED:
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
-            case CardPhase.COMBO_BREAKER:
-            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -247,6 +245,7 @@ export default class GameLogic {
         this.timeToCombo = 2250;
         this.timeBetweenCombos = 750;
         this.timeToLingerAfterComboBreaker = 1500;
+        this.timeToLingerAfterComboBreakerAfraid = 3000;
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 50;
         this.timeToTransitionToDrainTimer = 3000;
@@ -747,15 +746,23 @@ export default class GameLogic {
         return this.timeLeft <= 0;
     }
 
-    comboEnd(breaker) {
+    comboEnd() {
         // the cards should start exiting
         for (let comboPair of this.comboCards) {
-            if (breaker) {
+            comboPair.first.exiting = true;
+            comboPair.second.exiting = true;
+        }
+
+        // Clear the comboCards
+        this.comboCards = [];
+        this.comboCounter = 0;
+    }
+
+    comboBreaker() {
+        for (let comboPair of this.comboCards) {
+            if (!comboPair.first.isAfraid) {
                 comboPair.first.setPhase(CardPhase.COMBO_BREAKER);
                 comboPair.second.setPhase(CardPhase.COMBO_BREAKER);
-            } else {
-                comboPair.first.exiting = true;
-                comboPair.second.exiting = true;
             }
         }
 
@@ -780,7 +787,7 @@ export default class GameLogic {
 
             // When time runs out, break the combo
             if (timeSinceLastMatch > this.timeToCombo) {
-                this.comboEnd(false);
+                this.comboEnd();
             }
         }
 
@@ -932,13 +939,13 @@ export default class GameLogic {
                 card.setPhase(CardPhase.AFRAID);
                 this.concurrentFlips -= 1;
             }
-            else if (card.matched) {
+            else if (card.matched && !card.isAfraid) {
                 card.setPhase(CardPhase.COMBO_BREAKER_AFRAID);
                 comboBroken = true;
             }
         }
         if (comboBroken) {
-            this.comboEnd(true);
+            this.comboBreaker();
         }
 
         // Make cards stop being afraid
@@ -953,9 +960,17 @@ export default class GameLogic {
         }
 
         // Handle comboBroken cards
-        let comboBrokenCards = this.cards.filter((card) => (card.comboBreaker));
+        let comboBrokenCards = this.cards.filter((card) => (card.comboBreaker && !card.isAfraid));
         for (let card of comboBrokenCards) {
             if (card.timeSinceTransition > this.timeToLingerAfterComboBreaker) {
+                card.exiting = true;
+            }
+        }
+
+        // Handle the afraid card that triggered the combo breaker
+        let comboBreakerCards = this.cards.filter((card) => (card.comboBreaker && card.isAfraid));
+        for (let card of comboBreakerCards) {
+            if (card.timeSinceTransition > this.timeToLingerAfterComboBreakerAfraid) {
                 card.exiting = true;
             }
         }
