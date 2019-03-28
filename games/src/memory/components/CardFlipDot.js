@@ -10,6 +10,7 @@ export default class CardFlipDot extends React.Component {
                     zIndex: 2,
                     position: 'absolute',
                     transform: `translate(${this.props.x}vh, ${this.props.y}vh)`,
+
                 }}
             >
                 <div
@@ -25,6 +26,7 @@ export default class CardFlipDot extends React.Component {
                         borderColor: "#120f12",
                         borderStyle: "solid",
                         backgroundColor: "#282528",
+                        boxShadow: "0 0 0.25vh #000000",
                     }}
                 />
                 <h1 style={{
@@ -52,6 +54,7 @@ export default class CardFlipDot extends React.Component {
                         borderColor: this.props.wizardDot ? "#0a1211" : "#090912",
                         borderStyle: "solid",
                         backgroundColor: this.props.wizardDot ? "#7bd6ff" : "#5ef997",
+                        boxShadow: "0 0 0.25vh #000000",
                     }}
                 />
 

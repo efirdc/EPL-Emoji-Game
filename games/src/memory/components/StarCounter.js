@@ -56,7 +56,8 @@ export default class StarCounter extends React.Component {
                 translate(0vh, 1vh) 
                 scale(${scale}) 
                 rotate(${rotation}deg)
-            `
+            `,
+            filter: "drop-shadow(0 0 0.25vh black)"
         }
     }
 
