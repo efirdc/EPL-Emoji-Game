@@ -286,13 +286,16 @@ export default class GameLogic {
         if (keyEvent.charCode === 49) {
             this.flipCheat = !this.flipCheat;
         }
+        // 2 key
         else if (keyEvent.charCode === 50) {
             this.flipEverythingCheat = !this.flipEverythingCheat;
         }
-        else if (keyEvent.charCode === 51) {
+        // 5 key
+        else if (keyEvent.charCode === 53) {
             this.winCheat = true;
         }
-        else if (keyEvent.charCode === 52) {
+        // 6 key
+        else if (keyEvent.charCode === 54) {
             this.loseCheat = true;
         }
     }
