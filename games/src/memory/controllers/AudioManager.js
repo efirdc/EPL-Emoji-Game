@@ -92,6 +92,8 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.fireTruckHorn.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
+                Sounds.comboBonusSounds.heartbeat.play();
+                //Sounds.comboBonusSounds.defibrillator.play();
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
                 Sounds.comboBonusSounds.rocketLaunch.play();
@@ -119,6 +121,7 @@ export default class AudioManager {
             case '🐷': // pig (pig squeal)
                 break;
             case '🥶': // frozen guy (cold person shivering? this one is kind of dumb so will replace maybe)
+                Sounds.afraidOfSounds.teethChattering.play();
                 break;
             case '⛄': // snowman is afraid of fire (no clue)
                 break;

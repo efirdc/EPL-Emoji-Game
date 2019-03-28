@@ -27,9 +27,12 @@ import chachingSoundFile from '../sounds/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
 import foodSizzlingSoundFile from '../sounds/foodsizzling.mp3';
 import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
+import heartbeatSoundFile from '../sounds/heartbeat.mp3';
+import defibrillatorSoundFile from '../sounds/defibrillator.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
+import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
 
 import {Howl} from "howler";
@@ -60,11 +63,14 @@ export default {
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
         fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
+        heartbeat: new Howl({src: [heartbeatSoundFile]}),
+        defibrillator: new Howl({src: [defibrillatorSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
     },
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
+        teethChattering: new Howl({src: [teethChatteringSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
     },
 
