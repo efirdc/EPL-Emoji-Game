@@ -194,15 +194,16 @@ class Card {
 
 export const GamePhase = {
     GAME_INIT: 0,
-    PLAY: 1,
-    LEVEL_LOAD: 2,
-    LEVEL_LOSE: 3,
-    LEVEL_LOSE_END: 4,
-    LEVEL_WIN_START: 5,
-    LEVEL_WIN_DRAIN_TIMER: 6,
-    LEVEL_WIN_DRAIN_END: 7,
-    LEVEL_WIN_ADD_STARS: 8,
-    LEVEL_WIN_END:9,
+    PLAY_START: 1,
+    PLAY: 2,
+    LEVEL_LOAD: 3,
+    LEVEL_LOSE: 4,
+    LEVEL_LOSE_END: 5,
+    LEVEL_WIN_START: 6,
+    LEVEL_WIN_DRAIN_TIMER: 7,
+    LEVEL_WIN_DRAIN_END: 8,
+    LEVEL_WIN_ADD_STARS: 9,
+    LEVEL_WIN_END:10,
 };
 
 export default class GameLogic {
@@ -233,6 +234,9 @@ export default class GameLogic {
         this.timerMatched = false;
         this.timeAtTimerMatched = 0;
 
+        this._interactionThisLevel = false;
+        this.timeAtLastInteraction = 0;
+
         // Timing stuff
         this.timeToMatch = 250;
         this.timeToBeAfraid = 200;
@@ -248,6 +252,8 @@ export default class GameLogic {
         this.timeToWaitAfterLevelLose = 2000;
         this.timerDrainMultiplier = 10;
         this.timeToAddStar = 1250;
+        this.timeToIdleReset = 300 * 1000;
+        this.timeToForceStartTimer = 5000;
 
         this.initLevel();
 
@@ -260,14 +266,27 @@ export default class GameLogic {
         document.addEventListener("keypress", this.controlCheats);
     }
 
+    set interactionThisLevel(value) {
+        this._interactionThisLevel = value;
+        if (value) {
+            this.timeAtLastInteraction = Date.now();
+        }
+    }
+
+    get interactionThisLevel() {
+        return this._interactionThisLevel;
+    }
+
     controlCheats(keyEvent) {
 
         // 1 key
         if (keyEvent.charCode === 49) {
+            this.interactionThisLevel = true;
             this.flipCheat = !this.flipCheat;
         }
         else if (keyEvent.charCode === 50) {
-            this.flipEverythingCheat = ! this.flipEverythingCheat;
+            this.interactionThisLevel = true;
+            this.flipEverythingCheat = !this.flipEverythingCheat;
         }
         else if (keyEvent.charCode === 51) {
             this.winCheat = true;
@@ -281,30 +300,31 @@ export default class GameLogic {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
-        if (dontSendEvent) {
-            return;
-        }
-
+        let event;
         switch (phase) {
+            case GamePhase.PLAY_START:
+                event = new CustomEvent("levelplaystart");
+                break;
             case GamePhase.PLAY:
-                document.dispatchEvent(new CustomEvent("levelplay"));
+                event = new CustomEvent("levelplay");
                 break;
             case GamePhase.LEVEL_LOAD:
-                document.dispatchEvent(new CustomEvent("levelload"));
+                this.initLevel();
+                event = new CustomEvent("levelload");
                 break;
             case GamePhase.LEVEL_LOSE:
-                document.dispatchEvent(new CustomEvent("levellose"));
+                event = new CustomEvent("levellose");
                 break;
             case GamePhase.LEVEL_WIN_START:
-                document.dispatchEvent(new CustomEvent("levelwin"));
+                event = new CustomEvent("levelwin");
                 break;
             case GamePhase.LEVEL_WIN_DRAIN_TIMER:
                 let drainTime = this.timeLeftAtLevelWin / this.timerDrainMultiplier;
-                document.dispatchEvent(new CustomEvent("timerdrain", {
+                event = new CustomEvent("timerdrain", {
                     detail: {
                         drainTime: drainTime
                     }
-                }));
+                });
                 break;
             case GamePhase.LEVEL_WIN_ADD_STARS:
                 let numStarsToAdd = this.getNumStarsFromPerformance();
@@ -312,6 +332,10 @@ export default class GameLogic {
                     setTimeout(() => (this.addStar(i + 1)), (i + 1) * this.timeToAddStar);
                 }
                 break;
+        }
+
+        if (event && !dontSendEvent) {
+            document.dispatchEvent(event);
         }
     }
 
@@ -325,6 +349,7 @@ export default class GameLogic {
         switch (this.phase) {
 
             case GamePhase.LEVEL_LOAD:
+            case GamePhase.PLAY_START:
                 return this.level.timeToComplete;
 
             case GamePhase.PLAY:
@@ -454,6 +479,7 @@ export default class GameLogic {
         this.nthStarThisLevel = 0;
         this.wizardMatched = false;
         this.timerMatched = false;
+        this.interactionThisLevel = false;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
@@ -488,6 +514,7 @@ export default class GameLogic {
     }
 
     touchStart(cardKey) {
+        this.interactionThisLevel = true;
         let card = this.cards.find((card) => (card.cardKey === cardKey));
         if(!card) {
             console.log("WARNING: touchStart on cardKey" + cardKey + " that does not exist!");
@@ -499,6 +526,7 @@ export default class GameLogic {
         card.touched = true;
     }
     touchEnd(cardKey) {
+        this.interactionThisLevel = true;
         let card = this.cards.find((card) => (card.cardKey === cardKey));
         if(!card) {
             console.log("WARNING: touchEnd on cardKey" + cardKey + " that does not exist!");
@@ -512,18 +540,15 @@ export default class GameLogic {
 
     updateGame() {
 
-        // Dirty if statement for handling cheats
-        if (this.phase === GamePhase.PLAY || this.phase === GamePhase.LEVEL_WIN || this.phase === GamePhase.LEVEL_LOAD) {
-            if (this.winCheat) {
-                this.winCheat = false;
-                this.numStars += 5;
-                this.initLevel();
-                this.setPhase(GamePhase.LEVEL_LOAD, true);
-            }
-            else if (this.loseCheat) {
-                this.loseCheat = false;
-                this.setPhase(GamePhase.LEVEL_LOSE, true);
-            }
+        // Handle cheats
+        if (this.winCheat) {
+            this.winCheat = false;
+            this.numStars += 5;
+            this.setPhase(GamePhase.LEVEL_LOAD, true);
+        }
+        else if (this.loseCheat) {
+            this.loseCheat = false;
+            this.setPhase(GamePhase.LEVEL_LOSE, true);
         }
 
         // Game is only in the INIT phase at first launch.
@@ -548,14 +573,21 @@ export default class GameLogic {
                 this.cards.push(this.newCards.shift());
             }
 
-            // When all cards are spawned in, move to play phase.
+            // When all cards are spawned in, move to play start phase.
             if (this.cards.length === this.level.numCards) {
-                this.setPhase(GamePhase.PLAY);
+                this.setPhase(GamePhase.PLAY_START);
 
                 // Initialize cards to FACE_DOWN state.
                 for (let card of this.cards) {
                     card.setPhase(CardPhase.FACE_DOWN);
                 }
+            }
+        }
+
+        else if (this.phase === GamePhase.PLAY_START) {
+            let timeSincePlayStart = Date.now() - this.timeAtSetPhase;
+            if (this.interactionThisLevel || timeSincePlayStart > this.timeToForceStartTimer) {
+                this.setPhase(GamePhase.PLAY);
             }
         }
 
@@ -568,6 +600,12 @@ export default class GameLogic {
             }
             else if (this.isGameLost()) {
                 this.setPhase(GamePhase.LEVEL_LOSE);
+            }
+            else if (this.numStars === 0 && this.interactionThisLevel) {
+                let idleTime = Date.now() - this.timeAtLastInteraction;
+                if (idleTime > this.timeToIdleReset) {
+                    this.setPhase(GamePhase.LEVEL_LOAD, true);
+                }
             }
         }
 
@@ -591,7 +629,6 @@ export default class GameLogic {
             // Once all cards have exited, move to LEVEL_LOAD phase.
             if (!this.cards.length) {
                 this.numStars = 0;
-                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOSE_END);
             }
         }
@@ -642,7 +679,6 @@ export default class GameLogic {
             this.updateCards();
             let timeSinceTransition = Date.now() - this.timeAtSetPhase;
             if (timeSinceTransition > this.timeToTransitionToLoad) {
-                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOAD);
             }
         }
