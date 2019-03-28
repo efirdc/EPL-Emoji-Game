@@ -313,11 +313,12 @@ export default class Card extends React.Component {
             zIndex: '4',
             position: 'absolute',
             isolation: 'isolate',
-            height: this.props.size * 0.5 + "vh",
-            width: this.props.size * 0.5 + "vh",
+            height: this.props.size + "vh",
+            width: this.props.size + "vh",
             transformOrigin: 'center center',
             transform: `
                 rotate(${emojiAngle}deg) 
+                scale(0.5)
             `,
         };
 
@@ -358,7 +359,7 @@ export default class Card extends React.Component {
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
 
-        let useTwemoji = true;
+        let useTwemoji = false;
 
         return(
             <Motion defaultStyle={initialValues} style={targetValues}>
