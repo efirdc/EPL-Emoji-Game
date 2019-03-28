@@ -60,6 +60,7 @@ export default class AudioManager {
                 this.afraidSound(event.detail.card.emoji);
                 break;
             case "combobreaker":
+                Sounds.comboBreakerSound.play();
                 break;
             case "shockburned":
                 Sounds.shockSound.play();
