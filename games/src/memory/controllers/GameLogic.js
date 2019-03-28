@@ -290,6 +290,7 @@ export default class GameLogic {
         else if (keyEvent.charCode === 50) {
             this.flipEverythingCheat = !this.flipEverythingCheat;
         }
+
         // 5 key
         else if (keyEvent.charCode === 53) {
             this.winCheat = true;
@@ -298,6 +299,17 @@ export default class GameLogic {
         else if (keyEvent.charCode === 54) {
             this.loseCheat = true;
         }
+
+        // 8 key
+        else if (keyEvent.charCode === 56) {
+            this.timeAtSetPhase += 5000;
+        }
+        // 9 key
+        else if (keyEvent.charCode === 57) {
+            this.timeAtSetPhase -= 5000;
+        }
+
+
     }
 
     setPhase(phase, dontSendEvent) {
