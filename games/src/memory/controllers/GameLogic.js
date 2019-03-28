@@ -33,6 +33,7 @@ export const CardPhase = {
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
     MATCHED_SPECIAL_OTHER: 42,
+    SHOCK_BURNED: 50,
 };
 
 class Card {
@@ -60,12 +61,21 @@ class Card {
 
         switch (phase) {
             case CardPhase.FACE_UP:
+                if (this.emoji === '⚡') {
+                    this.hasShocked = false;
+                }
                 document.dispatchEvent(new CustomEvent("faceUp"));
                 break;
             case CardPhase.AFRAID:
             case CardPhase.COMBO_BREAKER_AFRAID:
                 document.dispatchEvent(new CustomEvent(
                     "afraid",
+                    {detail: {card: this}}
+                ));
+                break;
+            case CardPhase.SHOCK_BURNED:
+                document.dispatchEvent(new CustomEvent(
+                    "shockburned",
                     {detail: {card: this}}
                 ));
                 break;
@@ -105,6 +115,24 @@ class Card {
         switch (this.phase) {
             case CardPhase.FLIP_REJECTED:
             case CardPhase.AFRAID:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get isBurned () {
+        switch (this.phase) {
+            case CardPhase.SHOCK_BURNED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get isShocked () {
+        switch (this.phase) {
+            case CardPhase.SHOCK_BURNED:
                 return true;
             default:
                 return false;
@@ -256,6 +284,8 @@ export default class GameLogic {
         this.timeToAddStar = 1250;
         this.timeToIdleReset = 300 * 1000;
         this.timeToForceStartTimer = 5000;
+        this.timeToStayShockBurned = 7500;
+        this.timeToShock = 200;
 
         this.initLevel();
 
@@ -903,8 +933,7 @@ export default class GameLogic {
 
                 // Flip it if concurrentFlips are not in use.
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
-                    card.setPhase(CardPhase.FACE_UP);
-                    this.concurrentFlips += 1;
+                    this.setFaceUp(card);
                 }
             }
 
@@ -924,8 +953,7 @@ export default class GameLogic {
 
                 // Flip the card up if there is available flips
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
-                    card.setPhase(CardPhase.FACE_UP);
-                    this.concurrentFlips += 1;
+                    this.setFaceUp(card);
                 }
 
                 // Reject the flip if all concurrent flips are in use.
@@ -978,8 +1006,42 @@ export default class GameLogic {
             }
         }
 
+        // Handle timeout on shock burned cards.
+        let shockBurnedCards = this.cards.filter((card) => (card.phase === CardPhase.SHOCK_BURNED));
+        for (let card of shockBurnedCards) {
+            if (card.timeSinceTransition > this.timeToStayShockBurned) {
+                card.setPhase(CardPhase.FACE_DOWN);
+            }
+        }
+
+        let shockEmojiCards = this.cards.filter((card) => (card.phase === CardPhase.FACE_UP && card.emoji === '⚡'));
+        for (let card of shockEmojiCards) {
+            if (card.timeSinceTransition > this.timeToShock && !card.hasShocked) {
+                card.hasShocked = true;
+                card.timeAtShock = Date.now();
+                this.shockRandomCard();
+            }
+        }
+
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
+    }
+
+    setFaceUp(card) {
+        card.setPhase(CardPhase.FACE_UP);
+        this.concurrentFlips += 1;
+    }
+
+    isShockable(card) {
+        return !card.matched && !card.exiting && !card.isBurned && card.emoji !== '⚡';
+    }
+
+    shockRandomCard() {
+        let canShockCards = this.cards.filter((card) => this.isShockable(card));
+        if (canShockCards.length !== 0) {
+            let randomCard = canShockCards[Math.floor(Math.random() * canShockCards.length)];
+            randomCard.setPhase(CardPhase.SHOCK_BURNED);
+        }
     }
 
     // In order for a card to be matched it has to be face up for a certain amount of time
