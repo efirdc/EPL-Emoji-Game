@@ -212,6 +212,9 @@ export default class GameLogic {
         this.hexBoard = new HexBoard();
         this.level = new Level();
 
+        // Chance for emojis to be forced to spawn in the same blob
+        this.sameBlobChance = 0.5;
+
         this.numStars = 0;
         this.cards = [];
         this.newCards = [];
@@ -488,20 +491,6 @@ export default class GameLogic {
             this.newCards[cardKey] = new Card(0, cardKey);
         }
 
-        // Create a shuffled array of all emojis
-        let emojisNeeded = this.level.numCards / 2;
-        let useEmojis = [];
-        for (let i = 0; i < emojisNeeded; i++){
-            useEmojis.push(emojiData.sequence[i]);
-            useEmojis.push(emojiData.sequence[i]);
-        }
-        shuffle(useEmojis);
-
-        // Distribute the shuffled emojis over the game cards
-        for (let card of this.newCards){
-            card.emoji = useEmojis.pop();
-        }
-
         // Initialize the hexboard blob, and import the blobCells data into the cards.
         this.hexBoard.initializeBlob(this.level.numCards, this.level.numBlobs);
         for (let i in this.newCards) {
@@ -510,6 +499,47 @@ export default class GameLogic {
             card.x = blobCell.x;
             card.y = blobCell.y;
             card.blobID = blobCell.blobID;
+        }
+
+        this.distributeEmojis();
+    }
+
+    distributeEmojis() {
+
+        // Get the emojis that will be used
+        let emojisNeeded = this.level.numCards / 2;
+        let useEmojis = emojiData.sequence.slice(0, emojisNeeded);
+
+        // None of the emojis have cards
+        let noEmojiCards = this.newCards;
+
+        // Adds 2 emojis of the same type on each loop
+        for (let emoji of useEmojis) {
+
+            // Get a random card with no emoji and give it the next emoji.
+            let randomCard1 = noEmojiCards[Math.floor(Math.random() * noEmojiCards.length)];
+            randomCard1.emoji = emoji;
+
+            // Filter out this card from the noEmojiCards
+            noEmojiCards = noEmojiCards.filter((card) => (card.emoji === 0));
+
+            // If there are cards from the same blob that do not have emojis yet,
+            // and the random chance to be in the same blob succeeds,
+            // then distribute the matching emoji in the same blob
+            let sameBlobCards = noEmojiCards.filter((card) => (card.blobID === randomCard1.blobID));
+            if (Math.random() < this.sameBlobChance && sameBlobCards.length !== 0) {
+                let randomCard2 = sameBlobCards[Math.floor(Math.random() * sameBlobCards.length)];
+                randomCard2.emoji = emoji;
+            }
+
+            // Otherwise, distribute it elsewhere
+            else {
+                let randomCard2 =  noEmojiCards[Math.floor(Math.random() * noEmojiCards.length)];
+                randomCard2.emoji = emoji;
+            }
+
+            // Filter out the second card
+            noEmojiCards = noEmojiCards.filter((card) => (card.emoji === 0));
         }
     }
 
