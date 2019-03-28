@@ -769,6 +769,9 @@ export default class GameLogic {
         // Clear the comboCards
         this.comboCards = [];
         this.comboCounter = 0;
+
+        // fire a combo breaker event
+        document.dispatchEvent(new CustomEvent("combobreaker"));
     }
 
     updateCards() {

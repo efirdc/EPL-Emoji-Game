@@ -57,6 +57,8 @@ export default class AudioManager {
             case "afraid":
                 this.afraidSound(event.detail.card.emoji);
                 break;
+            case "combobreaker":
+                break;
         }
 
         if (event.type === 'match' || event.type === 'matchspecialother') {
