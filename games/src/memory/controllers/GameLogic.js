@@ -28,11 +28,13 @@ export const CardPhase = {
     FACE_UP: 2,
     FLIP_REJECTED: 30,
     AFRAID: 31,
-    COMBO_BREAKER_AFRAID: 32,
-    COMBO_BREAKER: 33,
+    COMBO_BROKEN: 32,
+    COMBO_BREAKER_AFRAID: 33,
+    COMBO_BREAKER_SHOCKED: 34,
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
     MATCHED_SPECIAL_OTHER: 42,
+    SHOCK_BURNED: 50,
 };
 
 class Card {
@@ -54,12 +56,18 @@ class Card {
     }
 
     setPhase(phase) {
+
+        // Store the new phase, the previous phase, and a timestamp
         this.prevPhase = this.phase;
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
+        // Trigger events and side effects
         switch (phase) {
             case CardPhase.FACE_UP:
+                if (this.emoji === '⚡') {
+                    this.hasShocked = false;
+                }
                 document.dispatchEvent(new CustomEvent("faceUp"));
                 break;
             case CardPhase.AFRAID:
@@ -69,20 +77,29 @@ class Card {
                     {detail: {card: this}}
                 ));
                 break;
+            case CardPhase.SHOCK_BURNED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
+                document.dispatchEvent(new CustomEvent(
+                    "shockburned",
+                    {detail: {card: this}}
+                ));
+                break;
         }
     }
 
+    // Gets the time in ms since the phase was set
     get timeSinceTransition () {
         return Date.now() - this.timeAtSetPhase;
     }
 
+    // Saves the timeAtStartExit when exiting is changed from true to false
+    // cards that are set to exiting will be deleted from the game after some time
     set exiting(newValue) {
         if (newValue === true && !this._exiting) {
             this.timeAtStartExit = Date.now();
         }
         this._exiting = newValue;
     }
-
     get exiting() {
         return this._exiting;
     }
@@ -93,7 +110,9 @@ class Card {
             case CardPhase.MATCHED:
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
-            case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BROKEN:
+            case CardPhase.COMBO_BREAKER_AFRAID:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
             default:
                 return false;
@@ -104,7 +123,23 @@ class Card {
         switch (this.phase) {
             case CardPhase.FLIP_REJECTED:
             case CardPhase.AFRAID:
-            case CardPhase.COMBO_BREAKER_AFRAID:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get isBurned () {
+        switch (this.phase) {
+            default:
+                return false;
+        }
+    }
+
+    get isShocked () {
+        switch (this.phase) {
+            case CardPhase.SHOCK_BURNED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
             default:
                 return false;
@@ -116,8 +151,6 @@ class Card {
             case CardPhase.MATCHED:
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
-            case CardPhase.COMBO_BREAKER:
-            case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
             default:
                 return false;
@@ -146,8 +179,28 @@ class Card {
 
     get comboBreaker () {
         switch (this.phase) {
-            case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BROKEN:
             case CardPhase.COMBO_BREAKER_AFRAID:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get brokeCombo () {
+        switch (this.phase) {
+            case CardPhase.COMBO_BREAKER_AFRAID:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get comboBroken () {
+        switch (this.phase) {
+            case CardPhase.COMBO_BROKEN:
                 return true;
             default:
                 return false;
@@ -164,10 +217,42 @@ class Card {
         }
     }
 
+    get isShockable () {
+        switch (this.phase) {
+            case CardPhase.FACE_DOWN:
+            case CardPhase.FACE_UP:
+            case CardPhase.FLIP_REJECTED:
+            case CardPhase.AFRAID:
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                return !this.exiting && this.emoji !== '⚡';
+            default:
+                return false;
+        }
+    }
+
+    get isBurnable () {
+        switch (this.phase) {
+            case CardPhase.FACE_DOWN:
+            case CardPhase.FACE_UP:
+            case CardPhase.FLIP_REJECTED:
+            case CardPhase.AFRAID:
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                return !this.exiting && this.emoji !== '🔥';
+            default:
+                return false;
+        }
+    }
+
+    // Returns true if this card has a special effect
     get specialCard () {
         return this.emoji === '⏱' || this.emoji === '🧙‍';
     }
 
+    // Returns true if this card has a combo bonus with the otherCard
     comboBonusWith(otherCard) {
         let thisCombos = false;
         let otherCombos = false;
@@ -179,6 +264,7 @@ class Card {
         return thisCombos || otherCombos;
     }
 
+    // Returns true if this card is afraid of any of the cards in the otherCards array
     isAfraidOf(otherCards) {
         for (let otherCard of otherCards) {
             if (emojiData.afraidOf[this.emoji]) {
@@ -194,15 +280,16 @@ class Card {
 
 export const GamePhase = {
     GAME_INIT: 0,
-    PLAY: 1,
-    LEVEL_LOAD: 2,
-    LEVEL_LOSE: 3,
-    LEVEL_LOSE_END: 4,
-    LEVEL_WIN_START: 5,
-    LEVEL_WIN_DRAIN_TIMER: 6,
-    LEVEL_WIN_DRAIN_END: 7,
-    LEVEL_WIN_ADD_STARS: 8,
-    LEVEL_WIN_END:9,
+    PLAY_START: 1,
+    PLAY: 2,
+    LEVEL_LOAD: 3,
+    LEVEL_LOSE: 4,
+    LEVEL_LOSE_END: 5,
+    LEVEL_WIN_START: 6,
+    LEVEL_WIN_DRAIN_TIMER: 7,
+    LEVEL_WIN_DRAIN_END: 8,
+    LEVEL_WIN_ADD_STARS: 9,
+    LEVEL_WIN_END:10,
 };
 
 export default class GameLogic {
@@ -210,6 +297,9 @@ export default class GameLogic {
 
         this.hexBoard = new HexBoard();
         this.level = new Level();
+
+        // Chance for emojis to be forced to spawn in the same blob
+        this.sameBlobChance = 0.5;
 
         this.numStars = 0;
         this.cards = [];
@@ -233,21 +323,29 @@ export default class GameLogic {
         this.timerMatched = false;
         this.timeAtTimerMatched = 0;
 
+        this._interactionThisLevel = false;
+        this.timeAtLastInteraction = 0;
+
         // Timing stuff
         this.timeToMatch = 250;
         this.timeToBeAfraid = 200;
         this.timeToStayAfraid = 1000;
         this.timeToCombo = 2250;
         this.timeBetweenCombos = 750;
-        this.timeToLingerAfterComboBreaker = 1500;
+        this.timeToLingerAfterComboBroken = 1500;
+        this.timeToLingerAfterComboBreaker = 6000;
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 50;
-        this.timeToTransitionToDrainTimer = 3000;
-        this.timeToTransitionToAddStars = 2000;
+        this.timeToTransitionToDrainTimer = 1500;
+        this.timeToTransitionToAddStars = 2500;
         this.timeToTransitionToLoad = 1000;
         this.timeToWaitAfterLevelLose = 2000;
-        this.timerDrainMultiplier = 10;
-        this.timeToAddStar = 1250;
+        this.timerDrainMultiplier = 20;
+        this.timeToAddStar = 1000;
+        this.timeToIdleReset = 300 * 1000;
+        this.timeToForceStartTimer = 5000;
+        this.timeToStayShockBurned = 8000;
+        this.timeToShock = 200;
 
         this.initLevel();
 
@@ -260,51 +358,78 @@ export default class GameLogic {
         document.addEventListener("keypress", this.controlCheats);
     }
 
+    set interactionThisLevel(value) {
+        this._interactionThisLevel = value;
+        if (value) {
+            this.timeAtLastInteraction = Date.now();
+        }
+    }
+
+    get interactionThisLevel() {
+        return this._interactionThisLevel;
+    }
+
     controlCheats(keyEvent) {
 
         // 1 key
         if (keyEvent.charCode === 49) {
             this.flipCheat = !this.flipCheat;
         }
+        // 2 key
         else if (keyEvent.charCode === 50) {
-            this.flipEverythingCheat = ! this.flipEverythingCheat;
+            this.flipEverythingCheat = !this.flipEverythingCheat;
         }
-        else if (keyEvent.charCode === 51) {
+
+        // 5 key
+        else if (keyEvent.charCode === 53) {
             this.winCheat = true;
         }
-        else if (keyEvent.charCode === 52) {
+        // 6 key
+        else if (keyEvent.charCode === 54) {
             this.loseCheat = true;
         }
+
+        // 8 key
+        else if (keyEvent.charCode === 56) {
+            this.timeAtSetPhase += 5000;
+        }
+        // 9 key
+        else if (keyEvent.charCode === 57) {
+            this.timeAtSetPhase -= 5000;
+        }
+
+
     }
 
     setPhase(phase, dontSendEvent) {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
-        if (dontSendEvent) {
-            return;
-        }
-
+        let event;
         switch (phase) {
+            case GamePhase.PLAY_START:
+                event = new CustomEvent("levelplaystart");
+                break;
             case GamePhase.PLAY:
-                document.dispatchEvent(new CustomEvent("levelplay"));
+                event = new CustomEvent("levelplay");
                 break;
             case GamePhase.LEVEL_LOAD:
-                document.dispatchEvent(new CustomEvent("levelload"));
+                this.initLevel();
+                event = new CustomEvent("levelload");
                 break;
             case GamePhase.LEVEL_LOSE:
-                document.dispatchEvent(new CustomEvent("levellose"));
+                event = new CustomEvent("levellose");
                 break;
             case GamePhase.LEVEL_WIN_START:
-                document.dispatchEvent(new CustomEvent("levelwin"));
+                event = new CustomEvent("levelwin");
                 break;
             case GamePhase.LEVEL_WIN_DRAIN_TIMER:
                 let drainTime = this.timeLeftAtLevelWin / this.timerDrainMultiplier;
-                document.dispatchEvent(new CustomEvent("timerdrain", {
+                event = new CustomEvent("timerdrain", {
                     detail: {
                         drainTime: drainTime
                     }
-                }));
+                });
                 break;
             case GamePhase.LEVEL_WIN_ADD_STARS:
                 let numStarsToAdd = this.getNumStarsFromPerformance();
@@ -312,6 +437,10 @@ export default class GameLogic {
                     setTimeout(() => (this.addStar(i + 1)), (i + 1) * this.timeToAddStar);
                 }
                 break;
+        }
+
+        if (event && !dontSendEvent) {
+            document.dispatchEvent(event);
         }
     }
 
@@ -325,6 +454,7 @@ export default class GameLogic {
         switch (this.phase) {
 
             case GamePhase.LEVEL_LOAD:
+            case GamePhase.PLAY_START:
                 return this.level.timeToComplete;
 
             case GamePhase.PLAY:
@@ -361,29 +491,28 @@ export default class GameLogic {
 
             // First bracket only has one blob, so start with a small amount of cards and increase slowly
             {numStars: 0, numBlobs: 1, numCardsStart: 20, numCardsEnd: 40,
-                maxConcurrentFlips: 6, timeToCompleteLevel: 60},
+                maxConcurrentFlips: 6, timeToCompleteLevel: 60, timerAdds: 30},
 
             // Adding a blob for the first time, so reduce the number of cards by a bit at the start
-            // timer emoji must show up at this point
-            {numStars: 20, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
+            {numStars: 10, numBlobs: 2, numCardsStart: 36, numCardsEnd: 60,
                 maxConcurrentFlips: 8, timeToCompleteLevel: 60, timerAdds: 30},
 
             // Reduce by a bit again for the third blob, but not as much.
-            {numStars: 40, numBlobs: 3, numCardsStart: 54, numCardsEnd: 80,
+            {numStars: 20, numBlobs: 3, numCardsStart: 54, numCardsEnd: 80,
                 maxConcurrentFlips: 10, timeToCompleteLevel: 75, timerAdds: 45},
 
             // Should get hard to manage here for 2 players.
             // Only reduce cards by a little bit
-            {numStars: 60, numBlobs: 4, numCardsStart: 80, numCardsEnd: 100,
+            {numStars: 30, numBlobs: 4, numCardsStart: 80, numCardsEnd: 100,
                 maxConcurrentFlips: 12, timeToCompleteLevel: 90, timerAdds: 60},
 
             // If they get this far they should be pretty good, so no more going easy
             // Keep increasing cards, and dont increase concurrent flips this time
-            {numStars: 80, numBlobs: 5, numCardsStart: 102, numCardsEnd: 120,
+            {numStars: 40, numBlobs: 5, numCardsStart: 102, numCardsEnd: 120,
                 maxConcurrentFlips: 12, timeToCompleteLevel: 90, timerAdds: 60},
 
             // Once we pass this point, go into "endurance mode"
-            {numStars: 100, enduranceMode: true},
+            {numStars: 50, enduranceMode: true},
         ];
 
         let starBracket, nextStarBracket;
@@ -454,26 +583,13 @@ export default class GameLogic {
         this.nthStarThisLevel = 0;
         this.wizardMatched = false;
         this.timerMatched = false;
+        this.interactionThisLevel = false;
 
         // Reset the cards array and populate with new cards
         this.cards = [];
         this.newCards = [];
         for (let cardKey = 0; cardKey < this.level.numCards; cardKey++) {
             this.newCards[cardKey] = new Card(0, cardKey);
-        }
-
-        // Create a shuffled array of all emojis
-        let emojisNeeded = this.level.numCards / 2;
-        let useEmojis = [];
-        for (let i = 0; i < emojisNeeded; i++){
-            useEmojis.push(emojiData.sequence[i]);
-            useEmojis.push(emojiData.sequence[i]);
-        }
-        shuffle(useEmojis);
-
-        // Distribute the shuffled emojis over the game cards
-        for (let card of this.newCards){
-            card.emoji = useEmojis.pop();
         }
 
         // Initialize the hexboard blob, and import the blobCells data into the cards.
@@ -484,6 +600,47 @@ export default class GameLogic {
             card.x = blobCell.x;
             card.y = blobCell.y;
             card.blobID = blobCell.blobID;
+        }
+
+        this.distributeEmojis();
+    }
+
+    distributeEmojis() {
+
+        // Get the emojis that will be used
+        let emojisNeeded = this.level.numCards / 2;
+        let useEmojis = emojiData.sequence.slice(0, emojisNeeded);
+
+        // None of the emojis have cards
+        let noEmojiCards = this.newCards;
+
+        // Adds 2 emojis of the same type on each loop
+        for (let emoji of useEmojis) {
+
+            // Get a random card with no emoji and give it the next emoji.
+            let randomCard1 = noEmojiCards[Math.floor(Math.random() * noEmojiCards.length)];
+            randomCard1.emoji = emoji;
+
+            // Filter out this card from the noEmojiCards
+            noEmojiCards = noEmojiCards.filter((card) => (card.emoji === 0));
+
+            // If there are cards from the same blob that do not have emojis yet,
+            // and the random chance to be in the same blob succeeds,
+            // then distribute the matching emoji in the same blob
+            let sameBlobCards = noEmojiCards.filter((card) => (card.blobID === randomCard1.blobID));
+            if (Math.random() < this.sameBlobChance && sameBlobCards.length !== 0) {
+                let randomCard2 = sameBlobCards[Math.floor(Math.random() * sameBlobCards.length)];
+                randomCard2.emoji = emoji;
+            }
+
+            // Otherwise, distribute it elsewhere
+            else {
+                let randomCard2 =  noEmojiCards[Math.floor(Math.random() * noEmojiCards.length)];
+                randomCard2.emoji = emoji;
+            }
+
+            // Filter out the second card
+            noEmojiCards = noEmojiCards.filter((card) => (card.emoji === 0));
         }
     }
 
@@ -512,18 +669,15 @@ export default class GameLogic {
 
     updateGame() {
 
-        // Dirty if statement for handling cheats
-        if (this.phase === GamePhase.PLAY || this.phase === GamePhase.LEVEL_WIN || this.phase === GamePhase.LEVEL_LOAD) {
-            if (this.winCheat) {
-                this.winCheat = false;
-                this.numStars += 5;
-                this.initLevel();
-                this.setPhase(GamePhase.LEVEL_LOAD, true);
-            }
-            else if (this.loseCheat) {
-                this.loseCheat = false;
-                this.setPhase(GamePhase.LEVEL_LOSE, true);
-            }
+        // Handle cheats
+        if (this.winCheat) {
+            this.winCheat = false;
+            this.numStars += 5;
+            this.setPhase(GamePhase.LEVEL_LOAD, true);
+        }
+        else if (this.loseCheat) {
+            this.loseCheat = false;
+            this.setPhase(GamePhase.LEVEL_LOSE, true);
         }
 
         // Game is only in the INIT phase at first launch.
@@ -548,14 +702,22 @@ export default class GameLogic {
                 this.cards.push(this.newCards.shift());
             }
 
-            // When all cards are spawned in, move to play phase.
+            // When all cards are spawned in, move to play start phase.
             if (this.cards.length === this.level.numCards) {
-                this.setPhase(GamePhase.PLAY);
+                this.setPhase(GamePhase.PLAY_START);
 
                 // Initialize cards to FACE_DOWN state.
                 for (let card of this.cards) {
-                    card.setPhase(CardPhase.FACE_DOWN);
+                    this.setCardPhase(card, CardPhase.FACE_DOWN);
                 }
+            }
+        }
+
+        else if (this.phase === GamePhase.PLAY_START) {
+            this.updateCards();
+            let timeSincePlayStart = Date.now() - this.timeAtSetPhase;
+            if (this.interactionThisLevel || timeSincePlayStart > this.timeToForceStartTimer) {
+                this.setPhase(GamePhase.PLAY);
             }
         }
 
@@ -568,6 +730,12 @@ export default class GameLogic {
             }
             else if (this.isGameLost()) {
                 this.setPhase(GamePhase.LEVEL_LOSE);
+            }
+            else if (this.numStars === 0 && this.interactionThisLevel) {
+                let idleTime = Date.now() - this.timeAtLastInteraction;
+                if (idleTime > this.timeToIdleReset) {
+                    this.setPhase(GamePhase.LEVEL_LOAD, true);
+                }
             }
         }
 
@@ -591,7 +759,6 @@ export default class GameLogic {
             // Once all cards have exited, move to LEVEL_LOAD phase.
             if (!this.cards.length) {
                 this.numStars = 0;
-                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOSE_END);
             }
         }
@@ -642,7 +809,6 @@ export default class GameLogic {
             this.updateCards();
             let timeSinceTransition = Date.now() - this.timeAtSetPhase;
             if (timeSinceTransition > this.timeToTransitionToLoad) {
-                this.initLevel();
                 this.setPhase(GamePhase.LEVEL_LOAD);
             }
         }
@@ -669,16 +835,11 @@ export default class GameLogic {
         return this.timeLeft <= 0;
     }
 
-    comboEnd(breaker) {
+    comboEnd() {
         // the cards should start exiting
         for (let comboPair of this.comboCards) {
-            if (breaker) {
-                comboPair.first.setPhase(CardPhase.COMBO_BREAKER);
-                comboPair.second.setPhase(CardPhase.COMBO_BREAKER);
-            } else {
-                comboPair.first.exiting = true;
-                comboPair.second.exiting = true;
-            }
+            comboPair.first.exiting = true;
+            comboPair.second.exiting = true;
         }
 
         // Clear the comboCards
@@ -686,18 +847,53 @@ export default class GameLogic {
         this.comboCounter = 0;
     }
 
+    // Wraps card.setPhase so that the GameLogic can apply side effects when cards change state
+    setCardPhase(card, phase) {
+        card.setPhase(phase);
+
+        if (card.phase === CardPhase.FACE_UP) {
+            this.concurrentFlips += 1;
+        }
+
+        if (card.prevPhase === CardPhase.FACE_UP) {
+            this.concurrentFlips -= 1;
+        }
+    }
+
+    comboBreaker() {
+        for (let comboPair of this.comboCards) {
+            if (!comboPair.first.brokeCombo) {
+                this.setCardPhase(comboPair.first, CardPhase.COMBO_BROKEN);
+                this.setCardPhase(comboPair.second, CardPhase.COMBO_BROKEN);
+            }
+        }
+
+        // Clear the comboCards
+        this.comboCards = [];
+        this.comboCounter = 0;
+
+        // fire a combo breaker event
+        document.dispatchEvent(new CustomEvent("combobreaker"));
+    }
+
     updateCards() {
+
+        // Set the interacted flag/timestamp if a card is faceUp
+        let interactedCard = this.cards.find((card) => card.faceUp);
+        if (interactedCard) {
+            this.interactionThisLevel = true;
+        }
 
         // Clear the combo array if time runs out to make the next match
         if (this.comboCards.length !== 0) {
 
             // Get the time since the last match
             let lastMatchPair = this.comboCards[this.comboCards.length - 1];
-            let timeSinceLastMatch = Date.now() - lastMatchPair.first.timeAtSetPhase;
+            let timeSinceLastMatch = lastMatchPair.first.timeSinceTransition;
 
             // When time runs out, break the combo
             if (timeSinceLastMatch > this.timeToCombo) {
-                this.comboEnd(false);
+                this.comboEnd();
             }
         }
 
@@ -710,7 +906,7 @@ export default class GameLogic {
 
         // Process all cards that are matchable
         let matchableCards = this.cards.filter((card) => this.canMatch(card));
-
+        shuffle(matchableCards);
         // If the time between combos is over
         while (matchableCards.length && timeSinceLastMatch > this.timeBetweenCombos) {
 
@@ -726,7 +922,6 @@ export default class GameLogic {
 
                     // Update important things
                     this.comboCounter += 1;
-                    this.concurrentFlips -= 2;
 
                     // Remove cardB from matchableCards so it isnt tested anymore
                     matchableCards = matchableCards.splice(i, 1);
@@ -737,19 +932,19 @@ export default class GameLogic {
                     for (let comboPair of this.comboCards) {
                         if (cardA.comboBonusWith(comboPair.first)) {
                             comboBonus += 2;
-                            comboPair.first.setPhase(CardPhase.MATCHED_SPECIAL_OTHER);
-                            comboPair.second.setPhase(CardPhase.MATCHED_SPECIAL_OTHER);
+                            this.setCardPhase(comboPair.first, CardPhase.MATCHED_SPECIAL_OTHER);
+                            this.setCardPhase(comboPair.second, CardPhase.MATCHED_SPECIAL_OTHER);
                             specialComboPairs.push(comboPair);
                         }
                     }
 
                     // Set the card phase
                     if (comboBonus !== 0) {
-                        cardA.setPhase(CardPhase.MATCHED_SPECIAL_THIS);
-                        cardB.setPhase(CardPhase.MATCHED_SPECIAL_THIS);
+                        this.setCardPhase(cardA, CardPhase.MATCHED_SPECIAL_THIS);
+                        this.setCardPhase(cardB, CardPhase.MATCHED_SPECIAL_THIS);
                     } else {
-                        cardA.setPhase(CardPhase.MATCHED);
-                        cardB.setPhase(CardPhase.MATCHED);
+                        this.setCardPhase(cardA, CardPhase.MATCHED);
+                        this.setCardPhase(cardB, CardPhase.MATCHED);
                     }
 
                     // Set the combo counter
@@ -793,8 +988,7 @@ export default class GameLogic {
 
             // If the card isn't touched, release it.
             if (!card.touched && !this.flipEverythingCheat) {
-                this.concurrentFlips -= 1;
-                card.setPhase(CardPhase.FACE_DOWN);
+                this.setCardPhase(card, CardPhase.FACE_DOWN);
             }
         }
 
@@ -810,14 +1004,13 @@ export default class GameLogic {
 
                 // Flip it if concurrentFlips are not in use.
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
-                    card.setPhase(CardPhase.FACE_UP);
-                    this.concurrentFlips += 1;
+                    this.setCardPhase(card, CardPhase.FACE_UP);
                 }
             }
 
             // If it is no longer touched, just make it a normal FACE_DOWN card
             else {
-                card.setPhase(CardPhase.FACE_DOWN);
+                this.setCardPhase(card, CardPhase.FACE_DOWN);
             }
         }
 
@@ -831,13 +1024,12 @@ export default class GameLogic {
 
                 // Flip the card up if there is available flips
                 if ((this.concurrentFlips < this.level.maxConcurrentFlips) || this.flipCheat) {
-                    card.setPhase(CardPhase.FACE_UP);
-                    this.concurrentFlips += 1;
+                    this.setCardPhase(card, CardPhase.FACE_UP);
                 }
 
                 // Reject the flip if all concurrent flips are in use.
                 else {
-                    card.setPhase(CardPhase.FLIP_REJECTED);
+                    this.setCardPhase(card, CardPhase.FLIP_REJECTED);
                 }
             }
         }
@@ -845,17 +1037,18 @@ export default class GameLogic {
         let shouldBeAfraidCards = this.cards.filter((card) => (this.shouldBeAfraid(card)));
         let comboBroken = false;
         for (let card of shouldBeAfraidCards) {
-            if (card.phase === CardPhase.FACE_UP) {
-                card.setPhase(CardPhase.AFRAID);
-                this.concurrentFlips -= 1;
-            }
-            else if (card.matched) {
-                card.setPhase(CardPhase.COMBO_BREAKER_AFRAID);
-                comboBroken = true;
+            if (!card.isAfraid) {
+                if (card.matched) {
+                    this.setCardPhase(card, CardPhase.COMBO_BREAKER_AFRAID);
+                    comboBroken = true;
+                } else {
+                    this.setCardPhase(card, CardPhase.AFRAID);
+                }
+
             }
         }
         if (comboBroken) {
-            this.comboEnd(true);
+            this.comboBreaker();
         }
 
         // Make cards stop being afraid
@@ -865,20 +1058,62 @@ export default class GameLogic {
             let timeSinceLastScaryCard = Date.now() - card.timeAtLastScaryCard;
             let stillScary = card.isAfraidOf(cardsThatCanBeScary);
             if (timeSinceLastScaryCard > this.timeToStayAfraid && !stillScary) {
-                card.setPhase(CardPhase.FACE_DOWN);
+                this.setCardPhase(card, CardPhase.FACE_DOWN);
             }
         }
 
         // Handle comboBroken cards
-        let comboBrokenCards = this.cards.filter((card) => (card.comboBreaker));
+        let comboBrokenCards = this.cards.filter((card) => (card.comboBroken));
         for (let card of comboBrokenCards) {
+            if (card.timeSinceTransition > this.timeToLingerAfterComboBroken) {
+                card.exiting = true;
+            }
+        }
+
+        // Handle the afraid card that triggered the combo breaker
+        let comboBreakerCards = this.cards.filter((card) => (card.brokeCombo));
+        for (let card of comboBreakerCards) {
             if (card.timeSinceTransition > this.timeToLingerAfterComboBreaker) {
                 card.exiting = true;
             }
         }
 
+        // Handle timeout on shock burned cards.
+        let shockBurnedCards = this.cards.filter((card) => (card.phase === CardPhase.SHOCK_BURNED));
+        for (let card of shockBurnedCards) {
+            if (card.timeSinceTransition > this.timeToStayShockBurned) {
+                this.setCardPhase(card, CardPhase.FACE_DOWN);
+            }
+        }
+
+        // Handle shock emoji shocking cards
+        let shockEmojiCards = this.cards.filter((card) => (card.phase === CardPhase.FACE_UP && card.emoji === '⚡'));
+        for (let card of shockEmojiCards) {
+            if (card.timeSinceTransition > this.timeToShock && !card.hasShocked) {
+                card.hasShocked = true;
+                card.timeAtShock = Date.now();
+                this.shockRandomCard();
+            }
+        }
+
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
+    }
+
+
+    shockRandomCard() {
+        let canShockCards = this.cards.filter((card) => card.isShockable);
+        if (canShockCards.length !== 0) {
+            let randomCard = canShockCards[Math.floor(Math.random() * canShockCards.length)];
+            if (!randomCard.matched) {
+                this.setCardPhase(randomCard, CardPhase.SHOCK_BURNED);
+            } else {
+                let matchingCard = this.cards.find((card) => card !== randomCard && card.emoji === randomCard.emoji);
+                this.setCardPhase(randomCard, CardPhase.COMBO_BREAKER_SHOCKED);
+                this.setCardPhase(matchingCard, CardPhase.COMBO_BREAKER_SHOCKED);
+                this.comboBreaker();
+            }
+        }
     }
 
     // In order for a card to be matched it has to be face up for a certain amount of time

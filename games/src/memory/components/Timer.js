@@ -1,7 +1,7 @@
 import React from 'react';
 import "./Fonts.css"
 import {Motion, presets, spring} from "react-motion";
-import CardFlipDot from "./CardFlipCounter";
+import {GamePhase}  from "../controllers/GameLogic.js";
 
 export default class Timer extends React.Component {
 
@@ -23,6 +23,31 @@ export default class Timer extends React.Component {
 
         let gameLogic = this.props.gameLogic;
 
+        let timerStartBlink = false;
+        let timerEndBlink = false;
+        if (gameLogic.phase === GamePhase.PLAY && gameLogic.numStars !== 0) {
+
+            let timeSincePlay = Date.now() - gameLogic.timeAtSetPhase;
+            if (timeSincePlay < 3000 && timeSincePlay % 500 < 250) {
+                timerStartBlink = true;
+            }
+
+            let timeLeftms = gameLogic.timeLeft * 1000;
+            if (timeLeftms < 5000 && timeLeftms % 500 < 250) {
+                timerEndBlink = true;
+            }
+        }
+
+        let timerColor;
+        if (timerStartBlink) {
+            timerColor = "#939cd2";
+        }
+        else if (timerEndBlink) {
+            timerColor = "#d2725f";
+        } else {
+            timerColor = "#1a1a35";
+        }
+
         let containerStyle = {
             position: 'absolute',
             height: 0,
@@ -39,6 +64,7 @@ export default class Timer extends React.Component {
             transform: "translate(-50%, -50%)",
             hyphens: "none",
             zIndex: 2,
+            color: timerColor,
         };
 
         let minutes, seconds;
@@ -65,7 +91,7 @@ export default class Timer extends React.Component {
             position: 'absolute',
             width: '0vh',
             height: '0vh',
-            transform: `translate(0vh, -5.5vh)`
+            transform: `translate(0vh, -5.5vh)`,
         };
 
         return (

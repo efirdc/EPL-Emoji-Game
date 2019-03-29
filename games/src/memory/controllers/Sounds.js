@@ -35,6 +35,10 @@ import catMeowSoundFile from '../sounds/catnoise.mp3';
 import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
 
+import shockSoundFile from '../sounds/shortcircuit.wav';
+
+import comboBreakerSoundFile from '../sounds/combobreaker.wav';
+
 import {Howl} from "howler";
 
 export default {
@@ -83,4 +87,8 @@ export default {
     ],
 
     absorbSound: new Howl({src: absorbSoundFile}),
+
+    shockSound: new Howl({src: shockSoundFile}),
+
+    comboBreakerSound: new Howl({src: comboBreakerSoundFile}),
 }
