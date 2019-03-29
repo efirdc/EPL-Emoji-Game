@@ -26,9 +26,9 @@ import absorbSoundFile from '../sounds/getmoney.ogg'
 import chachingSoundFile from '../sounds/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
 import foodSizzlingSoundFile from '../sounds/foodsizzling.mp3';
+import policeSirenSoundFile from '../sounds/policesiren.mp3';
 import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
-import heartbeatSoundFile from '../sounds/heartbeat.mp3';
-import defibrillatorSoundFile from '../sounds/defibrillator.mp3';
+import sneezeSoundFile from '../sounds/sneeze.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
@@ -66,9 +66,9 @@ export default {
         chaching: new Howl({src: [chachingSoundFile]}),
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
+        policeSiren: new Howl({src: [policeSirenSoundFile]}),
         fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
-        heartbeat: new Howl({src: [heartbeatSoundFile]}),
-        defibrillator: new Howl({src: [defibrillatorSoundFile]}),
+        sneeze: new Howl({src: [sneezeSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
     },
 

@@ -93,6 +93,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.foodSizzling.play();
                 break;
             case '👮': // police (not sure)
+                Sounds.comboBonusSounds.policeSiren.play();
                 break;
             case '🛸': // alien (generic spooky alien noise)
                 break;
@@ -100,8 +101,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.fireTruckHorn.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
-                Sounds.comboBonusSounds.heartbeat.play();
-                //Sounds.comboBonusSounds.defibrillator.play();
+                Sounds.comboBonusSounds.sneeze.play();
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
                 Sounds.comboBonusSounds.rocketLaunch.play();
