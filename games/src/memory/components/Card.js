@@ -49,6 +49,8 @@ export default class Card extends React.Component {
         this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness));
         this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness));
 
+        this.statusIndicator = '';
+
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.handlePointer = this.handlePointer.bind(this);
         this.touchStartBehavior = this.touchStartBehavior.bind(this);
@@ -67,7 +69,7 @@ export default class Card extends React.Component {
             return true;
         }
 
-        if (this.card.isAfraid || this.card.isShocked) {
+        if (this.card.isAfraid || this.card.isShocked || this.card.brokeCombo) {
             return true;
         }
 
@@ -145,6 +147,7 @@ export default class Card extends React.Component {
             rotation: 0,
             scale: 0,
             comboIndicatorScale: 0,
+            statusIndicatorScale: 0,
         };
     }
 
@@ -155,6 +158,7 @@ export default class Card extends React.Component {
         values.x = this.card.x;
         values.y = this.card.y;
         values.comboIndicatorScale = 0.0;
+        values.statusIndicatorScale = 0.0;
 
         values.flipRotation = this.card.faceUp ? 180 : 0;
         values.scale = this.card.faceUp ? 0.9 : 0.8;
@@ -169,9 +173,8 @@ export default class Card extends React.Component {
             values.y += shiverRadius * Math.sin(shiverAngle);
         }
 
-        // The afraid card that triggers a combo breaker should shrink and shake erratically.
-        let comboBreakerAfraidCard = this.card.isAfraid && this.card.comboBreaker;
-        if (comboBreakerAfraidCard) {
+        // Cards that trigger a combo breaker should shrink and shake erratically.
+        if (this.card.brokeCombo) {
             let shiverAngle = 2 * Math.PI * Math.random();
             let shiverRadius = 1.0;
             values.x += shiverRadius * Math.cos(shiverAngle);
@@ -206,6 +209,10 @@ export default class Card extends React.Component {
             }
         }
 
+        if (this.card.isBurned || this.card.isShocked) {
+            values.statusIndicatorScale = 1.0;
+        }
+
         // Special matched cards have special wobble rotate animation
         if (this.card.specialMatch) {
             if (this.card.timeSinceTransition < 100) {
@@ -236,6 +243,7 @@ export default class Card extends React.Component {
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
         values.scale = spring(values.scale, {stiffness: 120, damping: 7});
         values.comboIndicatorScale = spring(values.comboIndicatorScale, {stiffness: 150, damping: 15});
+        values.statusIndicatorScale = spring(values.statusIndicatorScale, {stiffness: 150, damping: 15});
         values.rotation = spring(values.rotation, {stiffness: 120, damping: 5});
 
         return values;
@@ -259,7 +267,7 @@ export default class Card extends React.Component {
         let colorId = this.card.blobID % this.eplColors.length;
 
         let cardBackBorderColor;
-        if (this.card.isBurned) {
+        if (this.card.isBurned || this.card.isShocked) {
             cardBackBorderColor = "#120f12";
         }
         else {
@@ -270,7 +278,7 @@ export default class Card extends React.Component {
         if (this.card.flipRejected) {
             cardBackInnerColor = this.eplColorsFlipRejected[colorId];
         }
-        else if (this.card.isBurned) {
+        else if (this.card.isBurned || this.card.isShocked) {
             cardBackInnerColor = "#282528"
         }
         else {
@@ -301,6 +309,9 @@ export default class Card extends React.Component {
         let frontColor;
         if (this.card.specialMatch) {
             frontColor = "#f296ff";
+        }
+        else if (this.card.brokeCombo && this.card.isShocked) {
+            frontColor = "#535053";
         }
         else if (this.card.comboBreaker) {
             frontColor = "#ff3726";
@@ -359,11 +370,11 @@ export default class Card extends React.Component {
             `,
         };
 
-        let comboIndicatorRadius = 3.5;
+        let indicatorRadius = 3.5;
+
         let comboIndicatorSize = 0.30 * this.props.size;
         let comboIndicatorAngle = emojiAngle - 35;
         let comboIndicatorTiltAngle = 10;
-
         const comboIndicatorContainer = {
             zIndex: '5',
             position: 'absolute',
@@ -372,9 +383,8 @@ export default class Card extends React.Component {
             left: "50%",
             width: '0vh',
             height: '0vh',
-            transform: `rotate(${comboIndicatorAngle}deg) translate(0vh, -${comboIndicatorRadius}vh)`
+            transform: `rotate(${comboIndicatorAngle}deg) translate(0vh, -${indicatorRadius}vh)`
         };
-
         const comboIndicator = {
             zIndex: '5',
             position: 'absolute',
@@ -388,7 +398,32 @@ export default class Card extends React.Component {
             lineHeight: comboIndicatorSize + "vh",
         };
 
-        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, twemoji, comboIndicator, comboIndicatorContainer};
+        let statusIndicatorAngle = emojiAngle + 35;
+        let statusIndicatorTiltAngle = -10;
+        let statusIndicatorSize = 0.5 * this.props.size;
+        const statusIndicatorContainer = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            top: "50%",
+            left: "50%",
+            width: '0vh',
+            height: '0vh',
+            transform: `rotate(${statusIndicatorAngle}deg) translate(0vh, -${indicatorRadius}vh)`
+        };
+        const statusIndicator = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            transform: `translate(-50%, -50%) rotate(${statusIndicatorTiltAngle}deg) scale(${values.statusIndicatorScale})`,
+            fontFamily: "'Arial Black', Gadget, sans-serif",
+            fontSize: statusIndicatorSize + "vh",
+            color: this.card.specialMatch ? "#ff00bb" : '#e92200',
+            lineHeight: statusIndicatorSize + "vh",
+        };
+
+        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, twemoji,
+            comboIndicator, comboIndicatorContainer, statusIndicator, statusIndicatorContainer};
     }
 
     render() {
@@ -397,6 +432,13 @@ export default class Card extends React.Component {
         let targetValues = this.getTargetValues();
 
         let useTwemoji = false;
+
+        if (this.card.isBurned) {
+            this.statusIndicator = '🔥';
+        }
+        else if (this.card.isShocked) {
+            this.statusIndicator = '⚡';
+        }
 
         return(
             <Motion defaultStyle={initialValues} style={targetValues}>
@@ -409,6 +451,9 @@ export default class Card extends React.Component {
                             <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
                             <div style={styles.comboIndicatorContainer}>
                                 <div style={styles.comboIndicator}>{combo}</div>
+                            </div>
+                            <div style={styles.statusIndicatorContainer}>
+                                <div style={styles.statusIndicator}>{this.statusIndicator}</div>
                             </div>
 
                             <div className={"card"} style={styles.cardFront}>

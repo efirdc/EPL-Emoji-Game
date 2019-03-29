@@ -28,8 +28,8 @@ export const CardPhase = {
     FACE_UP: 2,
     FLIP_REJECTED: 30,
     AFRAID: 31,
-    COMBO_BREAKER_AFRAID: 32,
-    COMBO_BREAKER: 33,
+    COMBO_BROKEN: 32,
+    COMBO_BREAKER_AFRAID: 33,
     COMBO_BREAKER_SHOCKED: 34,
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
@@ -78,6 +78,7 @@ class Card {
                 ));
                 break;
             case CardPhase.SHOCK_BURNED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 document.dispatchEvent(new CustomEvent(
                     "shockburned",
                     {detail: {card: this}}
@@ -109,7 +110,7 @@ class Card {
             case CardPhase.MATCHED:
             case CardPhase.MATCHED_SPECIAL_THIS:
             case CardPhase.MATCHED_SPECIAL_OTHER:
-            case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BROKEN:
             case CardPhase.COMBO_BREAKER_AFRAID:
             case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
@@ -130,9 +131,6 @@ class Card {
 
     get isBurned () {
         switch (this.phase) {
-            case CardPhase.SHOCK_BURNED:
-            case CardPhase.COMBO_BREAKER_SHOCKED:
-                return true;
             default:
                 return false;
         }
@@ -181,9 +179,28 @@ class Card {
 
     get comboBreaker () {
         switch (this.phase) {
-            case CardPhase.COMBO_BREAKER:
+            case CardPhase.COMBO_BROKEN:
             case CardPhase.COMBO_BREAKER_AFRAID:
             case CardPhase.COMBO_BREAKER_SHOCKED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get brokeCombo () {
+        switch (this.phase) {
+            case CardPhase.COMBO_BREAKER_AFRAID:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    get comboBroken () {
+        switch (this.phase) {
+            case CardPhase.COMBO_BROKEN:
                 return true;
             default:
                 return false;
@@ -315,19 +332,19 @@ export default class GameLogic {
         this.timeToStayAfraid = 1000;
         this.timeToCombo = 2250;
         this.timeBetweenCombos = 750;
-        this.timeToLingerAfterComboBreaker = 1500;
-        this.timeToLingerAfterComboBreakerAfraid = 3000;
+        this.timeToLingerAfterComboBroken = 1500;
+        this.timeToLingerAfterComboBreaker = 6000;
         this.timeToDelete = 1000;
         this.timeToSpawnCard = 50;
         this.timeToTransitionToDrainTimer = 1500;
-        this.timeToTransitionToAddStars = 2000;
+        this.timeToTransitionToAddStars = 2500;
         this.timeToTransitionToLoad = 1000;
         this.timeToWaitAfterLevelLose = 2000;
         this.timerDrainMultiplier = 20;
-        this.timeToAddStar = 800;
+        this.timeToAddStar = 1000;
         this.timeToIdleReset = 300 * 1000;
         this.timeToForceStartTimer = 5000;
-        this.timeToStayShockBurned = 5000;
+        this.timeToStayShockBurned = 8000;
         this.timeToShock = 200;
 
         this.initLevel();
@@ -845,9 +862,9 @@ export default class GameLogic {
 
     comboBreaker() {
         for (let comboPair of this.comboCards) {
-            if (!comboPair.first.isAfraid) {
-                this.setCardPhase(comboPair.first, CardPhase.COMBO_BREAKER);
-                this.setCardPhase(comboPair.second, CardPhase.COMBO_BREAKER);
+            if (!comboPair.first.brokeCombo) {
+                this.setCardPhase(comboPair.first, CardPhase.COMBO_BROKEN);
+                this.setCardPhase(comboPair.second, CardPhase.COMBO_BROKEN);
             }
         }
 
@@ -1020,12 +1037,14 @@ export default class GameLogic {
         let shouldBeAfraidCards = this.cards.filter((card) => (this.shouldBeAfraid(card)));
         let comboBroken = false;
         for (let card of shouldBeAfraidCards) {
-            if (card.matched && !card.isAfraid) {
-                this.setCardPhase(card, CardPhase.COMBO_BREAKER_AFRAID);
-                comboBroken = true;
-            }
-            else {
-                this.setCardPhase(card, CardPhase.AFRAID);
+            if (!card.isAfraid) {
+                if (card.matched) {
+                    this.setCardPhase(card, CardPhase.COMBO_BREAKER_AFRAID);
+                    comboBroken = true;
+                } else {
+                    this.setCardPhase(card, CardPhase.AFRAID);
+                }
+
             }
         }
         if (comboBroken) {
@@ -1044,17 +1063,17 @@ export default class GameLogic {
         }
 
         // Handle comboBroken cards
-        let comboBrokenCards = this.cards.filter((card) => (card.comboBreaker && !card.isAfraid));
+        let comboBrokenCards = this.cards.filter((card) => (card.comboBroken));
         for (let card of comboBrokenCards) {
-            if (card.timeSinceTransition > this.timeToLingerAfterComboBreaker) {
+            if (card.timeSinceTransition > this.timeToLingerAfterComboBroken) {
                 card.exiting = true;
             }
         }
 
         // Handle the afraid card that triggered the combo breaker
-        let comboBreakerCards = this.cards.filter((card) => (card.comboBreaker && card.isAfraid));
+        let comboBreakerCards = this.cards.filter((card) => (card.brokeCombo));
         for (let card of comboBreakerCards) {
-            if (card.timeSinceTransition > this.timeToLingerAfterComboBreakerAfraid) {
+            if (card.timeSinceTransition > this.timeToLingerAfterComboBreaker) {
                 card.exiting = true;
             }
         }
@@ -1067,6 +1086,7 @@ export default class GameLogic {
             }
         }
 
+        // Handle shock emoji shocking cards
         let shockEmojiCards = this.cards.filter((card) => (card.phase === CardPhase.FACE_UP && card.emoji === '⚡'));
         for (let card of shockEmojiCards) {
             if (card.timeSinceTransition > this.timeToShock && !card.hasShocked) {
@@ -1080,16 +1100,18 @@ export default class GameLogic {
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
     }
 
-    isShockable(card) {
-        return !card.matched && !card.exiting && !card.isBurned && card.emoji !== '⚡';
-    }
 
     shockRandomCard() {
-        let canShockCards = this.cards.filter((card) => this.isShockable(card));
+        let canShockCards = this.cards.filter((card) => card.isShockable);
         if (canShockCards.length !== 0) {
             let randomCard = canShockCards[Math.floor(Math.random() * canShockCards.length)];
             if (!randomCard.matched) {
                 this.setCardPhase(randomCard, CardPhase.SHOCK_BURNED);
+            } else {
+                let matchingCard = this.cards.find((card) => card !== randomCard && card.emoji === randomCard.emoji);
+                this.setCardPhase(randomCard, CardPhase.COMBO_BREAKER_SHOCKED);
+                this.setCardPhase(matchingCard, CardPhase.COMBO_BREAKER_SHOCKED);
+                this.comboBreaker();
             }
         }
     }
