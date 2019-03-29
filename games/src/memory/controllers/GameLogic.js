@@ -54,10 +54,13 @@ class Card {
     }
 
     setPhase(phase) {
+
+        // Store the new phase, the previous phase, and a timestamp
         this.prevPhase = this.phase;
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
+        // Trigger events and side effects
         switch (phase) {
             case CardPhase.FACE_UP:
                 document.dispatchEvent(new CustomEvent("faceUp"));
@@ -72,17 +75,19 @@ class Card {
         }
     }
 
+    // Gets the time in ms since the phase was set
     get timeSinceTransition () {
         return Date.now() - this.timeAtSetPhase;
     }
 
+    // Saves the timeAtStartExit when exiting is changed from true to false
+    // cards that are set to exiting will be deleted from the game after some time
     set exiting(newValue) {
         if (newValue === true && !this._exiting) {
             this.timeAtStartExit = Date.now();
         }
         this._exiting = newValue;
     }
-
     get exiting() {
         return this._exiting;
     }
@@ -164,10 +169,12 @@ class Card {
         }
     }
 
+    // Returns true if this card has a special effect
     get specialCard () {
         return this.emoji === '⏱' || this.emoji === '🧙‍';
     }
 
+    // Returns true if this card has a combo bonus with the otherCard
     comboBonusWith(otherCard) {
         let thisCombos = false;
         let otherCombos = false;
@@ -179,6 +186,7 @@ class Card {
         return thisCombos || otherCombos;
     }
 
+    // Returns true if this card is afraid of any of the cards in the otherCards array
     isAfraidOf(otherCards) {
         for (let otherCard of otherCards) {
             if (emojiData.afraidOf[this.emoji]) {
