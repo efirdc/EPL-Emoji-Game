@@ -30,6 +30,7 @@ export const CardPhase = {
     AFRAID: 31,
     COMBO_BREAKER_AFRAID: 32,
     COMBO_BREAKER: 33,
+    COMBO_BREAKER_SHOCKED: 34,
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
     MATCHED_SPECIAL_OTHER: 42,
@@ -105,6 +106,7 @@ class Card {
             case CardPhase.MATCHED_SPECIAL_OTHER:
             case CardPhase.COMBO_BREAKER:
             case CardPhase.COMBO_BREAKER_AFRAID:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
             default:
                 return false;
@@ -124,6 +126,7 @@ class Card {
     get isBurned () {
         switch (this.phase) {
             case CardPhase.SHOCK_BURNED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
             default:
                 return false;
@@ -133,6 +136,7 @@ class Card {
     get isShocked () {
         switch (this.phase) {
             case CardPhase.SHOCK_BURNED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
             default:
                 return false;
@@ -174,6 +178,7 @@ class Card {
         switch (this.phase) {
             case CardPhase.COMBO_BREAKER:
             case CardPhase.COMBO_BREAKER_AFRAID:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
                 return true;
             default:
                 return false;
@@ -185,6 +190,36 @@ class Card {
             case CardPhase.AFRAID:
             case CardPhase.COMBO_BREAKER_AFRAID:
                 return true;
+            default:
+                return false;
+        }
+    }
+
+    get isShockable () {
+        switch (this.phase) {
+            case CardPhase.FACE_DOWN:
+            case CardPhase.FACE_UP:
+            case CardPhase.FLIP_REJECTED:
+            case CardPhase.AFRAID:
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                return !this.exiting && this.emoji !== '⚡';
+            default:
+                return false;
+        }
+    }
+
+    get isBurnable () {
+        switch (this.phase) {
+            case CardPhase.FACE_DOWN:
+            case CardPhase.FACE_UP:
+            case CardPhase.FLIP_REJECTED:
+            case CardPhase.AFRAID:
+            case CardPhase.MATCHED:
+            case CardPhase.MATCHED_SPECIAL_THIS:
+            case CardPhase.MATCHED_SPECIAL_OTHER:
+                return !this.exiting && this.emoji !== '🔥';
             default:
                 return false;
         }
@@ -1040,7 +1075,12 @@ export default class GameLogic {
         let canShockCards = this.cards.filter((card) => this.isShockable(card));
         if (canShockCards.length !== 0) {
             let randomCard = canShockCards[Math.floor(Math.random() * canShockCards.length)];
-            randomCard.setPhase(CardPhase.SHOCK_BURNED);
+            if (!randomCard.matched) {
+                randomCard.setPhase(CardPhase.SHOCK_BURNED);
+                if (randomCard.prevPhase === GamePhase.FACE_UP) {
+                    this.concurrentFlips -= 1;
+                }
+            }
         }
     }
 
