@@ -17,6 +17,8 @@ export default class AudioManager {
         document.addEventListener("particleabsorb", this.handleEvents);
         document.addEventListener("addstar", this.handleEvents);
         document.addEventListener("afraid", this.handleEvents);
+        document.addEventListener("combobreaker", this.handleEvents);
+        document.addEventListener("shockburned", this.handleEvents);
     }
 
     handleEvents(event) {
@@ -56,6 +58,12 @@ export default class AudioManager {
                 break;
             case "afraid":
                 this.afraidSound(event.detail.card.emoji);
+                break;
+            case "combobreaker":
+                Sounds.comboBreakerSound.play();
+                break;
+            case "shockburned":
+                Sounds.shockSound.play();
                 break;
         }
 

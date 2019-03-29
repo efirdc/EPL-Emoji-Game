@@ -67,7 +67,7 @@ export default class Card extends React.Component {
             return true;
         }
 
-        if (this.card.isAfraid) {
+        if (this.card.isAfraid || this.card.isShocked) {
             return true;
         }
 
@@ -161,12 +161,31 @@ export default class Card extends React.Component {
 
         values.rotation = 0.0;
 
-
-        if (this.card.isAfraid && this.card.timeSinceTransition % 5000 < 3000) {
+        let normalAfraidCard = this.card.isAfraid && !this.card.comboBreaker;
+        if (normalAfraidCard && this.card.timeSinceTransition % 5000 < 3000) {
             let shiverAngle = 2 * Math.PI * Math.random();
             let shiverRadius = 0.5;
             values.x += shiverRadius * Math.cos(shiverAngle);
             values.y += shiverRadius * Math.sin(shiverAngle);
+        }
+
+        // The afraid card that triggers a combo breaker should shrink and shake erratically.
+        let comboBreakerAfraidCard = this.card.isAfraid && this.card.comboBreaker;
+        if (comboBreakerAfraidCard) {
+            let shiverAngle = 2 * Math.PI * Math.random();
+            let shiverRadius = 1.0;
+            values.x += shiverRadius * Math.cos(shiverAngle);
+            values.y += shiverRadius * Math.sin(shiverAngle);
+            values.scale = 0.7;
+        }
+
+        // Shocked cards shake violently for a short time
+        if (this.card.isShocked && this.card.timeSinceTransition < 600) {
+            let shiverAngle = 2 * Math.PI * Math.random();
+            let shiverRadius = 2.0;
+            values.x += shiverRadius * Math.cos(shiverAngle);
+            values.y += shiverRadius * Math.sin(shiverAngle);
+            values.scale = 0.8;
         }
 
         // Matched cards should pop out
@@ -237,24 +256,39 @@ export default class Card extends React.Component {
             `,
         };
 
-        // blobID decides card back color
         let colorId = this.card.blobID % this.eplColors.length;
-        let color = this.eplColors[colorId];
-        let borderColor = this.eplColorsBorder[colorId];
-        let flipRejectedColor = this.eplColorsFlipRejected[colorId];
+
+        let cardBackBorderColor;
+        if (this.card.isBurned) {
+            cardBackBorderColor = "#120f12";
+        }
+        else {
+            cardBackBorderColor = this.eplColorsBorder[colorId];
+        }
+
+        let cardBackInnerColor;
+        if (this.card.flipRejected) {
+            cardBackInnerColor = this.eplColorsFlipRejected[colorId];
+        }
+        else if (this.card.isBurned) {
+            cardBackInnerColor = "#282528"
+        }
+        else {
+            cardBackInnerColor = this.eplColors[colorId];
+        }
 
         const cardBack = {
             zIndex: '2',
 
             transform: `rotateX(${values.flipRotation}deg)`,
-            backgroundColor: borderColor,
+            backgroundColor: cardBackBorderColor,
         };
 
         const cardBackInner = {
             zIndex: '3',
 
             transform: "scale(0.88)",
-            backgroundColor: this.card.flipRejected ? flipRejectedColor : color,
+            backgroundColor: cardBackInnerColor,
         };
 
         const cardFront = {
@@ -276,6 +310,9 @@ export default class Card extends React.Component {
         }
         else if (this.card.matched) {
             frontColor = "#5ef997";
+        }
+        else if (this.card.emoji === '⚡') {
+            frontColor = "#f9ed6a";
         }
         else {
             frontColor = "#e5eae8";
