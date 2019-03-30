@@ -23,17 +23,22 @@ import starSoundFile5 from '../sounds/star5.mp3';
 
 import absorbSoundFile from '../sounds/getmoney.ogg'
 
+import vampireLaughSoundFile from '../sounds/vampirelaugh.mp3';
 import chachingSoundFile from '../sounds/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
 import foodSizzlingSoundFile from '../sounds/foodsizzling.mp3';
+import foodChoppingSoundFile from '../sounds/foodchopping.mp3';
+import potsAndPansSoundFile from '../sounds/potsandpans.mp3';
 import policeSirenSoundFile from '../sounds/policesiren.mp3';
 import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
 import sneezeSoundFile from '../sounds/sneeze.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
+import pigSquealSoundFile from '../sounds/pignoise.mp3';
 import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
+import vomitSoundFile from '../sounds/vomitnoise.mp3';
 
 import shockSoundFile from '../sounds/shortcircuit.wav';
 
@@ -63,9 +68,12 @@ export default {
     loseSound: new Howl({src: [loseSoundFile]}),
 
     comboBonusSounds: {
+        vampireLaugh: new Howl({src: [vampireLaughSoundFile]}),
         chaching: new Howl({src: [chachingSoundFile]}),
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
+        foodChopping: new Howl({src: [foodChoppingSoundFile]}),
+        potsAndPans: new Howl({src: [potsAndPansSoundFile]}),
         policeSiren: new Howl({src: [policeSirenSoundFile]}),
         fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
         sneeze: new Howl({src: [sneezeSoundFile]}),
@@ -74,8 +82,10 @@ export default {
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
+        pigSqueal: new Howl({src: [pigSquealSoundFile]}),
         teethChattering: new Howl({src: [teethChatteringSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
+        vomit: new Howl({src: [vomitSoundFile]}),
     },
 
     starSounds: [

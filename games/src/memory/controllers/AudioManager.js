@@ -79,7 +79,8 @@ export default class AudioManager {
         switch (emoji) {
             case '🧟': // zombie (braaaaaains)
                 break;
-            case '🧛': // vampire (dracula noise?)
+            case '🧛‍': // vampire (dracula noise?)
+                Sounds.comboBonusSounds.vampireLaugh.play();
                 break;
             case '🤑': // money (cha-ching)
                 Sounds.comboBonusSounds.chaching.play();
@@ -127,6 +128,7 @@ export default class AudioManager {
             case '🐶': // dog (dog whimper noise)
                 break;
             case '🐷': // pig (pig squeal)
+                Sounds.afraidOfSounds.pigSqueal.play();
                 break;
             case '🥶': // frozen guy (cold person shivering? this one is kind of dumb so will replace maybe)
                 Sounds.afraidOfSounds.teethChattering.play();
@@ -141,6 +143,7 @@ export default class AudioManager {
             case '🤓': // nerd (nerd sounds)
                 break;
             case '🤢': // sick guy (cartoony puke noise)
+                Sounds.afraidOfSounds.vomit.play();
                 break;
         }
     }
