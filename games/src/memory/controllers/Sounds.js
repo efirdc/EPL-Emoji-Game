@@ -23,6 +23,7 @@ import starSoundFile5 from '../sounds/star5.mp3';
 
 import absorbSoundFile from '../sounds/getmoney.ogg'
 
+import zombieSoundFile from '../sounds/zombie.wav';
 import vampireLaughSoundFile from '../sounds/vampirelaugh.mp3';
 import chachingSoundFile from '../sounds/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
@@ -33,8 +34,10 @@ import policeSirenSoundFile from '../sounds/policesiren.mp3';
 import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
 import sneezeSoundFile from '../sounds/sneeze.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+import electricGuitarSoundFile from '../sounds/electricguitar.mp3';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
+import dogYelpSoundFile from '../sounds/dognoise.mp3';
 import pigSquealSoundFile from '../sounds/pignoise.mp3';
 import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
@@ -68,6 +71,7 @@ export default {
     loseSound: new Howl({src: [loseSoundFile]}),
 
     comboBonusSounds: {
+        zombie: new Howl({src: [zombieSoundFile]}),
         vampireLaugh: new Howl({src: [vampireLaughSoundFile]}),
         chaching: new Howl({src: [chachingSoundFile]}),
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
@@ -78,10 +82,12 @@ export default {
         fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
         sneeze: new Howl({src: [sneezeSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
+        electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
     },
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
+        dogYelp: new Howl({src: [dogYelpSoundFile]}),
         pigSqueal: new Howl({src: [pigSquealSoundFile]}),
         teethChattering: new Howl({src: [teethChatteringSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),

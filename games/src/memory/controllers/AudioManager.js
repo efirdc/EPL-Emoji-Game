@@ -77,7 +77,8 @@ export default class AudioManager {
 
     specialComboSound(emoji) {
         switch (emoji) {
-            case '🧟': // zombie (braaaaaains)
+            case '🧟‍': // zombie (braaaaaains)
+                Sounds.comboBonusSounds.zombie.play();
                 break;
             case '🧛‍': // vampire (dracula noise?)
                 Sounds.comboBonusSounds.vampireLaugh.play();
@@ -110,6 +111,7 @@ export default class AudioManager {
             case '🎷': // saxophone (duh)
                 break;
             case '🎸': // guitar (duh)
+                Sounds.comboBonusSounds.electricGuitar.play();
                 break;
             case '🎺': // trumpet (duh)
                 break;
@@ -126,6 +128,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.catMeow.play();
                 break;
             case '🐶': // dog (dog whimper noise)
+                Sounds.afraidOfSounds.dogYelp.play();
                 break;
             case '🐷': // pig (pig squeal)
                 Sounds.afraidOfSounds.pigSqueal.play();
