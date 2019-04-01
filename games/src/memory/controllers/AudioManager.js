@@ -19,6 +19,8 @@ export default class AudioManager {
         document.addEventListener("afraid", this.handleEvents);
         document.addEventListener("combobreaker", this.handleEvents);
         document.addEventListener("shockburned", this.handleEvents);
+        document.addEventListener("fireburned", this.handleEvents);
+        document.addEventListener("cardignite", this.handleEvents);
     }
 
     handleEvents(event) {
@@ -64,6 +66,10 @@ export default class AudioManager {
                 break;
             case "shockburned":
                 Sounds.shockSound.play();
+                break;
+            case "fireburned":
+                break;
+            case "cardignite":
                 break;
         }
 
