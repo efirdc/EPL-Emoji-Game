@@ -1,21 +1,19 @@
 import React from 'react';
-import {Howl, Howler} from 'howler';
 
 import Card from './Card';
-import TouchPoint from './TouchPoint.js';
 import FakeTouchPoints from "./FakeTouchPoints";
 import Timer from "./Timer.js";
 import CardFlipCounter from "./CardFlipCounter.js";
 import StarCounter from "./StarCounter.js";
 import InnerFrame from "./InnerFrame.js";
 import BorderCells from "./BorderCells.js";
+import ScoreParticleManager from "./ScoreParticleManager.js";
 import BackgroundGL from "./BackgroundGL.js";
 import AspectRatioRect from "./AspectRatioRect.js";
 import GameLogic, {GamePhase} from '../controllers/GameLogic.js';
 import GameLoop from '../controllers/GameLoop.js';
-import "./Patterns.css"
-
-import Sounds from '../controllers/Sounds.js';
+import AudioManager from "../controllers/AudioManager.js";
+import "./Patterns.css";
 
 export default class Game extends React.Component {
 
@@ -23,8 +21,11 @@ export default class Game extends React.Component {
         super(props);
 
         this.loop = new GameLoop();
+        this.audioManager = new AudioManager();
 
-        this.gameLogic = new GameLogic(0);
+        this.gameLogic = new GameLogic();
+
+        this.bodyRef = React.createRef();
 
         // This binding is necessary to make `this` work in the callback
         this.tick = this.tick.bind(this);
@@ -33,30 +34,7 @@ export default class Game extends React.Component {
     }
 
     tick(deltaTime) {
-
-        let eventHappened = this.gameLogic.updateGame();
-        if (eventHappened.match) {
-            let i = Math.min(Math.floor((this.gameLogic.comboCounter-1) / 3), Sounds.matchSounds.length - 1);
-            Sounds.matchSounds[i].play();
-        }
-        if (eventHappened.faceUp) {
-            let i = Math.floor(Math.random() * (Sounds.flipSounds.length));
-            Sounds.flipSounds[i].play();
-        }
-        if (eventHappened.gameWon) {
-            setTimeout(() => (Sounds.winSound.play()), 500);
-        }
-        if (eventHappened.gameLost) {
-            Sounds.loseSound.play();
-
-        }
-        if (eventHappened.playStart) {
-
-        }
-        if (eventHappened.loadStart) {
-            Sounds.loadSound.play()
-        }
-
+        this.gameLogic.updateGame();
         this.forceUpdate();
     }
 
@@ -64,6 +42,10 @@ export default class Game extends React.Component {
     componentDidMount() {
         this.loop.start();
         this.loopID = this.loop.subscribe(this.tick);
+        this.bodyRef.current.addEventListener("touchstart", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchmove", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchend", this.preventDefaultTouch);
+        this.bodyRef.current.addEventListener("touchcancel", this.preventDefaultTouch);
     }
     componentWillUnmount() {
         this.loop.stop();
@@ -72,6 +54,10 @@ export default class Game extends React.Component {
 
     onCardTouchStart(cardKey) {
         this.gameLogic.touchStart(cardKey);
+    }
+
+    preventDefaultTouch(event) {
+        event.preventDefault();
     }
 
     onCardTouchEnd(cardKey) {
@@ -105,7 +91,7 @@ export default class Game extends React.Component {
             top: "50vh",
             left: "50vw",
             userSelect: "none",
-            //pointerEvents: 'none'
+            pointerEvents: 'all',
         };
 
         const debugRectStyle = (rectWidth, rectHeight) => ({
@@ -126,13 +112,17 @@ export default class Game extends React.Component {
         let innerCells = hexBoard.adjacentInnerCells;
         let outerCells = hexBoard.outerCells;
 
+        let timer1Pos = {x: -26, y: -6.5};
+        let timer2Pos = {x: 26, y: 6.5};
+
         return (
-            <div className={"radialGradient1"} style={bodyStyle}>
+            <div className={"radialGradient1"} style={bodyStyle} ref={this.bodyRef}>
                 <div style={boardStyle}>
                     <div>
                         {cards.map((card) => (
                             <Card
                                 {...card}
+                                card={card}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2}
                                 onCardTouchStart={this.onCardTouchStart}
@@ -147,19 +137,27 @@ export default class Game extends React.Component {
                         clearTouchPoints={this.gameLogic.phase !== GamePhase.PLAY}
                         gameLogic={gameLogic}
                     />
-                    <Timer x={-24} y={-6.5} rotation={0} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <Timer x={24} y={6.5} rotation={-180} time={this.gameLogic.timeLeft} loop={this.loop}/>
-                    <CardFlipCounter
-                        x={-24} y={5} rotation={0}
-                        numFlips={this.gameLogic.concurrentFlips}
-                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
+                    <Timer
+                        x={timer1Pos.x} y={timer1Pos.y} rotation={0}
+                        gameLogic={gameLogic}
+                    />
+                    <Timer
+                        x={timer2Pos.x} y={timer2Pos.y} rotation={-180}
+                        gameLogic={gameLogic}
                     />
                     <CardFlipCounter
-                        x={24} y={-5} rotation={180}
-                        numFlips={this.gameLogic.concurrentFlips}
-                        maxFlips={this.gameLogic.level.maxConcurrentFlips}
+                        x={-26} y={5.5} rotation={0}
+                        gameLogic={gameLogic}
                     />
-                    <StarCounter x={0} y={0} numStars={this.gameLogic.numStars}/>
+                    <CardFlipCounter
+                        x={26} y={-5.5} rotation={180}
+                        gameLogic={gameLogic}
+                    />
+                    <StarCounter
+                        x={0} y={0}
+                        gameLogic={gameLogic}
+                    />
+                    <ScoreParticleManager loop={this.loop} timer1Pos={timer1Pos} timer2Pos={timer2Pos}/>
                 </div>
             </div>
         )

@@ -15,6 +15,22 @@ import winSoundFile from "../sounds/game_over.ogg";
 import loadSoundFile from "../sounds/start_game.ogg";
 import loseSoundFile from '../sounds/game_over_booch.ogg';
 
+import starSoundFile1 from '../sounds/star1.mp3';
+import starSoundFile2 from '../sounds/star2.mp3';
+import starSoundFile3 from '../sounds/star3.mp3';
+import starSoundFile4 from '../sounds/star4.mp3';
+import starSoundFile5 from '../sounds/star5.mp3';
+
+import absorbSoundFile from '../sounds/getmoney.ogg'
+
+import chachingSoundFile from '../sounds/chaching.ogg';
+
+import catMeowSoundFile from '../sounds/catnoise.mp3';
+
+import monkeyScreechSoundFile from '../sounds/monkeynoise.ogg';
+
+import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+
 import {Howl} from "howler";
 
 export default {
@@ -37,4 +53,24 @@ export default {
     winSound: new Howl({src: [winSoundFile]}),
     loadSound: new Howl({src: [loadSoundFile]}),
     loseSound: new Howl({src: [loseSoundFile]}),
+
+    comboBonusSounds: {
+        chaching: new Howl({src: [chachingSoundFile]}),
+        rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
+    },
+
+    afraidOfSounds : {
+        catMeow: new Howl({src: [catMeowSoundFile]}),
+        monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
+    },
+
+    starSounds: [
+        new Howl({src: starSoundFile1}),
+        new Howl({src: starSoundFile2}),
+        new Howl({src: starSoundFile3}),
+        new Howl({src: starSoundFile4}),
+        new Howl({src: starSoundFile5}),
+    ],
+
+    absorbSound: new Howl({src: absorbSoundFile}),
 }
