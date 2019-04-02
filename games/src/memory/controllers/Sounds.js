@@ -41,7 +41,11 @@ import dogYelpSoundFile from '../sounds/dognoise.mp3';
 import pigSquealSoundFile from '../sounds/pignoise.mp3';
 import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
+import screamSoundFile from '../sounds/scream.wav';
+import nerdSoundFile from '../sounds/nerdnoise.mp3';
 import vomitSoundFile from '../sounds/vomitnoise.mp3';
+
+import timerSoundFile from '../sounds/timer.mp3';
 
 import shockSoundFile from '../sounds/shortcircuit.wav';
 
@@ -91,6 +95,8 @@ export default {
         pigSqueal: new Howl({src: [pigSquealSoundFile]}),
         teethChattering: new Howl({src: [teethChatteringSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
+        scream: new Howl({src: [screamSoundFile]}),
+        nerd: new Howl({src: [nerdSoundFile]}),
         vomit: new Howl({src: [vomitSoundFile]}),
     },
 
@@ -101,6 +107,8 @@ export default {
         new Howl({src: starSoundFile4}),
         new Howl({src: starSoundFile5}),
     ],
+
+    timerSound: new Howl({src: timerSoundFile}),
 
     absorbSound: new Howl({src: absorbSoundFile}),
 
