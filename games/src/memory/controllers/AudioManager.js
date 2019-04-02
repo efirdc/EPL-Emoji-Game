@@ -35,6 +35,7 @@ export default class AudioManager {
                 }
                 else if (card.emoji === '⏱') {
                     // play timer sound here
+                    Sounds.timerSound.play();
                 }
                 break;
             case "faceUp":
@@ -155,6 +156,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.scream.play();
                 break;
             case '🤓': // nerd (nerd sounds)
+                Sounds.afraidOfSounds.nerd.play();
                 break;
             case '🤢': // sick guy (cartoony puke noise)
                 Sounds.afraidOfSounds.vomit.play();

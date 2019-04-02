@@ -24,6 +24,7 @@ import starSoundFile5 from '../sounds/star5.mp3';
 import shockSoundFile from '../sounds/shortcircuit.wav';
 import comboBreakerSoundFile from '../sounds/combobreaker.wav';
 import absorbSoundFile from '../sounds/getmoney.ogg'
+import timerSoundFile from '../sounds/timer.mp3';
 
 //Afraid of sounds
 import dogWhimperSoundFile from '../sounds/pupwhimper.wav';
@@ -35,6 +36,7 @@ import dogYelpSoundFile from '../sounds/dognoise.mp3';
 import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
 import vomitSoundFile from '../sounds/vomitnoise.mp3';
+import nerdSoundFile from '../sounds/nerdnoise.mp3';
 
 //combo sounds
 import zombieSoundFile from '../sounds/zombie.wav';
@@ -58,6 +60,7 @@ import kidLaughSoundFile from '../sounds/Kid_Laugh.wav';
 import snareDrumSoundFile from '../sounds/Snare Drum.mp3';
 import trumpetSoundFile from '../sounds/trumpet.wav';
 import violinSoundFile from '../sounds/Violin.mp3';
+
 
 import {Howl} from "howler";
 
@@ -117,7 +120,8 @@ export default {
 
         dogWhimper: new Howl ({src: [dogWhimperSoundFile]}),
         pigSqueal2: new Howl ({src: [pigSquealSoundFile2]}),
-        scream: new Howl ({src: [screamSoundFile]})
+        scream: new Howl ({src: [screamSoundFile]}),
+        nerd: new Howl({src: [nerdSoundFile]}),
     },
 
     starSounds: [
@@ -128,9 +132,8 @@ export default {
         new Howl({src: starSoundFile5}),
     ],
 
+    timerSound: new Howl({src: timerSoundFile}),
     absorbSound: new Howl({src: absorbSoundFile}),
-
     shockSound: new Howl({src: shockSoundFile}),
-
     comboBreakerSound: new Howl({src: comboBreakerSoundFile}),
 }
