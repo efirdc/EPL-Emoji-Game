@@ -25,11 +25,29 @@ import absorbSoundFile from '../sounds/getmoney.ogg'
 
 import chachingSoundFile from '../sounds/chaching.ogg';
 
+import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+
+//Afraid of sounds
+import dogWhimperSoundFile from '../sounds/pupwhimper.wav';
+
+import PigSqueelSoundFile from '../sounds/PigSqueel.wav';
+
 import catMeowSoundFile from '../sounds/catnoise.mp3';
 
 import monkeyScreechSoundFile from '../sounds/monkeynoise.ogg';
 
-import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+import screamSoundFile from '../sounds/Scream.wav';
+
+//combo sounds
+import altoSaxSoundFile from '../sounds/Alto Sax.mp3';
+import fireTruckSoundFile from '../sounds/Fire Truck.wav';
+import guitarSoundFile from '../sounds/Guitar.wav';
+import draculaSoundFile from '../sounds/I Am Dracula.wav';
+import kidLaughSoundFile from '../sounds/Kid_Laugh.wav';
+import snareDrumSoundFile from '../sounds/Snare Drum.mp3';
+import trumpetSoundFile from '../sounds/trumpet.wav';
+import violinSoundFile from '../sounds/Violin.mp3';
+import zombieSoundFile from '../sounds/Zombie Moan.wav';
 
 import {Howl} from "howler";
 
@@ -57,11 +75,23 @@ export default {
     comboBonusSounds: {
         chaching: new Howl({src: [chachingSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
+        altoSax: new Howl({src: [altoSaxSoundFile]}),
+        fireTruck: new Howl({src: [fireTruckSoundFile]}),
+        guitar: new Howl({src: [guitarSoundFile]}),
+        dracula: new Howl({src: [draculaSoundFile]}),
+        kidLaugh: new Howl({src: [kidLaughSoundFile]}),
+        snareDrum: new Howl({src: [snareDrumSoundFile]}),
+        trumpet: new Howl({src: [snareDrumSoundFile]}),
+        violin: new Howl({src: [violinSoundFile]}),
+        zombie: new Howl({src: [zombieSoundFile]})
     },
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
+        dogWhimper: new Howl ({src: [dogWhimperSoundFile]}),
+        pigSqueel: new Howl ({src: [PigSqueelSoundFile]}),
+        scream: new Howl ({src: [screamSoundFile]})
     },
 
     starSounds: [

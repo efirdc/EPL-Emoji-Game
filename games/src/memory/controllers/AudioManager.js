@@ -67,13 +67,16 @@ export default class AudioManager {
     specialComboSound(emoji) {
         switch (emoji) {
             case '🧟': // zombie (braaaaaains)
+                Sounds.comboBonusSounds.zombie.play();
                 break;
             case '🧛': // vampire (dracula noise?)
+                Sounds.comboBonusSounds.dracula.play();
                 break;
             case '🤑': // money (cha-ching)
                 Sounds.comboBonusSounds.chaching.play();
                 break;
             case '👶': // baby (laughing)
+                Sounds.comboBonusSounds.kidLaugh.play();
                 break;
             case '🤵': // wedding (cartoony wedding march clip)
                 break;
@@ -84,6 +87,7 @@ export default class AudioManager {
             case '🛸': // alien (generic spooky alien noise)
                 break;
             case '👨‍🚒': // fireman (firetruck horn)
+                Sounds.comboBonusSounds.fireTruck.play()
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
                 break;
@@ -91,14 +95,19 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
+                Sounds.comboBonusSounds.altoSax.play();
                 break;
             case '🎸': // guitar (duh)
+                Sounds.comboBonusSounds.guitar.play();
                 break;
             case '🎺': // trumpet (duh)
+                Sounds.comboBonusSounds.trumpet.play();
                 break;
             case '🎻': // violin (duh)
+                Sounds.comboBonusSounds.violin.play();
                 break;
             case '🥁': // snare (duh)
+                Sounds.comboBonusSounds.snareDrum.play();
                 break;
         }
     }
@@ -109,8 +118,10 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.catMeow.play();
                 break;
             case '🐶': // dog (dog whimper noise)
+                Sounds.afraidOfSounds.dogWhimper.play();
                 break;
             case '🐷': // pig (pig squeal)
+                Sounds.afraidOfSounds.pigSqueel.play();
                 break;
             case '🥶': // frozen guy (cold person shivering? this one is kind of dumb so will replace maybe)
                 break;
@@ -120,6 +131,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.monkeyScreech.play();
                 break;
             case '😱': // shocked emoji (willhelm scream!)
+                Sounds.afraidOfSounds.scream,play();
                 break;
             case '🤓': // nerd (nerd sounds)
                 break;
