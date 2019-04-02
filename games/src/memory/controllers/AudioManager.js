@@ -115,15 +115,19 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
+                Sounds.comboBonusSounds.altoSax.play();
                 break;
             case '🎸': // guitar (duh)
                 Sounds.comboBonusSounds.electricGuitar.play();
                 break;
             case '🎺': // trumpet (duh)
+                Sounds.comboBonusSounds.trumpet.play();
                 break;
             case '🎻': // violin (duh)
+                Sounds.comboBonusSounds.violin.play();
                 break;
             case '🥁': // snare (duh)
+                Sounds.comboBonusSounds.snareDrum.play();
                 break;
         }
     }
@@ -148,6 +152,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.monkeyScreech.play();
                 break;
             case '😱': // shocked emoji (willhelm scream!)
+                Sounds.afraidOfSounds.scream.play();
                 break;
             case '🤓': // nerd (nerd sounds)
                 break;

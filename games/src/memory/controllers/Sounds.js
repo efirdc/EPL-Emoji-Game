@@ -21,9 +21,24 @@ import starSoundFile3 from '../sounds/star3.mp3';
 import starSoundFile4 from '../sounds/star4.mp3';
 import starSoundFile5 from '../sounds/star5.mp3';
 
+import shockSoundFile from '../sounds/shortcircuit.wav';
+import comboBreakerSoundFile from '../sounds/combobreaker.wav';
 import absorbSoundFile from '../sounds/getmoney.ogg'
 
+//Afraid of sounds
+import dogWhimperSoundFile from '../sounds/pupwhimper.wav';
+import pigSquealSoundFile from '../sounds/pignoise.mp3';
+import pigSquealSoundFile2 from '../sounds/PigSqueel.wav';
+import screamSoundFile from '../sounds/Scream.wav';
+import catMeowSoundFile from '../sounds/catnoise.mp3';
+import dogYelpSoundFile from '../sounds/dognoise.mp3';
+import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
+import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
+import vomitSoundFile from '../sounds/vomitnoise.mp3';
+
+//combo sounds
 import zombieSoundFile from '../sounds/zombie.wav';
+import zombieSoundFile2 from '../sounds/Zombie Moan.wav';
 import vampireLaughSoundFile from '../sounds/vampirelaugh.mp3';
 import chachingSoundFile from '../sounds/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
@@ -35,17 +50,14 @@ import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
 import sneezeSoundFile from '../sounds/sneeze.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 import electricGuitarSoundFile from '../sounds/electricguitar.mp3';
-
-import catMeowSoundFile from '../sounds/catnoise.mp3';
-import dogYelpSoundFile from '../sounds/dognoise.mp3';
-import pigSquealSoundFile from '../sounds/pignoise.mp3';
-import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
-import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
-import vomitSoundFile from '../sounds/vomitnoise.mp3';
-
-import shockSoundFile from '../sounds/shortcircuit.wav';
-
-import comboBreakerSoundFile from '../sounds/combobreaker.wav';
+import altoSaxSoundFile from '../sounds/Alto Sax.mp3';
+import fireTruckSoundFile from '../sounds/Fire Truck.wav';
+import guitarSoundFile from '../sounds/Guitar.wav';
+import draculaSoundFile from '../sounds/I Am Dracula.wav';
+import kidLaughSoundFile from '../sounds/Kid_Laugh.wav';
+import snareDrumSoundFile from '../sounds/Snare Drum.mp3';
+import trumpetSoundFile from '../sounds/trumpet.wav';
+import violinSoundFile from '../sounds/Violin.mp3';
 
 import {Howl} from "howler";
 
@@ -72,6 +84,7 @@ export default {
 
     comboBonusSounds: {
         zombie: new Howl({src: [zombieSoundFile]}),
+        zombie2: new Howl({src: [zombieSoundFile2]}),
         vampireLaugh: new Howl({src: [vampireLaughSoundFile]}),
         chaching: new Howl({src: [chachingSoundFile]}),
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
@@ -83,6 +96,15 @@ export default {
         sneeze: new Howl({src: [sneezeSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
         electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
+
+        altoSax: new Howl({src: [altoSaxSoundFile]}),
+        fireTruck: new Howl({src: [fireTruckSoundFile]}),
+        guitar: new Howl({src: [guitarSoundFile]}),
+        dracula: new Howl({src: [draculaSoundFile]}),
+        kidLaugh: new Howl({src: [kidLaughSoundFile]}),
+        snareDrum: new Howl({src: [snareDrumSoundFile]}),
+        trumpet: new Howl({src: [snareDrumSoundFile]}),
+        violin: new Howl({src: [violinSoundFile]}),
     },
 
     afraidOfSounds : {
@@ -92,6 +114,10 @@ export default {
         teethChattering: new Howl({src: [teethChatteringSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
         vomit: new Howl({src: [vomitSoundFile]}),
+
+        dogWhimper: new Howl ({src: [dogWhimperSoundFile]}),
+        pigSqueal2: new Howl ({src: [pigSquealSoundFile2]}),
+        scream: new Howl ({src: [screamSoundFile]})
     },
 
     starSounds: [
