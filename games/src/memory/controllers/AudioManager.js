@@ -71,6 +71,7 @@ export default class AudioManager {
             case "fireburned":
                 break;
             case "cardignite":
+                Sounds.igniteSound.play();
                 break;
         }
 
