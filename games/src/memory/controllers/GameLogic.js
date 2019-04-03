@@ -619,7 +619,7 @@ export default class GameLogic {
         level.numStars = numStars;
         if (starBracket.itsTimeToGoHomeMode) {
             level.numBlobs = 5;
-            level.timeToCompleteLevel = 90 - (level.numStars - 50);
+            level.timeToComplete = 90 - (level.numStars - 50);
             level.numCards = 120;
             level.maxConcurrentFlips = 12;
             level.timerAdds = 60;
