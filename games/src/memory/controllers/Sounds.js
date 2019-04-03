@@ -29,7 +29,7 @@ import absorbSoundFile from '../sounds/getmoney.ogg'
 import dogWhimperSoundFile from '../sounds/pupwhimper.wav';
 import pigSquealSoundFile from '../sounds/pignoise.mp3';
 import pigSquealSoundFile2 from '../sounds/PigSqueel.wav';
-import screamSoundFile from '../sounds/Scream.wav';
+import screamSoundFile from '../sounds/scream.wav';
 import catMeowSoundFile from '../sounds/catnoise.mp3';
 import dogYelpSoundFile from '../sounds/dognoise.mp3';
 import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
