@@ -40,7 +40,7 @@ export const CardPhase = {
 };
 
 class Card {
-    static timeToBurn = 5000;
+    static timeToBurn = 8000;
 
     constructor(emoji, cardKey) {
 
@@ -413,7 +413,7 @@ export default class GameLogic {
         this.timeToForceStartTimer = 5000;
         this.timeToStayShockBurned = 8000;
         this.timeToShock = 200;
-        this.timeToStayFireBurned = 12000;
+        this.timeToStayFireBurned = 8000;
 
         // Fire stuff
         this.fireEmojiIgnitionRate = 250;
