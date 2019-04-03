@@ -10,6 +10,20 @@
 .radialGradient2 {
     background:
         radial-gradient(ellipse at center,
-        rgb(255, 238, 245) 0%,
-        rgb(255, 179, 197) 100%)
+        rgb(147, 181, 179) 0%,
+        rgb(89, 112, 117) 100%)
+}
+
+.radialGradient3 {
+    background:
+        radial-gradient(ellipse at center,
+        rgb(255, 193, 116) 0%,
+        rgb(255, 156, 0) 100%)
+}
+
+.radialGradient4 {
+    background:
+        radial-gradient(ellipse at center,
+        rgb(254, 255, 179) 0%,
+        rgb(255, 220, 0) 100%)
 }

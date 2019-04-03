@@ -1,14 +1,16 @@
 import React from 'react';
-import { CardPhase } from "../controllers/GameLogic.js";
-import emojiData from '../controllers/EmojiData.js';
+import Twemoji from 'react-twemoji';
 import "./Card.css";
 import {Motion, spring, presets} from 'react-motion';
 import * as colorConvert from "color-convert";
+import "../fonts/Segoe UI.ttf";
 
 export default class Card extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.card = this.props.card;
 
         // Reference to the input handler is needed to add listeners to real events since react events can not be trusted.
         this.inputHandlerRef = React.createRef();
@@ -47,6 +49,8 @@ export default class Card extends React.Component {
         this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness));
         this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness));
 
+        this.indicatorRadius = 3.5;
+
         // Binding "this" is necessary for callback functions (otherwise "this" is undefined in the callback).
         this.handlePointer = this.handlePointer.bind(this);
         this.touchStartBehavior = this.touchStartBehavior.bind(this);
@@ -61,7 +65,11 @@ export default class Card extends React.Component {
             }
         }
 
-        if (this.props.matched && !this.props.exiting && (Date.now() - this.props.timeAtSetPhase) < 4000) {
+        if (this.card.matched && !this.card.exiting && this.card.timeSinceTransition < 4000) {
+            return true;
+        }
+
+        if (this.card.isAfraid || this.card.isShocked || this.card.onFire || this.card.brokeCombo) {
             return true;
         }
 
@@ -116,7 +124,7 @@ export default class Card extends React.Component {
     touchStartBehavior() {
         // if the card has no fingers on it yet, tell the Game that its being touched now
         if (this.fingersOnCard === 0) {
-            this.props.onCardTouchStart(this.props.cardKey);
+            this.props.onCardTouchStart(this.card.cardKey);
         }
         this.fingersOnCard += 1;
     }
@@ -126,19 +134,23 @@ export default class Card extends React.Component {
         this.fingersOnCard -= 1;
         // if the card is no longer touched by any finger, tell the Game
         if (this.fingersOnCard === 0) {
-            this.props.onCardTouchEnd(this.props.cardKey);
+            this.props.onCardTouchEnd(this.card.cardKey);
         }
     }
 
     // initial values for the spring animation system.
     getInitialValues() {
         return {
-            x: this.props.x,
-            y: this.props.y,
+            x: this.card.x,
+            y: this.card.y,
             flipRotation: 0,
             rotation: 0,
             scale: 0,
             comboIndicatorScale: 0,
+            statusIndicatorScale: 0,
+            statusIndicatorRadius: 0,
+            statusIndicatorAngle: this.getEmojiAngle(),
+            statusIndicatorTiltAngle: 0,
         };
     }
 
@@ -146,75 +158,153 @@ export default class Card extends React.Component {
     // the values are "driven towards" these target values using spring forces
     getTargetValues() {
         let values = {};
-        values.x = this.props.x;
-        values.y = this.props.y;
+        values.x = this.card.x;
+        values.y = this.card.y;
         values.comboIndicatorScale = 0.0;
 
-        values.flipRotation = this.props.faceUp ? 180 : 0;
-        values.scale = this.props.faceUp ? 0.9 : 0.8;
-
+        values.flipRotation = this.card.faceUp ? 180 : 0;
+        values.scale = this.card.faceUp ? 0.9 : 0.8;
 
         values.rotation = 0.0;
 
-
-        switch (this.props.phase) {
-            case CardPhase.MATCHED:
-            case CardPhase.MATCHED_SPECIAL_THIS:
-
-                // Get bigger, then small again (but still kind of big)
-                if (Date.now() - this.props.timeAtSetPhase < 400) {
-                    values.scale = 1.1;
-                }
-                else {
-                    values.scale = 0.95;
-                }
-
-                // Bring up the combo indicator and keep it around for a while.
-                let lingerTime = this.props.specialMatch ? 3500 : 1500;
-                if (Date.now() - this.props.timeAtSetPhase < lingerTime) {
-                    values.comboIndicatorScale = this.props.specialMatch ? 1.3 : 1.0;
-                }
-                break;
-
-            case CardPhase.MATCHED_SPECIAL_OTHER:
-                // Get bigger, then small again (but still kind of big)
-                if (Date.now() - this.props.timeAtSetPhase < 400) {
-                    values.scale = 1.2;
-                }
-                else {
-                    values.scale = 0.95;
-                }
-                break;
-
-            case CardPhase.EXITING:
-                values.flipRotation = 0;
-                values.scale = 0.0;
-                break;
+        let normalAfraidCard = this.card.isAfraid && !this.card.comboBreaker;
+        if (normalAfraidCard && this.card.timeSinceTransition % 5000 < 3000) {
+            let shiverAngle = 2 * Math.PI * Math.random();
+            let shiverRadius = 0.5;
+            values.x += shiverRadius * Math.cos(shiverAngle);
+            values.y += shiverRadius * Math.sin(shiverAngle);
         }
 
-        if (this.props.phase === CardPhase.MATCHED_SPECIAL_THIS || this.props.phase === CardPhase.MATCHED_SPECIAL_OTHER) {
-            if (Date.now() - this.props.timeAtSetPhase < 100) {
+        // Cards that trigger a combo breaker should shrink and shake erratically.
+        if (this.card.brokeCombo) {
+            let shiverAngle = 2 * Math.PI * Math.random();
+            let shiverRadius = 1.0;
+            values.x += shiverRadius * Math.cos(shiverAngle);
+            values.y += shiverRadius * Math.sin(shiverAngle);
+            values.scale = 0.7;
+        }
+
+        // Shocked cards shake violently for a short time
+        if (this.card.isShocked && this.card.timeSinceTransition < 600) {
+            let shiverAngle = 2 * Math.PI * Math.random();
+            let shiverRadius = 2.0;
+            values.x += shiverRadius * Math.cos(shiverAngle);
+            values.y += shiverRadius * Math.sin(shiverAngle);
+            values.scale = 0.8;
+        }
+
+        // Matched cards should pop out
+        if (this.card.matched) {
+            if (this.card.timeSinceTransition < 400) {
+                values.scale = 1.1;
+            }
+            else {
+                values.scale = 0.95;
+            }
+        }
+
+        // Show the combo indicator
+        if (this.card.showComboIndicator) {
+            let lingerTime = this.card.specialMatch ? 3500 : 1500;
+            if (this.card.timeSinceTransition < lingerTime) {
+                values.comboIndicatorScale = this.card.specialMatch ? 1.3 : 1.0;
+            }
+        }
+
+        // Special matched cards have special wobble rotate animation
+        if (this.card.specialMatch) {
+            if (this.card.timeSinceTransition < 100) {
                 values.rotation = -20;
-            } else if (Date.now() - this.props.timeAtSetPhase < 200) {
+            } else if (this.card.timeSinceTransition < 200) {
                 values.rotation = 20;
             }
         }
-        values.x = spring(values.x, presets.stiff);
-        values.y = spring(values.y, presets.stiff);
+
+        // The wizard should also wobble when he is matched
+        if (this.card.matched && this.card.specialCard) {
+            if (this.card.timeSinceTransition < 100) {
+                values.rotation = -10;
+            } else if (this.card.timeSinceTransition < 200) {
+                values.rotation = 10;
+            }
+        }
+
+        // exiting cards disappear
+        if (this.card.exiting) {
+            values.flipRotation = 0;
+            values.scale = 0.0;
+        }
+
+        let positionSpring = {stiffness: 300, damping: 20};
+        values.x = spring(values.x, positionSpring);
+        values.y = spring(values.y, positionSpring);
         values.flipRotation = spring(values.flipRotation, {stiffness: 90, damping: 11});
         values.scale = spring(values.scale, {stiffness: 120, damping: 7});
         values.comboIndicatorScale = spring(values.comboIndicatorScale, {stiffness: 150, damping: 15});
         values.rotation = spring(values.rotation, {stiffness: 120, damping: 5});
 
+        // status indicator values
+        if (this.card.onFire) {
+            values.statusIndicatorScale = this.card.burnPercent;
+        }
+        else if (this.card.statusIndicator !== '') {
+            values.statusIndicatorScale = 1.0;
+        }
+        else {
+            values.statusIndicatorScale = 0.0;
+        }
+
+        values.statusIndicatorRadius = 0;
+        values.statusIndicatorAngle = this.getEmojiAngle();
+        values.statusIndicatorTiltAngle = 0;
+
+        if (this.card.faceUp) {
+            values.statusIndicatorRadius = this.indicatorRadius;
+            values.statusIndicatorAngle += 40;
+            values.statusIndicatorTiltAngle = -10;
+        }
+
+        if (this.card.onFire) {
+            let timeSinceOnFire = Date.now() - this.card.timeAtOnFire;
+            if (timeSinceOnFire < 70) {
+                values.statusIndicatorTiltAngle = -20.0;
+            }
+            values.statusIndicatorTiltAngle = spring(values.statusIndicatorTiltAngle, {stiffness: 60, damping: 0.0});
+            values.statusIndicatorScale = spring(values.statusIndicatorScale, {stiffness: 60, damping: 0.0});
+        } else {
+            values.statusIndicatorScale = spring(values.statusIndicatorScale, {stiffness: 150, damping: 15});
+            values.statusIndicatorTiltAngle = spring(values.statusIndicatorTiltAngle, {stiffness: 150, damping: 15});
+        }
+
+        values.statusIndicatorRadius = spring(values.statusIndicatorRadius, {stiffness: 150, damping: 15});
+        values.statusIndicatorAngle = spring(values.statusIndicatorAngle, {stiffness: 150, damping: 15});
+
+
         return values;
+    }
+
+    getEmojiAngle() {
+        const horizontalLineWidth = 30;
+        let emojiRotationVector = {x:0, y:0};
+        if (Math.abs(this.card.x) < horizontalLineWidth) {
+            emojiRotationVector = {x:0, y:this.card.y};
+        }
+        else if ( this.card.x > horizontalLineWidth) {
+            emojiRotationVector = {x: this.card.x - horizontalLineWidth, y: this.card.y};
+        }
+        else {
+            emojiRotationVector = {x: this.card.x + horizontalLineWidth, y: this.card.y};
+        }
+
+        let emojiAngleRad = Math.atan2(emojiRotationVector.y, emojiRotationVector.x);
+        return emojiAngleRad * 180 / Math.PI - 90;
     }
 
     // gets the inline css styles for this component using animated values.
     getStyles(values) {
 
-
         const cardMain = {
-            zIndex: 1 + this.props.comboCounter,
+            zIndex: 1 + this.card.comboCounter,
             position: 'fixed',
             height: this.props.size + "vh",
             width: this.props.size + "vh",
@@ -225,37 +315,71 @@ export default class Card extends React.Component {
             `,
         };
 
-        // blobID decides card back color
-        let colorId = this.props.blobID % this.eplColors.length;
-        let color = this.eplColors[colorId];
-        let borderColor = this.eplColorsBorder[colorId];
-        let flipRejectedColor = this.eplColorsFlipRejected[colorId];
+        let colorId = this.card.blobID % this.eplColors.length;
+
+        let cardBackBorderColor;
+        if (this.card.isBurned || this.card.isShocked) {
+            cardBackBorderColor = "#2e2e2e";
+        }
+        else {
+            cardBackBorderColor = this.eplColorsBorder[colorId];
+        }
+
+        let cardBackInnerColor;
+        if (this.card.flipRejected) {
+            cardBackInnerColor = this.eplColorsFlipRejected[colorId];
+        }
+        else if (this.card.isBurned || this.card.isShocked) {
+            cardBackInnerColor = "#4d4d4d"
+        }
+        else {
+            cardBackInnerColor = this.eplColors[colorId];
+        }
 
         const cardBack = {
             zIndex: '2',
 
             transform: `rotateX(${values.flipRotation}deg)`,
-            backgroundColor: borderColor,
+            backgroundColor: cardBackBorderColor,
         };
 
         const cardBackInner = {
             zIndex: '3',
 
             transform: "scale(0.88)",
-            backgroundColor: (this.props.phase === CardPhase.FLIP_REJECTED) ? flipRejectedColor : color,
+            backgroundColor: cardBackInnerColor,
         };
 
         const cardFront = {
-            zIndex: this.props.faceUp ? '3' : "1",
+            zIndex: this.card.faceUp ? '3' : "1",
 
             transform: `rotateX(${values.flipRotation - 180}deg)`,
             backgroundColor : "#000000"
         };
 
         let frontColor;
-        if (this.props.matched) {
-            frontColor = this.props.specialMatch ? "#f296ff" : "#5ef997";
-        } else {
+        if (this.card.specialMatch) {
+            frontColor = "#f296ff";
+        }
+        else if (this.card.brokeCombo && (this.card.isShocked || this.card.isBurned)) {
+            frontColor = "#535053";
+        }
+        else if (this.card.comboBreaker) {
+            frontColor = "#ff3726";
+        }
+        else if (this.card.matched && this.card.specialCard) {
+            frontColor = "#7bd6ff";
+        }
+        else if (this.card.matched) {
+            frontColor = "#5ef997";
+        }
+        else if (this.card.emoji === '⚡') {
+            frontColor = "#f9ed6a";
+        }
+        else if (this.card.emoji === '🔥') {
+            frontColor = "#f97176";
+        }
+        else {
             frontColor = "#e5eae8";
         }
 
@@ -264,33 +388,34 @@ export default class Card extends React.Component {
             backgroundColor : frontColor,
         };
 
-        const horizontalLineWidth = 30;
-        let emojiRotationVector = {x:0, y:0};
-        if (Math.abs(this.props.x) < horizontalLineWidth) {
-            emojiRotationVector = {x:0, y:this.props.y};
-        }
-        else if ( this.props.x > horizontalLineWidth) {
-            emojiRotationVector = {x: this.props.x - horizontalLineWidth, y: this.props.y};
-        }
-        else {
-            emojiRotationVector = {x: this.props.x + horizontalLineWidth, y: this.props.y};
-        }
-
-        let emojiAngleRad = Math.atan2(emojiRotationVector.y, emojiRotationVector.x);
-        let emojiAngle = emojiAngleRad * 180 / Math.PI - 90;
+        let emojiAngle = this.getEmojiAngle();
         const emoji = {
             zIndex: '4',
             isolation: 'isolate',
             transform: `translate(${0}vh, ${0}vh) rotate(${emojiAngle}deg)`,
+            fontFamily: "'Segoe UI'",
             fontSize: this.props.size * 0.5 + "vh",
             lineHeight: this.props.size + "vh",
         };
 
-        let comboIndicatorRadius = 3.5;
+        const twemoji = {
+            zIndex: '4',
+            position: 'absolute',
+            isolation: 'isolate',
+            height: this.props.size + "vh",
+            width: this.props.size + "vh",
+            transformOrigin: 'center center',
+            transform: `
+                rotate(${emojiAngle}deg) 
+                scale(0.5)
+            `,
+        };
+
+        let indicatorRadius = 3.5;
+
         let comboIndicatorSize = 0.30 * this.props.size;
         let comboIndicatorAngle = emojiAngle - 35;
         let comboIndicatorTiltAngle = 10;
-
         const comboIndicatorContainer = {
             zIndex: '5',
             position: 'absolute',
@@ -299,9 +424,8 @@ export default class Card extends React.Component {
             left: "50%",
             width: '0vh',
             height: '0vh',
-            transform: `rotate(${comboIndicatorAngle}deg) translate(0vh, -${comboIndicatorRadius}vh)`
+            transform: `rotate(${comboIndicatorAngle}deg) translate(0vh, -${indicatorRadius}vh)`
         };
-
         const comboIndicator = {
             zIndex: '5',
             position: 'absolute',
@@ -309,13 +433,36 @@ export default class Card extends React.Component {
             transform: `translate(-50%, -50%) rotate(${comboIndicatorTiltAngle}deg) scale(${values.comboIndicatorScale})`,
             fontFamily: "'Arial Black', Gadget, sans-serif",
             fontSize: comboIndicatorSize + "vh",
-            color: this.props.specialMatch ? "#ff00bb" : '#e92200',
+            color: this.card.specialMatch ? "#ff00bb" : '#e92200',
             WebkitTextStrokeWidth: 0.2 + 'vh',
             WebkitTextStrokeColor: "black",
             lineHeight: comboIndicatorSize + "vh",
         };
 
-        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, comboIndicator, comboIndicatorContainer};
+        let statusIndicatorSize = 0.5 * this.props.size;
+        const statusIndicatorContainer = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            top: "50%",
+            left: "50%",
+            width: '0vh',
+            height: '0vh',
+            transform: `rotate(${values.statusIndicatorAngle}deg) translate(0vh, -${values.statusIndicatorRadius}vh)`
+        };
+        const statusIndicator = {
+            zIndex: '5',
+            position: 'absolute',
+            isolation: 'isolate',
+            transform: `translate(-50%, -50%) rotate(${values.statusIndicatorTiltAngle}deg) scale(${values.statusIndicatorScale})`,
+            fontFamily: "'Arial Black', Gadget, sans-serif",
+            fontSize: statusIndicatorSize + "vh",
+            color: this.card.specialMatch ? "#ff00bb" : '#e92200',
+            lineHeight: statusIndicatorSize + "vh",
+        };
+
+        return {cardFront, cardBack, cardMain, cardFrontInner, cardBackInner, emoji, twemoji,
+            comboIndicator, comboIndicatorContainer, statusIndicator, statusIndicatorContainer};
     }
 
     render() {
@@ -323,24 +470,40 @@ export default class Card extends React.Component {
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
 
+        let useTwemoji = false;
+
         return(
             <Motion defaultStyle={initialValues} style={targetValues}>
                 {interpolatedValues => {
                     let styles = this.getStyles(interpolatedValues);
-                    let showCombo = this.props.comboCounter;
-                    let combo = showCombo ? this.props.comboCounter + 'x' : '';
+                    let showCombo = this.card.comboCounter;
+                    let combo = showCombo ? this.card.comboCounter + 'x' : '';
                     return (
                         <div style={styles.cardMain} >
+
                             <div className={"cardInputHandler"} id={this.props.cardKey} ref={this.inputHandlerRef}/>
+
                             <div style={styles.comboIndicatorContainer}>
                                 <div style={styles.comboIndicator}>{combo}</div>
                             </div>
 
+                            <div style={styles.statusIndicatorContainer}>
+                                <div style={styles.statusIndicator}>{this.card.statusIndicator}</div>
+                            </div>
+
                             <div className={"card"} style={styles.cardFront}>
                                 <div className={"card"} style={styles.cardFrontInner}>
-                                    <div style={styles.emoji}>
-                                        {this.props.emoji}
-                                    </div>
+                                    {useTwemoji ? (
+                                        <Twemoji options={{ className: 'twemoji', noWrapper: true}}>
+                                            <div style={styles.twemoji}>
+                                                {this.card.emoji.substring(0, 2)}
+                                            </div>
+                                        </Twemoji>
+                                    ) : (
+                                        <div style={styles.emoji}>
+                                            {this.card.emoji}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className={"card"} style={styles.cardBack}>
