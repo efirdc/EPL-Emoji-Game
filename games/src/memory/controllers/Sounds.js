@@ -40,7 +40,6 @@ import nerdSoundFile from '../sounds/afraid_of/nerdnoise.mp3';
 
 // Combo bonus sounds
 import zombieSoundFile from '../sounds/combo_bonus/zombie.wav';
-import zombieSoundFile2 from '../sounds/combo_bonus/Zombie Moan.wav';
 import vampireLaughSoundFile from '../sounds/combo_bonus/vampirelaugh.mp3';
 import chachingSoundFile from '../sounds/combo_bonus/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/combo_bonus/babygiggle.mp3';
@@ -91,7 +90,6 @@ export default {
 
     comboBonusSounds: {
         zombie: new Howl({src: [zombieSoundFile]}),
-        zombie2: new Howl({src: [zombieSoundFile2]}),
         vampireLaugh: new Howl({src: [vampireLaughSoundFile]}),
         chaching: new Howl({src: [chachingSoundFile]}),
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
@@ -123,7 +121,6 @@ export default {
         vomit: new Howl({src: [vomitSoundFile]}),
 
         dogWhimper: new Howl ({src: [dogWhimperSoundFile]}),
-        pigSqueal2: new Howl ({src: [pigSquealSoundFile2]}),
         scream: new Howl ({src: [screamSoundFile]}),
         nerd: new Howl({src: [nerdSoundFile]}),
     },
