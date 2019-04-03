@@ -31,13 +31,17 @@ export const CardPhase = {
     COMBO_BROKEN: 32,
     COMBO_BREAKER_AFRAID: 33,
     COMBO_BREAKER_SHOCKED: 34,
+    COMBO_BREAKER_BURNED: 35,
     MATCHED: 40,
     MATCHED_SPECIAL_THIS: 41,
     MATCHED_SPECIAL_OTHER: 42,
-    SHOCK_BURNED: 50,
+    SHOCKED: 50,
+    BURNED: 60,
 };
 
 class Card {
+    static timeToBurn = 5000;
+
     constructor(emoji, cardKey) {
 
         this.emoji = emoji;
@@ -48,11 +52,39 @@ class Card {
         this.timeAtStartExit = 0;
         this.timeAtLastScaryCard = 0;
 
+        this._onFire = false;
+        this.timeAtOnFire = 0;
+
         this.x = 0;
         this.y = 0;
         this.blobID = 0;
 
         this.setPhase(CardPhase.SPAWNING);
+    }
+
+    set onFire(newValue) {
+
+        if (!this._onFire && newValue) {
+            this.numIgnitions = 0;
+            this.timeAtOnFire = Date.now();
+            document.dispatchEvent(new CustomEvent(
+                "cardignite",
+                {detail: {card: this}}
+            ));
+        }
+        this._onFire = newValue;
+    }
+
+    get onFire() {
+        return this._onFire;
+    }
+
+    get burnPercent() {
+        if (!this.onFire) {
+            return 0;
+        }
+        let timeSinceBurn = Date.now() - this.timeAtOnFire;
+        return timeSinceBurn / Card.timeToBurn;
     }
 
     setPhase(phase) {
@@ -62,11 +94,18 @@ class Card {
         this.phase = phase;
         this.timeAtSetPhase = Date.now();
 
+        if (!this.isBurnable) {
+            this.onFire = false;
+        }
+
         // Trigger events and side effects
         switch (phase) {
             case CardPhase.FACE_UP:
                 if (this.emoji === '⚡') {
                     this.hasShocked = false;
+                }
+                if (this.onFire && Math.random() > this.burnPercent) {
+                    this.onFire = false;
                 }
                 document.dispatchEvent(new CustomEvent("faceUp"));
                 break;
@@ -77,13 +116,19 @@ class Card {
                     {detail: {card: this}}
                 ));
                 break;
-            case CardPhase.SHOCK_BURNED:
+            case CardPhase.SHOCKED:
             case CardPhase.COMBO_BREAKER_SHOCKED:
                 document.dispatchEvent(new CustomEvent(
                     "shockburned",
                     {detail: {card: this}}
                 ));
                 break;
+            case CardPhase.BURNED:
+            case CardPhase.COMBO_BREAKER_BURNED:
+                document.dispatchEvent(new CustomEvent(
+                    "fireburned",
+                    {detail: {card: this}}
+                ));
         }
     }
 
@@ -129,17 +174,20 @@ class Card {
         }
     }
 
-    get isBurned () {
+    get isShocked () {
         switch (this.phase) {
+            case CardPhase.SHOCKED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
+                return true;
             default:
                 return false;
         }
     }
 
-    get isShocked () {
+    get isBurned() {
         switch (this.phase) {
-            case CardPhase.SHOCK_BURNED:
-            case CardPhase.COMBO_BREAKER_SHOCKED:
+            case CardPhase.BURNED:
+            case CardPhase.COMBO_BREAKER_BURNED:
                 return true;
             default:
                 return false;
@@ -182,6 +230,7 @@ class Card {
             case CardPhase.COMBO_BROKEN:
             case CardPhase.COMBO_BREAKER_AFRAID:
             case CardPhase.COMBO_BREAKER_SHOCKED:
+            case CardPhase.COMBO_BREAKER_BURNED:
                 return true;
             default:
                 return false;
@@ -192,6 +241,7 @@ class Card {
         switch (this.phase) {
             case CardPhase.COMBO_BREAKER_AFRAID:
             case CardPhase.COMBO_BREAKER_SHOCKED:
+            case CardPhase.COMBO_BREAKER_BURNED:
                 return true;
             default:
                 return false;
@@ -250,6 +300,23 @@ class Card {
     // Returns true if this card has a special effect
     get specialCard () {
         return this.emoji === '⏱' || this.emoji === '🧙‍';
+    }
+
+    get statusIndicator () {
+
+        if (this.onFire) {
+            return '🔥';
+        }
+
+        switch (this.phase) {
+            case CardPhase.SHOCKED:
+            case CardPhase.COMBO_BREAKER_SHOCKED:
+                return '⚡';
+            case CardPhase.COMBO_BREAKER_BURNED:
+                return '🔥';
+            default:
+                return '';
+        }
     }
 
     // Returns true if this card has a combo bonus with the otherCard
@@ -346,6 +413,13 @@ export default class GameLogic {
         this.timeToForceStartTimer = 5000;
         this.timeToStayShockBurned = 8000;
         this.timeToShock = 200;
+        this.timeToStayFireBurned = 12000;
+
+        // Fire stuff
+        this.fireEmojiIgnitionRate = 250;
+        this.fireEmojiIgnitionChance = 0.1;
+        this.onFireCardIgnitionRate = 250;
+        this.onFireCardIgnitionChance = 0.1;
 
         this.initLevel();
 
@@ -600,6 +674,8 @@ export default class GameLogic {
             card.x = blobCell.x;
             card.y = blobCell.y;
             card.blobID = blobCell.blobID;
+            card.row = blobCell.row;
+            card.col = blobCell.col;
         }
 
         this.distributeEmojis();
@@ -853,6 +929,9 @@ export default class GameLogic {
 
         if (card.phase === CardPhase.FACE_UP) {
             this.concurrentFlips += 1;
+            if (card.emoji === '🔥') {
+                card.numIgnitions = 0;
+            }
         }
 
         if (card.prevPhase === CardPhase.FACE_UP) {
@@ -864,6 +943,8 @@ export default class GameLogic {
         for (let comboPair of this.comboCards) {
             if (!comboPair.first.brokeCombo) {
                 this.setCardPhase(comboPair.first, CardPhase.COMBO_BROKEN);
+            }
+            if(!comboPair.second.brokeCombo) {
                 this.setCardPhase(comboPair.second, CardPhase.COMBO_BROKEN);
             }
         }
@@ -1079,16 +1160,16 @@ export default class GameLogic {
         }
 
         // Handle timeout on shock burned cards.
-        let shockBurnedCards = this.cards.filter((card) => (card.phase === CardPhase.SHOCK_BURNED));
+        let shockBurnedCards = this.cards.filter((card) => (card.phase === CardPhase.SHOCKED));
         for (let card of shockBurnedCards) {
             if (card.timeSinceTransition > this.timeToStayShockBurned) {
                 this.setCardPhase(card, CardPhase.FACE_DOWN);
             }
         }
 
-        // Handle shock emoji shocking cards
-        let shockEmojiCards = this.cards.filter((card) => (card.phase === CardPhase.FACE_UP && card.emoji === '⚡'));
-        for (let card of shockEmojiCards) {
+        // Handle shock emoji cards
+        let shockedCards = this.cards.filter((card) => (card.phase === CardPhase.FACE_UP && card.emoji === '⚡'));
+        for (let card of shockedCards) {
             if (card.timeSinceTransition > this.timeToShock && !card.hasShocked) {
                 card.hasShocked = true;
                 card.timeAtShock = Date.now();
@@ -1096,17 +1177,58 @@ export default class GameLogic {
             }
         }
 
+        // Fire emoji cards spread fire when face up
+        let fireEmojiCards = this.cards.filter((card) => (card.phase === CardPhase.FACE_UP && card.emoji === '🔥'));
+        for (let card of fireEmojiCards) {
+            this.igniteAdjacentCards(card, card.timeSinceTransition, this.fireEmojiIgnitionRate, this.fireEmojiIgnitionChance);
+        }
+
+        // On fire cards spread fire, and transition to BURNED after a while
+        let onFireCards = this.cards.filter((card) => (card.onFire));
+        for (let card of onFireCards) {
+            let ignitionChance = this.onFireCardIgnitionChance * card.burnPercent;
+            this.igniteAdjacentCards(card, card.timeAtOnFire, this.onFireCardIgnitionRate, ignitionChance);
+            if (card.burnPercent > 1.0) {
+                if (!card.matched) {
+                    this.setCardPhase(card, CardPhase.BURNED);
+                } else {
+                    this.setCardPhase(card, CardPhase.COMBO_BREAKER_BURNED);
+                    this.comboBreaker();
+                }
+            }
+        }
+
+        // Handle timeout on BURNED cards.
+        let burnedCards = this.cards.filter((card) => (card.phase === CardPhase.BURNED));
+        for (let card of burnedCards) {
+            if (card.timeSinceTransition > this.timeToStayFireBurned) {
+                this.setCardPhase(card, CardPhase.FACE_DOWN);
+            }
+        }
+
         // Handle all cards that should be deleted.
         this.cards = this.cards.filter((card) => !this.shouldDelete(card));
     }
 
+    igniteAdjacentCards(card, timeSinceCanIgnite, ignitionRate, ignitionChance) {
+        let adjacentToFireCards = this.getAdjacentCards(card);
+        while (card.numIgnitions * ignitionRate < card.timeSinceTransition) {
+            adjacentToFireCards = adjacentToFireCards.filter((card) => card.isBurnable && !card.onFire);
+            card.numIgnitions += 1;
+            for (let adjacentCard of adjacentToFireCards) {
+                if (Math.random() < ignitionChance && !adjacentCard.onFire) {
+                    adjacentCard.onFire = true;
+                }
+            }
+        }
+    }
 
     shockRandomCard() {
         let canShockCards = this.cards.filter((card) => card.isShockable);
         if (canShockCards.length !== 0) {
             let randomCard = canShockCards[Math.floor(Math.random() * canShockCards.length)];
             if (!randomCard.matched) {
-                this.setCardPhase(randomCard, CardPhase.SHOCK_BURNED);
+                this.setCardPhase(randomCard, CardPhase.SHOCKED);
             } else {
                 let matchingCard = this.cards.find((card) => card !== randomCard && card.emoji === randomCard.emoji);
                 this.setCardPhase(randomCard, CardPhase.COMBO_BREAKER_SHOCKED);
@@ -1218,6 +1340,18 @@ export default class GameLogic {
             }
         });
         document.dispatchEvent(matchEvent);
+    }
+
+    getAdjacentCards(card) {
+        let neighborCells = this.hexBoard.getNeighbors(card);
+        let adjacentCards = [];
+        for (let cell of neighborCells) {
+            let adjacentCard = this.cards.find((card) => (card.row === cell.row && card.col === cell.col));
+            if (adjacentCard) {
+                adjacentCards.push(adjacentCard);
+            }
+        }
+        return adjacentCards;
     }
 
     // These two functions are just for debugging and figuring out which Emojis are used.

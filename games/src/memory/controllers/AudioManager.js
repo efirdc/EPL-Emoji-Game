@@ -19,6 +19,8 @@ export default class AudioManager {
         document.addEventListener("afraid", this.handleEvents);
         document.addEventListener("combobreaker", this.handleEvents);
         document.addEventListener("shockburned", this.handleEvents);
+        document.addEventListener("fireburned", this.handleEvents);
+        document.addEventListener("cardignite", this.handleEvents);
     }
 
     handleEvents(event) {
@@ -66,6 +68,10 @@ export default class AudioManager {
             case "shockburned":
                 Sounds.shockSound.play();
                 break;
+            case "fireburned":
+                break;
+            case "cardignite":
+                break;
         }
 
         if (event.type === 'match' || event.type === 'matchspecialother') {
@@ -104,23 +110,25 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.fireTruckHorn.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
-                Sounds.comboBonusSounds.defibrillator.play();
+                Sounds.comboBonusSounds.sneeze.play();
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
                 Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
-                Sounds.comboBonusSounds.saxophone.play();
+                Sounds.comboBonusSounds.altoSax.play();
                 break;
             case '🎸': // guitar (duh)
                 Sounds.comboBonusSounds.electricGuitar.play();
                 break;
             case '🎺': // trumpet (duh)
+                Sounds.comboBonusSounds.trumpet.play();
                 break;
             case '🎻': // violin (duh)
+                Sounds.comboBonusSounds.violin.play();
                 break;
             case '🥁': // snare (duh)
-                Sounds.comboBonusSounds.drum.play();
+                Sounds.comboBonusSounds.snareDrum.play();
                 break;
         }
     }
