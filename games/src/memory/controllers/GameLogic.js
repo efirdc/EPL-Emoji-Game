@@ -586,7 +586,7 @@ export default class GameLogic {
                 maxConcurrentFlips: 12, timeToCompleteLevel: 90, timerAdds: 60},
 
             // Once we pass this point, go into "endurance mode"
-            {numStars: 50, enduranceMode: true},
+            {numStars: 50, itsTimeToGoHomeMode: true},
         ];
 
         let starBracket, nextStarBracket;
@@ -599,8 +599,13 @@ export default class GameLogic {
         }
 
         level.numStars = numStars;
-        if (starBracket.enduranceMode) {
-            // not yet defined
+        if (starBracket.itsTimeToGoHomeMode) {
+            level.numBlobs = 5;
+            level.timeToCompleteLevel = 90 - (level.numStars - 50);
+            level.numCards = 120;
+            level.maxConcurrentFlips = 12;
+            level.timerAdds = 60;
+            level.itsTimeToGoHome = true;
             return level;
         }
 
