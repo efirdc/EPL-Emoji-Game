@@ -158,6 +158,7 @@ class Card {
             case CardPhase.COMBO_BROKEN:
             case CardPhase.COMBO_BREAKER_AFRAID:
             case CardPhase.COMBO_BREAKER_SHOCKED:
+            case CardPhase.COMBO_BREAKER_BURNED:
                 return true;
             default:
                 return false;
