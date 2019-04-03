@@ -245,7 +245,10 @@ export default class Card extends React.Component {
 
         // status indicator values
         if (this.card.onFire) {
-            values.statusIndicatorScale = this.card.burnPercent;
+            // Use an exponential curve for the fire scale so it grows quickly
+            // see https://www.desmos.com/calculator/q6ovcj7qqi
+            let fireScale = 1 - Math.pow(1 - this.card.burnPercent, 2.5);
+            values.statusIndicatorScale = fireScale;
         }
         else if (this.card.statusIndicator !== '') {
             values.statusIndicatorScale = 1.0;
