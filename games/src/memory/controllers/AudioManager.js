@@ -131,7 +131,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.monkeyScreech.play();
                 break;
             case '😱': // shocked emoji (willhelm scream!)
-                Sounds.afraidOfSounds.scream,play();
+                Sounds.afraidOfSounds.scream.play();
                 break;
             case '🤓': // nerd (nerd sounds)
                 break;

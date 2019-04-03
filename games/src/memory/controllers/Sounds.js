@@ -27,7 +27,7 @@ import chachingSoundFile from '../sounds/chaching.ogg';
 
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
 
-//Afraid of sounds
+//Afraid of sounds files
 import dogWhimperSoundFile from '../sounds/pupwhimper.wav';
 
 import PigSqueelSoundFile from '../sounds/PigSqueel.wav';
@@ -38,16 +38,25 @@ import monkeyScreechSoundFile from '../sounds/monkeynoise.ogg';
 
 import screamSoundFile from '../sounds/Scream.wav';
 
-//combo sounds
+//combo sound files
 import altoSaxSoundFile from '../sounds/Alto Sax.mp3';
+
 import fireTruckSoundFile from '../sounds/Fire Truck.wav';
+
 import guitarSoundFile from '../sounds/Guitar.wav';
+
 import draculaSoundFile from '../sounds/I Am Dracula.wav';
+
 import kidLaughSoundFile from '../sounds/Kid_Laugh.wav';
+
 import snareDrumSoundFile from '../sounds/Snare Drum.mp3';
+
 import trumpetSoundFile from '../sounds/trumpet.wav';
+
 import violinSoundFile from '../sounds/Violin.mp3';
+
 import zombieSoundFile from '../sounds/Zombie Moan.wav';
+
 
 import {Howl} from "howler";
 
@@ -81,7 +90,7 @@ export default {
         dracula: new Howl({src: [draculaSoundFile]}),
         kidLaugh: new Howl({src: [kidLaughSoundFile]}),
         snareDrum: new Howl({src: [snareDrumSoundFile]}),
-        trumpet: new Howl({src: [snareDrumSoundFile]}),
+        trumpet: new Howl({src: [trumpetSoundFile]}),
         violin: new Howl({src: [violinSoundFile]}),
         zombie: new Howl({src: [zombieSoundFile]})
     },
