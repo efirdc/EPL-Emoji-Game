@@ -46,11 +46,13 @@ class Card {
 
         this.emoji = emoji;
         this.cardKey = cardKey;
-        this.touched = false;
+        this._touched = false;
         this.comboCounter = 1;
         this._exiting = false;
         this.timeAtStartExit = 0;
         this.timeAtLastScaryCard = 0;
+        this.timeAtTouch = 0;
+        this.timeAtUntouch = 0;
 
         this._onFire = false;
         this.timeAtOnFire = 0;
@@ -60,6 +62,20 @@ class Card {
         this.blobID = 0;
 
         this.setPhase(CardPhase.SPAWNING);
+    }
+
+    set touched(newValue) {
+        if (newValue && !this.touched) {
+            this.timeAtTouch = Date.now();
+        }
+        else if (!newValue && this.touched) {
+            this.timeAtUntouch = Date.now();
+        }
+        this._touched = newValue;
+    }
+
+    get touched() {
+        return this._touched;
     }
 
     set onFire(newValue) {
@@ -415,6 +431,7 @@ export default class GameLogic {
         this.timeToStayShockBurned = 8000;
         this.timeToShock = 200;
         this.timeToStayFireBurned = 12000;
+        this.timeToStayFaceUpAfterRelease = 150;
 
         // Fire stuff
         this.fireEmojiIgnitionRate = 250;
@@ -1075,7 +1092,9 @@ export default class GameLogic {
         for (let card of faceUpCards) {
 
             // If the card isn't touched, release it.
-            if (!card.touched && !this.flipEverythingCheat) {
+            let timeSinceUntouch = Date.now() - card.timeAtUntouch;
+            let shouldRelease = !card.touched && timeSinceUntouch > this.timeToStayFaceUpAfterRelease;
+            if (shouldRelease && !this.flipEverythingCheat) {
                 this.setCardPhase(card, CardPhase.FACE_DOWN);
             }
         }
