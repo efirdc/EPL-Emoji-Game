@@ -104,12 +104,13 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.fireTruckHorn.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
-                Sounds.comboBonusSounds.sneeze.play();
+                Sounds.comboBonusSounds.defibrillator.play();
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
                 Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
+                Sounds.comboBonusSounds.saxophone.play();
                 break;
             case '🎸': // guitar (duh)
                 Sounds.comboBonusSounds.electricGuitar.play();
@@ -119,6 +120,7 @@ export default class AudioManager {
             case '🎻': // violin (duh)
                 break;
             case '🥁': // snare (duh)
+                Sounds.comboBonusSounds.drum.play();
                 break;
         }
     }

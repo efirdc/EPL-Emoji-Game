@@ -32,9 +32,11 @@ import foodChoppingSoundFile from '../sounds/foodchopping.mp3';
 import potsAndPansSoundFile from '../sounds/potsandpans.mp3';
 import policeSirenSoundFile from '../sounds/policesiren.mp3';
 import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
-import sneezeSoundFile from '../sounds/sneeze.mp3';
+import defibrillatorSoundFile from '../sounds/defibrillator.mp3';
 import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
+import saxophoneSoundFile from '../sounds/saxophone.wav';
 import electricGuitarSoundFile from '../sounds/electricguitar.mp3';
+import drumSoundFile from '../sounds/drum.mp3';
 
 import catMeowSoundFile from '../sounds/catnoise.mp3';
 import dogYelpSoundFile from '../sounds/dognoise.mp3';
@@ -45,7 +47,7 @@ import screamSoundFile from '../sounds/scream.wav';
 import nerdSoundFile from '../sounds/nerdnoise.mp3';
 import vomitSoundFile from '../sounds/vomitnoise.mp3';
 
-import timerSoundFile from '../sounds/timer.mp3';
+import timerSoundFile from '../sounds/timer.wav';
 
 import shockSoundFile from '../sounds/shortcircuit.wav';
 
@@ -84,9 +86,11 @@ export default {
         potsAndPans: new Howl({src: [potsAndPansSoundFile]}),
         policeSiren: new Howl({src: [policeSirenSoundFile]}),
         fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
-        sneeze: new Howl({src: [sneezeSoundFile]}),
+        defibrillator: new Howl({src: [defibrillatorSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
+        saxophone: new Howl({src: [saxophoneSoundFile]}),
         electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
+        drum: new Howl({src: [drumSoundFile]}),
     },
 
     afraidOfSounds : {
