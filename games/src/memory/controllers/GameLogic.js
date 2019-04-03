@@ -854,7 +854,8 @@ export default class GameLogic {
         else if (this.phase === GamePhase.LEVEL_WIN_START) {
             this.updateCards();
             let timeSinceWin = Date.now() - this.timeAtSetPhase;
-            if (timeSinceWin > this.timeToTransitionToDrainTimer) {
+            let timeToTransitionMultiplier = (this.numStars === 0) ? 1.5 : 1.0;
+            if (timeSinceWin > this.timeToTransitionToDrainTimer * timeToTransitionMultiplier) {
                 if (this.numStars !== 0) {
                     this.setPhase(GamePhase.LEVEL_WIN_DRAIN_TIMER)
                 } else {
