@@ -25,6 +25,7 @@ import shockSoundFile from '../sounds/general/shortcircuit.wav';
 import comboBreakerSoundFile from '../sounds/general/combobreaker.wav';
 import absorbSoundFile from '../sounds/general/getmoney.ogg'
 import timerSoundFile from '../sounds/general/timer.mp3';
+import igniteSoundFile from '../sounds/general/ignite.mp3';
 
 // Afraid of sounds
 import dogWhimperSoundFile from '../sounds/afraid_of/pupwhimper.wav';
@@ -137,4 +138,5 @@ export default {
     absorbSound: new Howl({src: absorbSoundFile}),
     shockSound: new Howl({src: shockSoundFile}),
     comboBreakerSound: new Howl({src: comboBreakerSoundFile}),
+    igniteSound: new Howl({src: igniteSoundFile}),
 }
