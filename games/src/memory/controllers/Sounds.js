@@ -1,65 +1,69 @@
-import match1SoundFile1 from "../sounds/piece_destroy_1.ogg";
-import match2SoundFile2 from "../sounds/piece_destroy_2.ogg";
-import match3SoundFile3 from "../sounds/piece_destroy_3.ogg";
-import match4SoundFile4 from "../sounds/piece_destroy_4.ogg";
+import match1SoundFile1 from "../sounds/general/piece_destroy_1.ogg";
+import match2SoundFile2 from "../sounds/general/piece_destroy_2.ogg";
+import match3SoundFile3 from "../sounds/general/piece_destroy_3.ogg";
+import match4SoundFile4 from "../sounds/general/piece_destroy_4.ogg";
 
-import flipSoundFile1 from "../sounds/shift_1.ogg";
-import flipSoundFile2 from "../sounds/shift_2.ogg";
-import flipSoundFile3 from "../sounds/shift_3.ogg";
-import flipSoundFile4 from "../sounds/shift_4.ogg";
-import flipSoundFile5 from "../sounds/shift_5.ogg";
-import flipSoundFile6 from "../sounds/shift_6.ogg";
-import flipSoundFile7 from "../sounds/shift_7.ogg";
+import flipSoundFile1 from "../sounds/general/shift_1.ogg";
+import flipSoundFile2 from "../sounds/general/shift_2.ogg";
+import flipSoundFile3 from "../sounds/general/shift_3.ogg";
+import flipSoundFile4 from "../sounds/general/shift_4.ogg";
+import flipSoundFile5 from "../sounds/general/shift_5.ogg";
+import flipSoundFile6 from "../sounds/general/shift_6.ogg";
+import flipSoundFile7 from "../sounds/general/shift_7.ogg";
 
-import winSoundFile from "../sounds/game_over.ogg";
-import loadSoundFile from "../sounds/start_game.ogg";
-import loseSoundFile from '../sounds/game_over_booch.ogg';
+import winSoundFile from "../sounds/general/game_over.ogg";
+import loadSoundFile from "../sounds/general/start_game.ogg";
+import loseSoundFile from '../sounds/general/game_over_booch.ogg';
 
-import starSoundFile1 from '../sounds/star1.mp3';
-import starSoundFile2 from '../sounds/star2.mp3';
-import starSoundFile3 from '../sounds/star3.mp3';
-import starSoundFile4 from '../sounds/star4.mp3';
-import starSoundFile5 from '../sounds/star5.mp3';
+import starSoundFile1 from '../sounds/general/star1.mp3';
+import starSoundFile2 from '../sounds/general/star2.mp3';
+import starSoundFile3 from '../sounds/general/star3.mp3';
+import starSoundFile4 from '../sounds/general/star4.mp3';
+import starSoundFile5 from '../sounds/general/star5.mp3';
 
-import shockSoundFile from '../sounds/shortcircuit.wav';
-import comboBreakerSoundFile from '../sounds/combobreaker.wav';
-import absorbSoundFile from '../sounds/getmoney.ogg'
-import timerSoundFile from '../sounds/timer.mp3';
+import shockSoundFile from '../sounds/general/shortcircuit.wav';
+import comboBreakerSoundFile from '../sounds/general/combobreaker.wav';
+import absorbSoundFile from '../sounds/general/getmoney.ogg'
+import timerSoundFile from '../sounds/general/timer.mp3';
 
-//Afraid of sounds
-import dogWhimperSoundFile from '../sounds/pupwhimper.wav';
-import pigSquealSoundFile from '../sounds/pignoise.mp3';
-import pigSquealSoundFile2 from '../sounds/PigSqueel.wav';
-import screamSoundFile from '../sounds/scream.wav';
-import catMeowSoundFile from '../sounds/catnoise.mp3';
-import dogYelpSoundFile from '../sounds/dognoise.mp3';
-import teethChatteringSoundFile from '../sounds/teethchattering.mp3';
-import monkeyScreechSoundFile from '../sounds/monkeynoise.mp3';
-import vomitSoundFile from '../sounds/vomitnoise.mp3';
-import nerdSoundFile from '../sounds/nerdnoise.mp3';
+// Afraid of sounds
+import dogWhimperSoundFile from '../sounds/afraid_of/pupwhimper.wav';
+import pigSquealSoundFile from '../sounds/afraid_of/pignoise.mp3';
+import pigSquealSoundFile2 from '../sounds/afraid_of/PigSqueel.wav';
+import screamSoundFile from '../sounds/afraid_of/scream.wav';
+import catMeowSoundFile from '../sounds/afraid_of/catnoise.mp3';
+import dogYelpSoundFile from '../sounds/afraid_of/dognoise.mp3';
+import teethChatteringSoundFile from '../sounds/afraid_of/teethchattering.mp3';
+import monkeyScreechSoundFile from '../sounds/afraid_of/monkeynoise.mp3';
+import vomitSoundFile from '../sounds/afraid_of/vomitnoise.mp3';
+import nerdSoundFile from '../sounds/afraid_of/nerdnoise.mp3';
 
-//combo sounds
-import zombieSoundFile from '../sounds/zombie.wav';
-import zombieSoundFile2 from '../sounds/Zombie Moan.wav';
-import vampireLaughSoundFile from '../sounds/vampirelaugh.mp3';
-import chachingSoundFile from '../sounds/chaching.ogg';
-import babyGiggleSoundFile from '../sounds/babygiggle.mp3';
-import foodSizzlingSoundFile from '../sounds/foodsizzling.mp3';
-import foodChoppingSoundFile from '../sounds/foodchopping.mp3';
-import potsAndPansSoundFile from '../sounds/potsandpans.mp3';
-import policeSirenSoundFile from '../sounds/policesiren.mp3';
-import fireTruckHornSoundFile from '../sounds/firetruckhorn.mp3';
-import sneezeSoundFile from '../sounds/sneeze.mp3';
-import rocketLaunchSoundFile from '../sounds/rocketlaunch.mp3';
-import electricGuitarSoundFile from '../sounds/electricguitar.mp3';
-import altoSaxSoundFile from '../sounds/Alto Sax.mp3';
-import fireTruckSoundFile from '../sounds/Fire Truck.wav';
-import guitarSoundFile from '../sounds/Guitar.wav';
-import draculaSoundFile from '../sounds/I Am Dracula.wav';
-import kidLaughSoundFile from '../sounds/Kid_Laugh.wav';
-import snareDrumSoundFile from '../sounds/Snare Drum.mp3';
-import trumpetSoundFile from '../sounds/trumpet.wav';
-import violinSoundFile from '../sounds/Violin.mp3';
+// Combo bonus sounds
+import zombieSoundFile from '../sounds/combo_bonus/zombie.wav';
+import zombieSoundFile2 from '../sounds/combo_bonus/Zombie Moan.wav';
+import vampireLaughSoundFile from '../sounds/combo_bonus/vampirelaugh.mp3';
+import chachingSoundFile from '../sounds/combo_bonus/chaching.ogg';
+import babyGiggleSoundFile from '../sounds/combo_bonus/babygiggle.mp3';
+import policeSirenSoundFile from '../sounds/combo_bonus/policesiren.mp3';
+import fireTruckHornSoundFile from '../sounds/combo_bonus/firetruckhorn.mp3';
+import rocketLaunchSoundFile from '../sounds/combo_bonus/rocketlaunch.mp3';
+import fireTruckSoundFile from '../sounds/combo_bonus/Fire Truck.wav';
+import draculaSoundFile from '../sounds/combo_bonus/I Am Dracula.wav';
+import kidLaughSoundFile from '../sounds/combo_bonus/Kid_Laugh.wav';
+import sneezeSoundFile from '../sounds/combo_bonus/sneeze.mp3';
+
+// Chef combo bonus sounds
+import foodSizzlingSoundFile from '../sounds/combo_bonus/chef/foodsizzling.mp3';
+import foodChoppingSoundFile from '../sounds/combo_bonus/chef/foodchopping.mp3';
+import potsAndPansSoundFile from '../sounds/combo_bonus/chef/potsandpans.mp3';
+
+// Musician combo bonus sounds
+import altoSaxSoundFile from '../sounds/combo_bonus/musician/Alto Sax.mp3';
+import guitarSoundFile from '../sounds/combo_bonus/musician/Guitar.wav';
+import electricGuitarSoundFile from '../sounds/combo_bonus/musician/electricguitar.mp3';
+import snareDrumSoundFile from '../sounds/combo_bonus/musician/Snare Drum.mp3';
+import trumpetSoundFile from '../sounds/combo_bonus/musician/trumpet.wav';
+import violinSoundFile from '../sounds/combo_bonus/musician/Violin.mp3';
 
 
 import {Howl} from "howler";
@@ -106,7 +110,7 @@ export default {
         dracula: new Howl({src: [draculaSoundFile]}),
         kidLaugh: new Howl({src: [kidLaughSoundFile]}),
         snareDrum: new Howl({src: [snareDrumSoundFile]}),
-        trumpet: new Howl({src: [snareDrumSoundFile]}),
+        trumpet: new Howl({src: [trumpetSoundFile]}),
         violin: new Howl({src: [violinSoundFile]}),
     },
 
