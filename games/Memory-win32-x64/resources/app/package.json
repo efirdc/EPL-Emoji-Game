@@ -1,0 +1,53 @@
+{
+  "name": "lovelace",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "color-convert": "^2.0.0",
+    "howler": "^2.1.1",
+    "polygon-offset": "^0.3.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
+    "react-electron-browser-window": "^0.1.2",
+    "react-motion": "^0.5.2",
+    "react-twemoji": "^0.1.0",
+    "babel-runtime": "^6.26.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-react": "^7.12.4",
+    "foreman": "^3.0.1",
+    "electron": "^4.0.5",
+    "electron-packager": "^13.1.1",
+    "npm": "^6.8.0",
+    "react-scripts": "^1.1.5"
+  },
+  "homepage": ".",
+  "main": "src/start.js",
+  "scripts": {
+    "start": "nf start -p 3000",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron . --remote-debugging-port=9222",
+    "electron-start": "node src/start-react",
+    "react-start": "react-scripts start",
+    "pack": "build --dir",
+    "dist": "npm run build && build",
+    "postinstall": "install-app-deps",
+    "electron-packager": "electron-packager ."
+  },
+  "build": {
+    "appId": "com.electron.electron-with-create-react-app",
+    "win": {
+      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    },
+    "directories": {
+      "buildResources": "public"
+    }
+  }
+}

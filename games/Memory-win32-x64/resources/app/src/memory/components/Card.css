@@ -1,0 +1,21 @@
+.cardInputHandler {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    backface-visibility: hidden;
+    pointer-events: all;
+    clip-path: polygon(50% 0%, 93.30125% 25%, 93.30125% 75%, 50% 100%, 6.69875% 75%, 6.69875% 25%);
+}
+
+.card {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    backface-visibility: hidden;
+    clip-path: polygon(50% 0%, 93.30125% 25%, 93.30125% 75%, 50% 100%, 6.69875% 75%, 6.69875% 25%);
+}
+
+.twemoji {
+    height: 100%;
+    width: 100%;
+}
