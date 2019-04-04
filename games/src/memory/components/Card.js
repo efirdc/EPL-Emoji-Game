@@ -1,7 +1,7 @@
 import React from 'react';
 import Twemoji from 'react-twemoji';
 import "./Card.css";
-import {Motion, spring, presets} from 'react-motion';
+import {Motion, spring} from 'react-motion';
 import * as colorConvert from "color-convert";
 import "../fonts/Segoe UI.ttf";
 
