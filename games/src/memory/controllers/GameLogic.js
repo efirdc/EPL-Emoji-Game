@@ -40,7 +40,7 @@ export const CardPhase = {
 };
 
 class Card {
-    static timeToBurn = 8000;
+    static timeToBurn = 5000;
 
     constructor(emoji, cardKey) {
 
