@@ -13,6 +13,7 @@
     "react-motion": "^0.5.2",
     "react-twemoji": "^0.1.0",
     "babel-runtime": "^6.26.0"
+
   },
   "devDependencies": {
     "eslint": "^4.5.0",
@@ -23,8 +24,8 @@
     "foreman": "^3.0.1",
     "electron": "^4.0.5",
     "electron-packager": "^13.1.1",
-    "npm": "^6.8.0",
-    "react-scripts": "^1.1.5"
+    "react-scripts": "^1.1.5",
+    "npm": "^6.8.0"
   },
   "homepage": ".",
   "main": "src/start.js",
@@ -38,7 +39,6 @@
     "react-start": "react-scripts start",
     "pack": "build --dir",
     "dist": "npm run build && build",
-    "postinstall": "install-app-deps",
     "electron-packager": "electron-packager ."
   },
   "build": {

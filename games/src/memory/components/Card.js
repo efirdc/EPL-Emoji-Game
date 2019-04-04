@@ -55,10 +55,6 @@ export default class Card extends React.Component {
         this.touchEndBehavior = this.touchEndBehavior.bind(this);
     }
 
-    convertColors(hex, lightness){
-
-    }
-
     shouldComponentUpdate(nextProps, nextState) {
         for (let propName in this.props) {
             if (this.props[propName] !== nextProps[propName]) {
