@@ -74,7 +74,7 @@ export default class AudioManager {
                 let i = Math.min(Math.floor((comboCounter - 1) / 3), Sounds.matchSounds.length - 1);
                 Sounds.matchSounds[i].play();
                 if (card.emoji === '🧙‍') {
-                    // play wizard sound here
+                    Sounds.magicSound.play()
                 }
                 else if (card.emoji === '⏱') {
                     // play timer sound here
@@ -141,6 +141,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.babyGiggle.play();
                 break;
             case '🤵': // wedding (cartoony wedding march clip)
+                Sounds.comboBonusSounds.wedding.play();
                 break;
             case '👩‍🍳': // chef (sizzling, chopping veggies, pots and pans, have an array and alternate)
                 Sounds.comboBonusSounds.foodSizzling.play();

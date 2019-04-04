@@ -24,7 +24,8 @@ import starSoundFile5 from '../sounds/general/star5.mp3';
 import shockSoundFile from '../sounds/general/shortcircuit.wav';
 import comboBreakerSoundFile from '../sounds/general/combobreaker.wav';
 import absorbSoundFile from '../sounds/general/getmoney.ogg'
-import timerSoundFile from '../sounds/general/timer.mp3';
+import timerSoundFile from '../sounds/general/timer2.wav';
+import magicSoundFile from '../sounds/general/magic.mp3';
 import igniteSoundFile from '../sounds/general/ignite3.mp3';
 import fireSmallSoundFile from '../sounds/general/fire_small.mp3';
 import fireLargeSoundFile from '../sounds/general/fire_large.mp3';
@@ -54,6 +55,7 @@ import fireTruckSoundFile from '../sounds/combo_bonus/Fire Truck.wav';
 import draculaSoundFile from '../sounds/combo_bonus/I Am Dracula.wav';
 import kidLaughSoundFile from '../sounds/combo_bonus/Kid_Laugh.wav';
 import sneezeSoundFile from '../sounds/combo_bonus/sneeze.mp3';
+import weddingSoundFile from '../sounds/combo_bonus/wedding.wav';
 
 // Chef combo bonus sounds
 import foodSizzlingSoundFile from '../sounds/combo_bonus/chef/foodsizzling.mp3';
@@ -101,6 +103,7 @@ export default {
         fireTruck: new Howl({src: [fireTruckSoundFile], volume: 0.6}),
         sneeze: new Howl({src: [sneezeSoundFile], volume: 0.3}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile], volume: 0.2}),
+        wedding: new Howl({src: [weddingSoundFile], volume: 0.4}),
 
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
         foodChopping: new Howl({src: [foodChoppingSoundFile]}),
@@ -139,6 +142,7 @@ export default {
     shockSound: new Howl({src: shockSoundFile}),
     comboBreakerSound: new Howl({src: comboBreakerSoundFile}),
     igniteSound: new Howl({src: igniteSoundFile}),
+    magicSound: new Howl({src: magicSoundFile}),
     fireSmallSound: new Howl({src: fireSmallSoundFile, loop: true}),
     fireLargeSound: new Howl({src: fireLargeSoundFile, loop: true}),
 }
