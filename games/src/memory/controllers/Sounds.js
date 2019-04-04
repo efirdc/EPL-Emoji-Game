@@ -24,7 +24,6 @@ import starSoundFile5 from '../sounds/general/star5.mp3';
 import shockSoundFile from '../sounds/general/shortcircuit.wav';
 import comboBreakerSoundFile from '../sounds/general/combobreaker.wav';
 import absorbSoundFile from '../sounds/general/getmoney.ogg'
-import timerSoundFile2 from '../sounds/general/timer2.wav';
 import timerSoundFile from '../sounds/general/timer.wav';
 import magicSoundFile from '../sounds/general/magic.mp3';
 import magicSoundFile2 from '../sounds/general/magic.wav';
@@ -33,9 +32,7 @@ import fireSmallSoundFile from '../sounds/general/fire_small.mp3';
 import fireLargeSoundFile from '../sounds/general/fire_large.mp3';
 
 // Afraid of sounds
-import dogWhimperSoundFile from '../sounds/afraid_of/pupwhimper.wav';
 import pigSquealSoundFile from '../sounds/afraid_of/pignoise.mp3';
-import pigSquealSoundFile2 from '../sounds/afraid_of/PigSqueel.wav';
 import screamSoundFile from '../sounds/afraid_of/scream.wav';
 import screamWhilhelmSoundFile from '../sounds/afraid_of/scream2.wav';
 import catMeowSoundFile from '../sounds/afraid_of/catnoise.mp3';
@@ -44,6 +41,7 @@ import teethChatteringSoundFile from '../sounds/afraid_of/teethchattering.mp3';
 import monkeyScreechSoundFile from '../sounds/afraid_of/monkeynoise.mp3';
 import vomitSoundFile from '../sounds/afraid_of/vomitnoise.mp3';
 import nerdSoundFile from '../sounds/afraid_of/nerdnoise.mp3';
+import christmasBellsSoundFile from '../sounds/afraid_of/christmasbells.mp3';
 
 // Combo bonus sounds
 import zombieSoundFile from '../sounds/combo_bonus/zombie.wav';
@@ -57,10 +55,6 @@ import ufoSoundFile from '../sounds/combo_bonus/ufo.mp3';
 import fireTruckSoundFile from '../sounds/combo_bonus/firetruck.wav';
 import defibrillatorSoundFile from '../sounds/combo_bonus/defibrillator.mp3';
 import rocketLaunchSoundFile from '../sounds/combo_bonus/rocketlaunch.mp3';
-import fireTruckSoundFile from '../sounds/combo_bonus/Fire Truck.wav';
-import draculaSoundFile from '../sounds/combo_bonus/I Am Dracula.wav';
-import kidLaughSoundFile from '../sounds/combo_bonus/Kid_Laugh.wav';
-import sneezeSoundFile from '../sounds/combo_bonus/sneeze.mp3';
 
 // Chef combo bonus sounds
 import foodSizzlingSoundFile from '../sounds/combo_bonus/chef/foodsizzling.mp3';
@@ -104,37 +98,35 @@ export default {
         babyGiggle: new Howl({src: [babyGiggleSoundFile], volume: 0.5}),
         policeSiren: new Howl({src: [policeSirenSoundFile], volume: 0.5}),
         fireTruck: new Howl({src: [fireTruckSoundFile], volume: 0.6}),
-        sneeze: new Howl({src: [sneezeSoundFile], volume: 0.3}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile], volume: 0.2}),
         wedding: new Howl({src: [weddingSoundFile], volume: 0.4}),
-        weddingMarch: new Howl({src: [weddingMarchSoundFile]}),
-        ufo: new Howl({src: [ufoSoundFile]}),
-        defibrillator: new Howl({src: [defibrillatorSoundFile]}),
-
+        //weddingMarch: new Howl({src: [weddingMarchSoundFile]}),
+        ufo: new Howl({src: [ufoSoundFile], volume: 0.3}),
+        defibrillator: new Howl({src: [defibrillatorSoundFile], volume: 0.1}),
 
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
-        foodChopping: new Howl({src: [foodChoppingSoundFile]}),
-        foodWhisking: new Howl({src: [foodWhiskingSoundFile]}),
+        //foodChopping: new Howl({src: [foodChoppingSoundFile]}),
+        //foodWhisking: new Howl({src: [foodWhiskingSoundFile]}),
 
-        saxophone: new Howl({src: [saxophoneSoundFile]}),
+        saxophone: new Howl({src: [saxophoneSoundFile], volume: 0.3}),
         electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
-        drum: new Howl({src: [drumSoundFile]}),
-        trumpet: new Howl({src: [trumpetSoundFile], volume: 0.5}),
-        violin: new Howl({src: [violinSoundFile], volume: 0.4}),
+        drum: new Howl({src: [drumSoundFile], volume: 0.3}),
+        trumpet: new Howl({src: [trumpetSoundFile], volume: 0.15}),
+        violin: new Howl({src: [violinSoundFile], volume: 0.15}),
     },
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
         dogYelp: new Howl({src: [dogYelpSoundFile]}),
-        pigSqueal: new Howl({src: [pigSquealSoundFile], volume: 0.5}),
-        teethChattering: new Howl({src: [teethChatteringSoundFile]}),
-        christmasBells: new Howl({src: [christmasBellsSoundFile]}),
-        monkeyScreech: new Howl({src: [monkeyScreechSoundFile], volume: 0.6}),
-        vomit: new Howl({src: [vomitSoundFile], volume: 0.5}),
+        pigSqueal: new Howl({src: [pigSquealSoundFile], volume: 0.25}),
+        teethChattering: new Howl({src: [teethChatteringSoundFile], volume: 0.25}),
+        christmasBells: new Howl({src: [christmasBellsSoundFile], volume: 0.25}),
+        monkeyScreech: new Howl({src: [monkeyScreechSoundFile], volume: 0.25}),
+        vomit: new Howl({src: [vomitSoundFile], volume: 0.25}),
 
-        scream: new Howl ({src: [screamSoundFile], volume: 0.5}),
-        screamWhilhelm: new Howl ({src: [screamWhilhelmSoundFile], volume: 0.5}),
-        nerd: new Howl({src: [nerdSoundFile], volume: 0.4}),
+        scream: new Howl ({src: [screamSoundFile], volume: 0.25}),
+        screamWhilhelm: new Howl ({src: [screamWhilhelmSoundFile], volume: 0.25}),
+        nerd: new Howl({src: [nerdSoundFile], volume: 0.3}),
     },
 
     starSounds: [
@@ -146,7 +138,6 @@ export default {
     ],
 
     timerSound: new Howl({src: timerSoundFile}),
-    timerSound2: new Howl({src: timerSoundFile2}),
     absorbSound: new Howl({src: absorbSoundFile, volume: 0.3}),
     shockSound: new Howl({src: shockSoundFile}),
     comboBreakerSound: new Howl({src: comboBreakerSoundFile}),
