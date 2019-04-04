@@ -464,9 +464,6 @@ export default class GameLogic {
     }
 
     controlCheats(keyEvent) {
-
-        console.log(keyEvent.charCode);
-
         // 1 key
         if (keyEvent.charCode === 49) {
             this.flipCheat = !this.flipCheat;
@@ -498,8 +495,6 @@ export default class GameLogic {
         else if (keyEvent.charCode === 116) {
             this.useTwemoji = !this.useTwemoji;
         }
-
-
     }
 
     setPhase(phase, dontSendEvent) {
