@@ -20,10 +20,9 @@ export default class Game extends React.Component {
     constructor(props) {
         super(props);
 
-        this.loop = new GameLoop();
-        this.audioManager = new AudioManager();
-
         this.gameLogic = new GameLogic();
+        this.loop = new GameLoop();
+        this.audioManager = new AudioManager(this.loop, this.gameLogic);
 
         this.bodyRef = React.createRef();
 

@@ -438,6 +438,7 @@ export default class GameLogic {
         this.fireEmojiIgnitionChance = 0.1;
         this.onFireCardIgnitionRate = 250;
         this.onFireCardIgnitionChance = 0.1;
+        this.fireLevel = 0.0;
 
         this.initLevel();
 
@@ -1222,6 +1223,13 @@ export default class GameLogic {
                     this.comboBreaker();
                 }
             }
+        }
+
+        // Determine fire level
+        this.fireLevel = 0.0;
+        onFireCards = this.cards.filter((card) => (card.onFire));
+        for (let card of onFireCards) {
+            this.fireLevel += card.burnPercent;
         }
 
         // Handle timeout on BURNED cards.

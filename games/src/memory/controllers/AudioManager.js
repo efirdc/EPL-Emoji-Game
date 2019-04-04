@@ -2,9 +2,17 @@ import Sounds from '../controllers/Sounds.js';
 import emojiData from './EmojiData.js';
 
 export default class AudioManager {
-    constructor() {
+    constructor(gameLoop, gameLogic) {
+
         this.handleEvents = this.handleEvents.bind(this);
         this.soundTestHotkeyHandler = this.soundTestHotkeyHandler.bind(this);
+        this.tick = this.tick.bind(this);
+
+        gameLoop.subscribe(this.tick);
+        this.gameLogic = gameLogic;
+
+        Sounds.fireSmallSound.volume(0.0);
+        Sounds.fireSmallSound.play();
 
         for (let starSound of Sounds.starSounds) {
             starSound.volume(0.5);
@@ -25,8 +33,11 @@ export default class AudioManager {
         document.addEventListener("fireburned", this.handleEvents);
         document.addEventListener("cardignite", this.handleEvents);
 
-
         document.addEventListener("keypress", this.soundTestHotkeyHandler);
+    }
+
+    tick(deltaTime) {
+        Sounds.fireSmallSound.volume(this.gameLogic.fireLevel * 0.5);
     }
 
     soundTestHotkeyHandler(keyEvent) {
