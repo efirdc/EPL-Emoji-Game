@@ -4,8 +4,11 @@ import emojiData from './EmojiData.js';
 export default class AudioManager {
     constructor() {
         this.handleEvents = this.handleEvents.bind(this);
+        this.soundTestHotkeyHandler = this.soundTestHotkeyHandler.bind(this);
 
-        Sounds.absorbSound.volume(0.3);
+        for (let starSound of Sounds.starSounds) {
+            starSound.volume(0.5);
+        }
 
         document.addEventListener("match", this.handleEvents);
         document.addEventListener("matchspecialother", this.handleEvents);
@@ -21,6 +24,35 @@ export default class AudioManager {
         document.addEventListener("shockburned", this.handleEvents);
         document.addEventListener("fireburned", this.handleEvents);
         document.addEventListener("cardignite", this.handleEvents);
+
+
+        document.addEventListener("keypress", this.soundTestHotkeyHandler);
+    }
+
+    soundTestHotkeyHandler(keyEvent) {
+
+        // [ key
+        if (keyEvent.charCode === 91) {
+
+            const delay = 1000;
+            let totalDelay = 0;
+
+            for (let prop in Sounds.afraidOfSounds){
+                setTimeout(() =>Sounds.afraidOfSounds[prop].play(), totalDelay);
+                totalDelay += delay;
+            }
+        }
+
+        // ] key
+        if (keyEvent.charCode === 93) {
+            const delay = 1500;
+            let totalDelay = 0;
+
+            for (let prop in Sounds.comboBonusSounds){
+                setTimeout(() =>Sounds.comboBonusSounds[prop].play(), totalDelay);
+                totalDelay += delay;
+            }
+        }
     }
 
     handleEvents(event) {
@@ -71,7 +103,7 @@ export default class AudioManager {
             case "fireburned":
                 break;
             case "cardignite":
-                Sounds.igniteSound.play();
+                //Sounds.igniteSound.play();
                 break;
         }
 
@@ -108,7 +140,7 @@ export default class AudioManager {
             case '🛸': // alien (generic spooky alien noise)
                 break;
             case '👨‍🚒': // fireman (firetruck horn)
-                Sounds.comboBonusSounds.fireTruckHorn.play();
+                Sounds.comboBonusSounds.fireTruck.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
                 Sounds.comboBonusSounds.sneeze.play();

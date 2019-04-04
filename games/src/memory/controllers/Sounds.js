@@ -25,13 +25,16 @@ import shockSoundFile from '../sounds/general/shortcircuit.wav';
 import comboBreakerSoundFile from '../sounds/general/combobreaker.wav';
 import absorbSoundFile from '../sounds/general/getmoney.ogg'
 import timerSoundFile from '../sounds/general/timer.mp3';
-import igniteSoundFile from '../sounds/general/ignite.mp3';
+import igniteSoundFile from '../sounds/general/ignite3.mp3';
+import fireSmallSoundFile from '../sounds/general/fire_small.mp3';
+import fireLargeSoundFile from '../sounds/general/fire_large.mp3';
 
 // Afraid of sounds
 import dogWhimperSoundFile from '../sounds/afraid_of/pupwhimper.wav';
 import pigSquealSoundFile from '../sounds/afraid_of/pignoise.mp3';
 import pigSquealSoundFile2 from '../sounds/afraid_of/PigSqueel.wav';
 import screamSoundFile from '../sounds/afraid_of/scream.wav';
+import screamWhilhelmSoundFile from '../sounds/afraid_of/scream2.wav';
 import catMeowSoundFile from '../sounds/afraid_of/catnoise.mp3';
 import dogYelpSoundFile from '../sounds/afraid_of/dognoise.mp3';
 import teethChatteringSoundFile from '../sounds/afraid_of/teethchattering.mp3';
@@ -93,37 +96,34 @@ export default {
         zombie: new Howl({src: [zombieSoundFile]}),
         vampireLaugh: new Howl({src: [vampireLaughSoundFile]}),
         chaching: new Howl({src: [chachingSoundFile]}),
-        babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
+        babyGiggle: new Howl({src: [babyGiggleSoundFile], volume: 0.5}),
+        policeSiren: new Howl({src: [policeSirenSoundFile], volume: 0.5}),
+        fireTruck: new Howl({src: [fireTruckSoundFile], volume: 0.6}),
+        sneeze: new Howl({src: [sneezeSoundFile], volume: 0.3}),
+        rocketLaunch: new Howl({src: [rocketLaunchSoundFile], volume: 0.2}),
+
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
         foodChopping: new Howl({src: [foodChoppingSoundFile]}),
         potsAndPans: new Howl({src: [potsAndPansSoundFile]}),
-        policeSiren: new Howl({src: [policeSirenSoundFile]}),
-        fireTruckHorn: new Howl({src: [fireTruckHornSoundFile]}),
-        sneeze: new Howl({src: [sneezeSoundFile]}),
-        rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
-        electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
 
-        altoSax: new Howl({src: [altoSaxSoundFile]}),
-        fireTruck: new Howl({src: [fireTruckSoundFile]}),
-        guitar: new Howl({src: [guitarSoundFile]}),
-        dracula: new Howl({src: [draculaSoundFile]}),
-        kidLaugh: new Howl({src: [kidLaughSoundFile]}),
+        altoSax: new Howl({src: [altoSaxSoundFile], volume: 0.4}),
+        electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
         snareDrum: new Howl({src: [snareDrumSoundFile]}),
-        trumpet: new Howl({src: [trumpetSoundFile]}),
-        violin: new Howl({src: [violinSoundFile]}),
+        trumpet: new Howl({src: [trumpetSoundFile], volume: 0.5}),
+        violin: new Howl({src: [violinSoundFile], volume: 0.4}),
     },
 
     afraidOfSounds : {
         catMeow: new Howl({src: [catMeowSoundFile]}),
         dogYelp: new Howl({src: [dogYelpSoundFile]}),
-        pigSqueal: new Howl({src: [pigSquealSoundFile]}),
+        pigSqueal: new Howl({src: [pigSquealSoundFile], volume: 0.5}),
         teethChattering: new Howl({src: [teethChatteringSoundFile]}),
-        monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
-        vomit: new Howl({src: [vomitSoundFile]}),
+        monkeyScreech: new Howl({src: [monkeyScreechSoundFile], volume: 0.6}),
+        vomit: new Howl({src: [vomitSoundFile], volume: 0.5}),
 
-        dogWhimper: new Howl ({src: [dogWhimperSoundFile]}),
-        scream: new Howl ({src: [screamSoundFile]}),
-        nerd: new Howl({src: [nerdSoundFile]}),
+        scream: new Howl ({src: [screamSoundFile], volume: 0.5}),
+        screamWhilhelm: new Howl ({src: [screamWhilhelmSoundFile], volume: 0.5}),
+        nerd: new Howl({src: [nerdSoundFile], volume: 0.4}),
     },
 
     starSounds: [
@@ -135,8 +135,10 @@ export default {
     ],
 
     timerSound: new Howl({src: timerSoundFile}),
-    absorbSound: new Howl({src: absorbSoundFile}),
+    absorbSound: new Howl({src: absorbSoundFile, volume: 0.3}),
     shockSound: new Howl({src: shockSoundFile}),
     comboBreakerSound: new Howl({src: comboBreakerSoundFile}),
     igniteSound: new Howl({src: igniteSoundFile}),
+    fireSmallSound: new Howl({src: fireSmallSoundFile, loop: true}),
+    fireLargeSound: new Howl({src: fireLargeSoundFile, loop: true}),
 }
