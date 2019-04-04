@@ -446,6 +446,7 @@ export default class GameLogic {
         this.winCheat = false;
         this.loseCheat = false;
         this.flipEverythingCheat = false;
+        this.useTwemoji = false;
         this.controlCheats = this.controlCheats.bind(this);
         this.addStar = this.addStar.bind(this);
         document.addEventListener("keypress", this.controlCheats);
@@ -463,6 +464,8 @@ export default class GameLogic {
     }
 
     controlCheats(keyEvent) {
+
+        console.log(keyEvent.charCode);
 
         // 1 key
         if (keyEvent.charCode === 49) {
@@ -489,6 +492,11 @@ export default class GameLogic {
         // 9 key
         else if (keyEvent.charCode === 57) {
             this.timeAtSetPhase -= 5000;
+        }
+
+        // t key
+        else if (keyEvent.charCode === 116) {
+            this.useTwemoji = !this.useTwemoji;
         }
 
 

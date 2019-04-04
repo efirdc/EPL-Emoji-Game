@@ -473,8 +473,6 @@ export default class Card extends React.Component {
         let initialValues = this.getInitialValues();
         let targetValues = this.getTargetValues();
 
-        let useTwemoji = false;
-
         return(
             <Motion defaultStyle={initialValues} style={targetValues}>
                 {interpolatedValues => {
@@ -496,7 +494,7 @@ export default class Card extends React.Component {
 
                             <div className={"card"} style={styles.cardFront}>
                                 <div className={"card"} style={styles.cardFrontInner}>
-                                    {useTwemoji ? (
+                                    {this.props.useTwemoji ? (
                                         <Twemoji options={{ className: 'twemoji', noWrapper: true}}>
                                             <div style={styles.twemoji}>
                                                 {this.card.emoji.substring(0, 2)}

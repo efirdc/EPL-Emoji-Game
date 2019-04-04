@@ -124,6 +124,7 @@ export default class Game extends React.Component {
                                 card={card}
                                 key={card.cardKey.toString()}
                                 size={hexBoard.hexSize * 2}
+                                useTwemoji={gameLogic.useTwemoji}
                                 onCardTouchStart={this.onCardTouchStart}
                                 onCardTouchEnd={this.onCardTouchEnd}
                             />
