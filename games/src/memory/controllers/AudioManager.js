@@ -32,6 +32,7 @@ export default class AudioManager {
                 Sounds.matchSounds[i].play();
                 if (card.emoji === '🧙‍') {
                     // play wizard sound here
+                    Sounds.magicSound.play();
                 }
                 else if (card.emoji === '⏱') {
                     // play timer sound here
@@ -97,6 +98,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.babyGiggle.play();
                 break;
             case '🤵': // wedding (cartoony wedding march clip)
+
                 break;
             case '👩‍🍳': // chef (sizzling, chopping veggies, pots and pans, have an array and alternate)
                 Sounds.comboBonusSounds.foodSizzling.play();
@@ -105,18 +107,19 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.policeSiren.play();
                 break;
             case '🛸': // alien (generic spooky alien noise)
+                Sounds.comboBonusSounds.ufo.play();
                 break;
             case '👨‍🚒': // fireman (firetruck horn)
-                Sounds.comboBonusSounds.fireTruckHorn.play();
+                Sounds.comboBonusSounds.fireTruck.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
-                Sounds.comboBonusSounds.sneeze.play();
+                Sounds.comboBonusSounds.defibrillator.play();
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
                 Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
-                Sounds.comboBonusSounds.altoSax.play();
+                Sounds.comboBonusSounds.saxophone.play();
                 break;
             case '🎸': // guitar (duh)
                 Sounds.comboBonusSounds.electricGuitar.play();
@@ -125,10 +128,10 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.trumpet.play();
                 break;
             case '🎻': // violin (duh)
-                Sounds.comboBonusSounds.violin.play();
+
                 break;
             case '🥁': // snare (duh)
-                Sounds.comboBonusSounds.snareDrum.play();
+                Sounds.comboBonusSounds.drum.play();
                 break;
         }
     }
