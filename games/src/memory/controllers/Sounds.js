@@ -32,6 +32,7 @@ import catMeowSoundFile from '../sounds/afraid_of/catnoise.mp3';
 import dogYelpSoundFile from '../sounds/afraid_of/dognoise.mp3';
 import pigSquealSoundFile from '../sounds/afraid_of/pignoise.mp3';
 import teethChatteringSoundFile from '../sounds/afraid_of/teethchattering.mp3';
+import christmasBellsSoundFile from '../sounds/afraid_of/christmasbells.mp3';
 import monkeyScreechSoundFile from '../sounds/afraid_of/monkeynoise.mp3';
 import screamSoundFile from '../sounds/afraid_of/scream.wav';
 import nerdSoundFile from '../sounds/afraid_of/nerdnoise.mp3';
@@ -42,6 +43,7 @@ import zombieSoundFile from '../sounds/combo_bonus/zombie.wav';
 import vampireLaughSoundFile from '../sounds/combo_bonus/vampirelaugh.mp3';
 import chachingSoundFile from '../sounds/combo_bonus/chaching.ogg';
 import babyGiggleSoundFile from '../sounds/combo_bonus/babygiggle.mp3';
+import weddingMarchSoundFile from '../sounds/combo_bonus/weddingmarch.mp3';
 import policeSirenSoundFile from '../sounds/combo_bonus/policesiren.mp3';
 import ufoSoundFile from '../sounds/combo_bonus/ufo.mp3';
 import fireTruckSoundFile from '../sounds/combo_bonus/firetruck.wav';
@@ -51,15 +53,14 @@ import rocketLaunchSoundFile from '../sounds/combo_bonus/rocketlaunch.mp3';
 // Chef combo bonus sounds
 import foodSizzlingSoundFile from '../sounds/combo_bonus/chef/foodsizzling.mp3';
 import foodChoppingSoundFile from '../sounds/combo_bonus/chef/foodchopping.mp3';
-import potsAndPansSoundFile from '../sounds/combo_bonus/chef/potsandpans.mp3';
+import foodWhiskingSoundFile from '../sounds/combo_bonus/chef/foodwhisking.mp3';
 
 // Musician combo bonus sounds
 import saxophoneSoundFile from '../sounds/combo_bonus/musician/saxophone.wav';
 import electricGuitarSoundFile from '../sounds/combo_bonus/musician/electricguitar.mp3';
 import trumpetSoundFile from '../sounds/combo_bonus/musician/trumpet.wav';
-
+import violinSoundFile from '../sounds/combo_bonus/musician/violin.wav';
 import drumSoundFile from '../sounds/combo_bonus/musician/drum.mp3';
-
 
 import {Howl} from "howler";
 
@@ -89,19 +90,19 @@ export default {
         vampireLaugh: new Howl({src: [vampireLaughSoundFile]}),
         chaching: new Howl({src: [chachingSoundFile]}),
         babyGiggle: new Howl({src: [babyGiggleSoundFile]}),
+        weddingMarch: new Howl({src: [weddingMarchSoundFile]}),
         foodSizzling: new Howl({src: [foodSizzlingSoundFile]}),
         foodChopping: new Howl({src: [foodChoppingSoundFile]}),
-        potsAndPans: new Howl({src: [potsAndPansSoundFile]}),
+        foodWhisking: new Howl({src: [foodWhiskingSoundFile]}),
         policeSiren: new Howl({src: [policeSirenSoundFile]}),
         ufo: new Howl({src: [ufoSoundFile]}),
         fireTruck: new Howl({src: [fireTruckSoundFile]}),
         defibrillator: new Howl({src: [defibrillatorSoundFile]}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile]}),
-
         saxophone: new Howl({src: [saxophoneSoundFile]}),
         electricGuitar: new Howl({src: [electricGuitarSoundFile]}),
         trumpet: new Howl({src: [trumpetSoundFile]}),
-
+        violin: new Howl({src: [violinSoundFile]}),
         drum: new Howl({src: [drumSoundFile]}),
     },
 
@@ -110,6 +111,7 @@ export default {
         dogYelp: new Howl({src: [dogYelpSoundFile]}),
         pigSqueal: new Howl({src: [pigSquealSoundFile]}),
         teethChattering: new Howl({src: [teethChatteringSoundFile]}),
+        christmasBells: new Howl({src: [christmasBellsSoundFile]}),
         monkeyScreech: new Howl({src: [monkeyScreechSoundFile]}),
         scream: new Howl ({src: [screamSoundFile]}),
         nerd: new Howl({src: [nerdSoundFile]}),

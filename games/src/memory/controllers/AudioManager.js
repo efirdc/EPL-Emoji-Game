@@ -98,7 +98,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.babyGiggle.play();
                 break;
             case '🤵': // wedding (cartoony wedding march clip)
-
+                Sounds.comboBonusSounds.weddingMarch.play();
                 break;
             case '👩‍🍳': // chef (sizzling, chopping veggies, pots and pans, have an array and alternate)
                 Sounds.comboBonusSounds.foodSizzling.play();
@@ -128,7 +128,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.trumpet.play();
                 break;
             case '🎻': // violin (duh)
-
+                Sounds.comboBonusSounds.violin.play();
                 break;
             case '🥁': // snare (duh)
                 Sounds.comboBonusSounds.drum.play();
@@ -151,6 +151,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.teethChattering.play();
                 break;
             case '⛄': // snowman is afraid of fire (no clue)
+                Sounds.afraidOfSounds.christmasBells.play();
                 break;
             case '🐵': // monkey (scared monkey noise i guess)
                 Sounds.afraidOfSounds.monkeyScreech.play();
