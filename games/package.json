@@ -2,9 +2,9 @@
   "name": "lovelace",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://macewancs.github.io/w19Lovelace/",
   "dependencies": {
     "babel-runtime": "^6.26.0",
-    "color-convert": "^2.0.0",
     "electron": "^4.0.5",
     "polygon-offset": "^0.3.1",
     "prop-types": "^15.7.2",
@@ -24,10 +24,10 @@
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.12.4",
     "foreman": "^3.0.1",
+    "gh-pages": "^2.0.1",
     "howler": "^2.1.1",
     "npm": "^6.8.0"
   },
-  "homepage": ".",
   "main": "src/start.js",
   "scripts": {
     "start": "nf start -p 3000",
@@ -40,7 +40,9 @@
     "pack": "build --dir",
     "dist": "npm run build && build",
     "postinstall": "install-app-deps",
-    "electron-packager": "electron-packager ."
+    "electron-packager": "electron-packager .",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "build": {
     "appId": "com.electron.electron-with-create-react-app",

@@ -2,7 +2,6 @@ import React from 'react';
 import Twemoji from 'react-twemoji';
 import "./Card.css";
 import {Motion, spring} from 'react-motion';
-import * as colorConvert from "color-convert";
 import "../fonts/Segoe UI.ttf";
 
 export default class Card extends React.Component {
@@ -39,15 +38,24 @@ export default class Card extends React.Component {
             "#773894", // +10 saturation
             "#009dd8",
         ];
-        let borderLightness = 0.35;
-        let flipRejectedLightness = 0.75;
-        let hsvColors = this.eplColors.map((color) => colorConvert.hex.hsv(color.substring(1)));
 
-        let convertLightness = (hsvColor, lightness) => {
-            return "#" + colorConvert.hsv.hex([hsvColor[0], hsvColor[1] , hsvColor[2] * lightness]);
-        };
-        this.eplColorsBorder = hsvColors.map((hsvColor) => convertLightness(hsvColor, borderLightness));
-        this.eplColorsFlipRejected = hsvColors.map((hsvColor) => convertLightness(hsvColor, flipRejectedLightness));
+        // 35% lightness
+        this.eplColorsBorder = [
+            "#593a0d",
+            "#274217",
+            "#520324",
+            "#190c1f",
+            "#00364a",
+        ];
+
+        // 75% lightness
+        this.eplColorsFlipRejected = [
+            "#bf7c1d",
+            "#558f31",
+            "#800538",
+            "#5a2b70", // +10 saturation
+            "#007aa6",
+        ];
 
         this.indicatorRadius = 3.5;
 
