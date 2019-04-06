@@ -6,4 +6,4 @@ import TouchEmulator from "./TouchEmulator";
 // Comment this to disable touch emulation
 //const touchEmulator = new TouchEmulator();
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App/>, document.getElementById('root'));

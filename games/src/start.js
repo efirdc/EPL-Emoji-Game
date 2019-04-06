@@ -14,6 +14,7 @@ function createWindow() {
     mainWindow.setMenuBarVisibility(false);
     mainWindow.setAutoHideMenuBar(true);
     mainWindow.maximize();
+    mainWindow.setFullScreen(true);
 
     globalShortcut.register('f5', function() {
         mainWindow.reload();

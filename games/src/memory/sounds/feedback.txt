@@ -1,0 +1,35 @@
+timer.mp3 might be too quiet. Maybe some sort of 'timer ding' sound would be better
+
+prefer babygiggle.mp3 over Kid_Laugh.wav
+Kid_Laugh is too realistic
+
+I Am Dracula is cool but a bit too long IMO. 
+vampirelaugh is good enough but it kind of fades out weirdly
+
+prefer zombie.wav over Zombie Moan
+zombie.wav is more obvious that it is associated with the zombie because it says "brains"
+
+prefer Fire Truck.wav over firetruckhorn.mp3
+firetruckhorn is a bit shocking
+
+musician sounds are a bit boring (except electricguitar.mp3 is perfect)
+Alto Sax and Violin might be too long
+those two and trumpet are usable I suppose but we can probably find something better if we have time
+Snare Drum sound is super short. Maybe a drum roll would be good?
+
+chef sounds could use some work
+the sizzling sound is probably the best we can do but im not sure it very clear its from the chef
+chopping sounds are really quiet. Some sort of clear dicing sound would be better
+potsandpans isnt very satisfying
+
+rocketlaunch - good but we will probably have to lower the volume
+
+prefer dognoise over pupwhimper
+pupwhimper is a person trying to sound like a dog and its a bit creepy
+
+scream sounds are both good, we could even randomize them (wilhelm could be a low % easter egg?)
+
+catnoise is a bit boring and this one should be really good since it is the first
+afraidOf relationship and it will show up often
+
+prefer pignoise over PigSqueel. the squeel is a bit loud/shocking
