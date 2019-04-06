@@ -4,30 +4,24 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "babel-runtime": "^6.26.0",
-    "electron": "^4.0.5",
     "polygon-offset": "^0.3.1",
-    "prop-types": "^15.7.2",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
-    "react-electron-browser-window": "^0.1.2",
     "react-motion": "^0.5.2",
-    "react-router-dom": "^5.0.0",
-    "react-scripts": "^1.1.5",
-    "react-twemoji": "^0.1.0"
+    "react-twemoji": "^0.1.0",
+    "howler": "^2.1.1"
   },
   "devDependencies": {
-    "electron-builder": "^19.24.1",
     "electron-packager": "^13.1.1",
+    "foreman": "^3.0.1",
+    "gh-pages": "^2.0.1",
     "eslint": "^4.5.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.12.4",
-    "foreman": "^3.0.1",
-    "gh-pages": "^2.0.1",
-    "howler": "^2.1.1",
-    "npm": "^6.8.0"
+    "react-scripts": "^1.1.5",
+    "electron": "^4.0.5"
   },
   "main": "src/start.js",
   "scripts": {
