@@ -150,18 +150,19 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.policeSiren.play();
                 break;
             case '🛸': // alien (generic spooky alien noise)
+                Sounds.comboBonusSounds.ufo.play();
                 break;
             case '👨‍🚒': // fireman (firetruck horn)
                 Sounds.comboBonusSounds.fireTruck.play();
                 break;
             case '👩‍⚕️': // doctor (defibrillator noise?, heart monitor beep noise?, sneeze?)
-                Sounds.comboBonusSounds.sneeze.play();
+                Sounds.comboBonusSounds.defibrillator.play();
                 break;
             case '👨‍🚀': // astronaut (spaceship launch noise)
                 Sounds.comboBonusSounds.rocketLaunch.play();
                 break;
             case '🎷': // saxophone (duh)
-                Sounds.comboBonusSounds.altoSax.play();
+                Sounds.comboBonusSounds.saxophone.play();
                 break;
             case '🎸': // guitar (duh)
                 Sounds.comboBonusSounds.electricGuitar.play();
@@ -173,7 +174,7 @@ export default class AudioManager {
                 Sounds.comboBonusSounds.violin.play();
                 break;
             case '🥁': // snare (duh)
-                Sounds.comboBonusSounds.snareDrum.play();
+                Sounds.comboBonusSounds.drum.play();
                 break;
         }
     }
@@ -193,6 +194,7 @@ export default class AudioManager {
                 Sounds.afraidOfSounds.teethChattering.play();
                 break;
             case '⛄': // snowman is afraid of fire (no clue)
+                Sounds.afraidOfSounds.christmasBells.play();
                 break;
             case '🐵': // monkey (scared monkey noise i guess)
                 Sounds.afraidOfSounds.monkeyScreech.play();

@@ -3,13 +3,13 @@ import './App.css';
 import Game from './memory/components/Game';
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <Game/>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div  className="App">
+                <Game />
+            </div>
+        );
+    }
 }
 
 export default App;
