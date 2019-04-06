@@ -2,7 +2,7 @@
   "name": "lovelace",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://macewancs.github.io/w19Lovelace/",
+  "homepage": ".",
   "dependencies": {
     "babel-runtime": "^6.26.0",
     "electron": "^4.0.5",
