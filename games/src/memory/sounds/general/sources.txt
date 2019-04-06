@@ -1,0 +1,25 @@
+Source?
+magic.mp3
+timer.wav
+
+Should replace...
+game_over.ogg
+game_over_booch.ogg
+getmoney.ogg
+piece_destroy_X.ogg
+shift_X.ogg
+getmoney.ogg
+start_game.ogg
+
+Obtained from zapsplat.com with a gold account:
+fire_small.mp3
+starX.mp3
+License: https://www.zapsplat.com/license-type/standard-license/
+
+Obtained from soundbible.com:
+short_circuit - http://soundbible.com/tags-short-circuit.html
+License: https://creativecommons.org/licenses/by/3.0/#
+
+Obtained from opengameart.com:
+combobreaker.wav - https://opengameart.org/content/bad-sound-1
+License: Available at the link above.

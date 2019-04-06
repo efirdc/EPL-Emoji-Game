@@ -1,0 +1,19 @@
+source?
+babygiggle.mp3
+defibrillator.mp3
+firetruck.wav
+foodsizzling.mp3
+policesiren.mp3
+rocketlaunch.mp3
+ufo.mp3
+vampirelaugh.mp3
+
+should replace...
+chaching.ogg
+
+Obtained from opengameart.com:
+zombie.wav - https://opengameart.org/content/25-spooky-sound-effects
+License: Available at the link above.
+
+wedding.wav - https://weddingmusicproject.bandcamp.com/track/bridal-chorus-pipe-organ-wagner-here-comes-the-bride
+3 second sample that was sped up a bit (fair use?)

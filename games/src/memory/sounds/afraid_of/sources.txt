@@ -1,0 +1,13 @@
+source?
+christmasbells.mp3
+dognoise.mp3
+monkeynoise.mp3
+nerdnoise.mp3
+pignoise.mp3
+scream.wav
+teethchattering.mp3
+vomitnoise.mp3
+
+Obtained from zapsplat.com with a gold account:
+catnoise.mp3 - https://www.zapsplat.com/music/cat-moaning-meow-hungry/
+License: https://www.zapsplat.com/license-type/standard-license/
