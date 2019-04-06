@@ -8,6 +8,7 @@ This game was designed for large touch tables, but if you are playing with a mou
 you can shift-click to add and remove fake touch points. There are also a number of
 cheat hotkeys:
 
+`F11` - Toggle full screen.  
 `1` - Toggle the max flip limit.  
 `2` - Touch every card.  
 `5` - Win the level and add 5 stars.  
