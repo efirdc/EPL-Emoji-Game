@@ -1,6 +1,12 @@
-source?
-drum.mp3
-electricguitar.mp3
-saxophone.wav
-trumpet.wav
-violin.wav
+Obtained from freesound.org:
+drum.mp3 - https://freesound.org/people/owowowwo/sounds/197763/
+saxophone.wav - https://freesound.org/people/simondsouza/sounds/1236/
+violin.wav - https://freesound.org/people/Cunningar0807/sounds/401893/
+License: Available at the link above.
+
+Obtained from soundbible.com:
+trumpet.wav - http://soundbible.com/1003-Ta-Da.html
+License: Available at the link above.
+
+Obtained from youtube.com:
+electricguitar.mp3 - https://www.youtube.com/watch?v=To9mCdtLjsw
