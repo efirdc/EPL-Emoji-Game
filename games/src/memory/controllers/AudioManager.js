@@ -14,10 +14,6 @@ export default class AudioManager {
         Sounds.fireSmallSound.volume(0.0);
         Sounds.fireSmallSound.play();
 
-        for (let starSound of Sounds.starSounds) {
-            starSound.volume(0.5);
-        }
-
         document.addEventListener("match", this.handleEvents);
         document.addEventListener("matchspecialother", this.handleEvents);
         document.addEventListener("faceUp", this.handleEvents);

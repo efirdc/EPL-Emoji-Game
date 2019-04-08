@@ -90,7 +90,7 @@ export default {
         policeSiren: new Howl({src: [policeSirenSoundFile], volume: 0.5}),
         fireTruck: new Howl({src: [fireTruckSoundFile], volume: 0.6}),
         rocketLaunch: new Howl({src: [rocketLaunchSoundFile], volume: 0.2}),
-        wedding: new Howl({src: [weddingSoundFile], volume: 0.4}),
+        wedding: new Howl({src: [weddingSoundFile], volume: 0.2}),
         ufo: new Howl({src: [ufoSoundFile], volume: 0.3}),
         defibrillator: new Howl({src: [defibrillatorSoundFile], volume: 0.1}),
 
@@ -116,11 +116,11 @@ export default {
     },
 
     starSounds: [
-        new Howl({src: starSoundFile1}),
-        new Howl({src: starSoundFile2}),
-        new Howl({src: starSoundFile3}),
-        new Howl({src: starSoundFile4}),
-        new Howl({src: starSoundFile5}),
+        new Howl({src: starSoundFile1, volume: 0.3}),
+        new Howl({src: starSoundFile2, volume: 0.3}),
+        new Howl({src: starSoundFile3, volume: 0.3}),
+        new Howl({src: starSoundFile4, volume: 0.3}),
+        new Howl({src: starSoundFile5, volume: 0.3}),
     ],
 
     timerSound: new Howl({src: timerSoundFile}),
