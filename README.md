@@ -1,6 +1,7 @@
 # CMPT 395 : EPL Memory Game
 
-The game can be played at https://macewancs.github.io/w19Lovelace/
+The game can be played at https://macewancs.github.io/w19Lovelace/  
+We highly suggest using chrome.
 
 ## How to Play
 
