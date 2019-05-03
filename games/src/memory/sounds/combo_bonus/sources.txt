@@ -1,0 +1,29 @@
+source?
+firetruck.wav
+
+should replace...
+chaching.ogg
+
+Obtained from freesound.org:
+defibrillator.mp3 - https://freesound.org/people/mariiao2/sounds/240678/
+
+Obtained from freesoundeffects.com:
+babygiggle.mp3 - https://www.freesoundeffects.com/free-track/baby-giggle-1-428509/
+License: Available at the link above.
+
+Obtained from opengameart.com:
+zombie.wav - https://opengameart.org/content/25-spooky-sound-effects
+License: Available at the link above.
+
+Obtained from youtube.com:
+policesiren.mp3 - https://www.youtube.com/watch?v=ZXNyQNGTPXY
+
+Obtained from zapsplat.com:
+foodsizzling.mp3 - https://www.zapsplat.com/music/bacon-frying/
+rocketlaunch.mp3 - https://www.zapsplat.com/music/cartoon-rocket-or-missile-launch/
+ufo.mp3 - https://www.zapsplat.com/music/spaceship-ufo-cartoon-like-pass-fast-2/
+vampirelaugh.mp3 -https://www.zapsplat.com/music/evil-laugh-male-horror-02/
+License: Available at the links above.
+
+wedding.wav - https://weddingmusicproject.bandcamp.com/track/bridal-chorus-pipe-organ-wagner-here-comes-the-bride
+3 second sample that was sped up a bit (fair use?)
